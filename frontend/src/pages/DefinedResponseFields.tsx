@@ -14,7 +14,7 @@ export default function StaticDocs() {
     const [fields, setFields] = useState<DefinedField[]>([]);
 
     useEffect(() => {
-        fetch(process.env.REACT_APP_APIURL+'/api/v2/defined-fields')
+        fetch(process.env.REACT_APP_APIURL+'api/v2/defined-fields')
             .then((response) => response.json())
             .then((data) => setFields(data))
             .catch((error) => console.error('Error fetching defined fields:', error));
