@@ -13,7 +13,7 @@ import javax.servlet.ServletContext;
 @Configuration
 public class SwaggerConfig {
 
-    private final String OLS4_SERVER_URL = "https://www.ebi.ac.uk/ols4";
+    private final String OLS4_SERVER_URL = "https://wwwdev.ebi.ac.uk/ols4";
 
     @Lazy
     @Bean
@@ -23,7 +23,7 @@ public class SwaggerConfig {
                 .addServersItem(new Server().url(serverUrl))
                 .info(new Info()
                         .title("OLS Service")
-                        .description("REST API for OLS. Please see <a href='/defined-response-fields' target='_blank'>this page</a> for defined response field in OLS.")
+                        .description("REST API for OLS. Please see <a href='"+OLS4_SERVER_URL+"/defined-response-fields' target='_blank' style='font-weight: bold; font-size: 16px;'>this page</a> for defined response field in OLS.")
                         .version("3.0")
                         .termsOfService("https://www.ebi.ac.uk/about/terms-of-use/")
                         .license(new License()
