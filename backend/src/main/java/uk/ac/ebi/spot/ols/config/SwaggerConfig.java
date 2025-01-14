@@ -23,7 +23,7 @@ public class SwaggerConfig {
                 .addServersItem(new Server().url(serverUrl))
                 .info(new Info()
                         .title("OLS Service")
-                        .description("REST API for OLS")
+                        .description("REST API for OLS. Please see <a href='/defined-response-fields' target='_blank'>this page</a> for defined response field in OLS.")
                         .version("3.0")
                         .termsOfService("https://www.ebi.ac.uk/about/terms-of-use/")
                         .license(new License()
