@@ -328,6 +328,17 @@ public class OntologyGraph implements StreamRDF {
                     }
 
                 }
+
+                if(configKey.equalsIgnoreCase("ontology_purl")) {
+                    // Config uses "ontology_purl" whereas rest of code base uses ONTOLOGY_PURL.getText().
+                    configKey = ONTOLOGY_PURL.getText();
+                }
+
+                if(configKey.equalsIgnoreCase("mailing_list")) {
+                    // Config uses "mailing_list" whereas rest of code base uses MAILING_LIST.getText().
+                    configKey = MAILING_LIST.getText();
+                }
+
                 // annotated as hasPreferredRoot by PreferredRootsAnnotator, no need to duplicate
                 if (configKey.equals("preferred_root_term"))
                     continue;
