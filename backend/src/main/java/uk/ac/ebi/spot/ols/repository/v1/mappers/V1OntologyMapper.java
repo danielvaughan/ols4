@@ -13,7 +13,7 @@ import uk.ac.ebi.ols.shared.DefinedFields;
 import java.util.Map;
 import java.util.Objects;
 
-import static uk.ac.ebi.ols.shared.DefinedFields.LANGUAGE;
+import static uk.ac.ebi.ols.shared.DefinedFields.*;
 
 public class V1OntologyMapper {
 
@@ -43,12 +43,12 @@ public class V1OntologyMapper {
         ontology.config.description = JsonHelper.getString(localizedJson, "description");
         ontology.config.homepage = JsonHelper.getString(localizedJson, "homepage");
         ontology.config.version = JsonHelper.getString(localizedJson, "version");
-        ontology.config.mailingList = JsonHelper.getString(localizedJson, "mailing_list");
+        ontology.config.mailingList = JsonHelper.getString(localizedJson, MAILING_LIST.getText());
         ontology.config.tracker = JsonHelper.getString(localizedJson, "tracker");
         ontology.config.logo = JsonHelper.getString(localizedJson, "logo");
         ontology.config.creators = JsonHelper.getStrings(localizedJson, "creators");
         ontology.config.annotations = gson.fromJson(localizedJson.get("annotations"), Map.class);
-        ontology.config.fileLocation = JsonHelper.getString(localizedJson, "ontology_purl");
+        ontology.config.fileLocation = JsonHelper.getString(localizedJson, ONTOLOGY_PURL.getText());
         ontology.config.oboSlims = localizedJson.has("oboSlims") && localizedJson.get("oboSlims").getAsBoolean();
 
         ontology.config.labelProperty = JsonHelper.getString(localizedJson, "label_property");

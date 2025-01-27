@@ -1,6 +1,14 @@
 {
   "ontologies": [
     {
+      "id": "evora",
+      "ontology_purl": "https://raw.githubusercontent.com/EVORA-project/evora-ontology/refs/heads/main/models/owl/evora_ontology.owl.ttl"
+    },
+    {
+      "id": "ictv",
+      "ontology_purl": "https://raw.githubusercontent.com/EVORA-project/ictv-ontology/refs/heads/main/out/ictv_2023.owl.ttl"
+    },
+    {
       "id": "uniprotrdfs",
       "ontology_purl": "https://ftp.uniprot.org/pub/databases/uniprot/current_release/rdf/core.owl"
     },

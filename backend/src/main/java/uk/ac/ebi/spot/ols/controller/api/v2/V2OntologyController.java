@@ -1,6 +1,8 @@
 package uk.ac.ebi.spot.ols.controller.api.v2;
 
 import com.google.gson.Gson;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,10 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import uk.ac.ebi.spot.ols.controller.api.v2.helpers.DynamicQueryHelper;
 import uk.ac.ebi.spot.ols.controller.api.v2.responses.V2PagedAndFacetedResponse;
 import uk.ac.ebi.spot.ols.model.v2.V2Entity;
@@ -28,7 +27,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Controller
+@Tag(name = "V2 Ontology Controller", description = "This endpoint provides access to ontology information.")
+@RestController
 @RequestMapping("/api/v2/ontologies")
 public class V2OntologyController {
 
@@ -43,12 +43,34 @@ public class V2OntologyController {
     public HttpEntity<V2PagedAndFacetedResponse<V2Entity>> getOntologies(
             @PageableDefault(size = 20, page = 0) Pageable pageable,
             @RequestParam(value = "lang", required = false, defaultValue = "en") String lang,
-            @RequestParam(value = "search", required = false) String search,
-            @RequestParam(value = "searchFields", required = false) String searchFields,
-            @RequestParam(value = "boostFields", required = false) String boostFields,
-            @RequestParam(value = "exactMatch", required = false, defaultValue = "false") boolean exactMatch,
-            @RequestParam(value = "includeObsoleteEntities", required = false, defaultValue = "false") boolean includeObsoleteEntities,
-            @RequestParam Map<String, Collection<String>> searchProperties
+            @RequestParam(value = "search", required = false)
+            @Parameter(name="search",
+                    description = "This parameter specify the search query text.",
+                    example = "liver disease") String search,
+            @RequestParam(value = "searchFields", required = false)
+            @Parameter(name = "searchFields",
+                    description = "This parameter is a white space separated list of fields to search in. " +
+                            "The fields are weighted equally. The fields are defined in the schema. " +
+                            "The default fields are label and definition. " +
+                            "The fields weights can be boosted by appending a caret ^ and a positive integer to the field name. " +
+                            "For example, label^3 synonyms^2 description^1 logical_definition^1",
+                    example = "label^100 description") String searchFields,
+            @RequestParam(value = "boostFields", required = false)
+            @Parameter(name = "boostFields",
+                    description = "This parameter is a white space separated list of fields appended with a caret to boost in search. " +
+                            "The default fields are type, is_defining_ontology, label, curie, shortForm and synonym . " +
+                            "The fields weights can be boosted by appending a caret ^ and a positive integer to the field name. ",
+                    example = "label^100 curie^50") String boostFields,
+            @RequestParam(value = "exactMatch", required = false, defaultValue = "false")
+            @Parameter(name = "exactMatch",
+                    description = "As the name suggests its a boolean parameter to specify if search should be exact match or not." +
+                            "The default value is false") boolean exactMatch,
+            @RequestParam(value = "includeObsoleteEntities", required = false, defaultValue = "false")
+            @Parameter(name = "includeObsoleteEntities",
+                    description = "A boolean parameter to specify if obsolete entities should be included or not. Default value is false.") boolean includeObsoleteEntities,
+            @RequestParam
+            @Parameter(name="searchProperties",
+                    description = "Specify any other search field here which are not specified by searchFields or boostFields.") Map<String, Collection<String>> searchProperties
     ) throws ResourceNotFoundException, IOException {
 
         Map<String,Collection<String>> properties = new HashMap<>();
@@ -65,7 +87,10 @@ public class V2OntologyController {
 
     @RequestMapping(path = "/{onto}", produces = {MediaType.APPLICATION_JSON_VALUE }, method = RequestMethod.GET)
     public HttpEntity<V2Entity> getOntology(
-            @PathVariable("onto") String ontologyId,
+            @PathVariable("onto")
+            @Parameter(name = "onto",
+                    description = "Ontology Id to get the information about.",
+                    example = "efo") String ontologyId,
             @RequestParam(value = "lang", required = false, defaultValue = "en") String lang
     ) throws ResourceNotFoundException {
         logger.trace("ontologyId = {}, lang = {}", ontologyId, lang);
