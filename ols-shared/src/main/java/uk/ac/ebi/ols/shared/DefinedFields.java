@@ -37,9 +37,11 @@ public enum DefinedFields {
             "Set to true if this entity is a preferred root or not.", "boolean"),
     LABEL("label", "", "The name or names of this entity.", "string"),
     LANGUAGE("language", "", "The language or languages this ontology is available in.", "array"),
+    MAILING_LIST("mailingList", "", "The mailing list for the ontology.", "string"),
     NUM_DESCENDANTS ("numDescendants", "", "Number of descendants of this entity.", "integer"),
     NUM_HIERARCHICAL_DESCENDANTS ("numHierarchicalDescendants", "",
             "Number of hierarchical descendants of this entity.", "integer"),
+    ONTOLOGY_PURL("ontologyPurl", "", "The URL of the ontology to download the ontology file.", "string"),
     PREFERRED_ROOT("preferredRoot", "",
             "A list of entities that serve as roots for this ontology.", "array"),
     RELATED_FROM("relatedFrom","", "The list of classes in which this class is used as part of its definition. " +
@@ -49,9 +51,7 @@ public enum DefinedFields {
             " in defining this class. It only considers classes in the filler position, not classes expressions in the filler position." +
             "I.e. 'liver disease' (EFO:0001421) has a relatedTo relation with 'liver' (UBERON:0002107) because " +
             "'liver disease' is a subclass of 'has_disease_location some liver'.", "array"),
-    SYNONYM("synonym", "", "The list of names that are synonyms of this entity.", "array"),
-    MAILING_LIST("mailingList", "", "The mailing list for the ontology.", "string"),
-    ONTOLOGY_PURL("ontologyPurl", "", "The URL of the ontology to download the ontology file.", "string");
+    SYNONYM("synonym", "", "The list of names that are synonyms of this entity.", "array");
 
     private final String text;
     private final String ols3Text;
