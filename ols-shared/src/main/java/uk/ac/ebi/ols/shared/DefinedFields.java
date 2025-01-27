@@ -49,7 +49,9 @@ public enum DefinedFields {
             " in defining this class. It only considers classes in the filler position, not classes expressions in the filler position." +
             "I.e. 'liver disease' (EFO:0001421) has a relatedTo relation with 'liver' (UBERON:0002107) because " +
             "'liver disease' is a subclass of 'has_disease_location some liver'.", "array"),
-    SYNONYM("synonym", "", "The list of names that are synonyms of this entity.", "array"),;
+    SYNONYM("synonym", "", "The list of names that are synonyms of this entity.", "array"),
+    MAILING_LIST("mailingList", "", "The mailing list for the ontology.", "string"),
+    ONTOLOGY_PURL("ontologyPurl", "", "The URL of the ontology to download the ontology file.", "string");
 
     private final String text;
     private final String ols3Text;
