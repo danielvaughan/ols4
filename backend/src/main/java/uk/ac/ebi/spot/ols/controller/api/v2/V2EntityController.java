@@ -38,7 +38,10 @@ public class V2EntityController {
 
     @RequestMapping(path = "/entities", produces = {MediaType.APPLICATION_JSON_VALUE}, method = RequestMethod.GET)
     public HttpEntity<V2PagedAndFacetedResponse<V2Entity>> getEntities(
-            @PageableDefault(size = 20, page = 0) Pageable pageable,
+            @PageableDefault(size = 20, page = 0)
+            @Parameter(name = "pageable",
+                    description = "Specify the size of the result you want to get in the output",
+                    example = "{\"page\": 0,\"size\": 20}") Pageable pageable,
             @RequestParam(value = "lang", required = false, defaultValue = "en") String lang,
             @RequestParam(value = "search", required = false)
             @Parameter(name="search",
@@ -70,7 +73,8 @@ public class V2EntityController {
                     description = "A boolean parameter to specify if obsolete entities should be included or not. Default value is false.") boolean includeObsoleteEntities,
             @RequestParam
             @Parameter(name="searchProperties",
-                    description = "Specify any other search field here which are not specified by searchFields or boostFields.") MultiValueMap<String,String> searchProperties
+                    description = "Specify any other search field here which are not specified by searchFields or boostFields.",
+                    example = "{}") MultiValueMap<String,String> searchProperties
     ) throws ResourceNotFoundException, IOException {
 
         Map<String,Collection<String>> properties = new HashMap<>();
@@ -87,7 +91,10 @@ public class V2EntityController {
 
     @RequestMapping(path = "/ontologies/{onto}/entities", produces = {MediaType.APPLICATION_JSON_VALUE}, method = RequestMethod.GET)
     public HttpEntity<V2PagedAndFacetedResponse<V2Entity>> getTerms(
-            @PageableDefault(size = 20, page = 0) Pageable pageable,
+            @PageableDefault(size = 20, page = 0)
+            @Parameter(name = "pageable",
+                    description = "Specify the size of the result you want to get in the output",
+                    example = "{\"page\": 0,\"size\": 20}") Pageable pageable,
             @PathVariable("onto") @NotNull
             @Parameter(name = "onto",
                     description = "Ontology Id to get the information about.",
@@ -123,7 +130,8 @@ public class V2EntityController {
                     description = "A boolean parameter to specify if obsolete entities should be included or not. Default value is false.") boolean includeObsoleteEntities,
             @RequestParam
             @Parameter(name="searchProperties",
-                    description = "Specify any other search field here which are not specified by searchFields or boostFields.") MultiValueMap<String,String> searchProperties
+                    description = "Specify any other search field here which are not specified by searchFields or boostFields.",
+                    example = "{}") MultiValueMap<String,String> searchProperties
     ) throws ResourceNotFoundException, IOException {
 
         Map<String,Collection<String>> properties = new HashMap<>();
