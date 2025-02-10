@@ -39,12 +39,15 @@ public class V2PropertyController {
 
     @RequestMapping(path = "/properties", produces = {MediaType.APPLICATION_JSON_VALUE }, method = RequestMethod.GET)
     public HttpEntity<V2PagedAndFacetedResponse<V2Entity>> getProperties(
-            @PageableDefault(size = 20, page = 0) Pageable pageable,
+            @PageableDefault(size = 20, page = 0)
+            @Parameter(name = "pageable",
+                    description = "Specify the size of the result you want to get in the output",
+                    example = "{\"page\": 0,\"size\": 20}") Pageable pageable,
             @RequestParam(value = "lang", required = false, defaultValue = "en") String lang,
             @RequestParam(value = "search", required = false)
             @Parameter(name="search",
                     description = "This parameter specify the search query text.",
-                    example = "liver disease") String search,
+                    example = "definition") String search,
             @RequestParam(value = "searchFields", required = false)
             @Parameter(name = "searchFields",
                     description = "This parameter is a white space separated list of fields to search in. " +
@@ -67,7 +70,9 @@ public class V2PropertyController {
             @Parameter(name = "includeObsoleteEntities",
                     description = "A boolean parameter to specify if obsolete entities should be included or not. Default value is false.") boolean includeObsoleteEntities,
             @RequestParam
-            @Parameter(name="searchProperties", description = "Specify any other search field here which are not specified by searchFields or boostFields.") Map<String, Collection<String>> searchProperties
+            @Parameter(name="searchProperties",
+                    description = "Specify any other search field here which are not specified by searchFields or boostFields.",
+                    example = "{}") Map<String, Collection<String>> searchProperties
     ) throws ResourceNotFoundException, IOException {
 
         Map<String,Collection<String>> properties = new HashMap<>();
@@ -84,7 +89,10 @@ public class V2PropertyController {
 
     @RequestMapping(path = "/ontologies/{onto}/properties", produces = {MediaType.APPLICATION_JSON_VALUE }, method = RequestMethod.GET)
     public HttpEntity<V2PagedAndFacetedResponse<V2Entity>> getProperties(
-            @PageableDefault(size = 20, page = 0) Pageable pageable,
+            @PageableDefault(size = 20, page = 0)
+            @Parameter(name = "pageable",
+                    description = "Specify the size of the result you want to get in the output",
+                    example = "{\"page\": 0,\"size\": 20}") Pageable pageable,
             @PathVariable("onto") @NotNull
             @Parameter(name = "onto",
                     description = "Ontology Id to search properties in.",
@@ -93,21 +101,19 @@ public class V2PropertyController {
             @RequestParam(value = "search", required = false)
             @Parameter(name="search",
                     description = "This parameter specify the search query text.",
-                    example = "liver disease") String search,
+                    example = "definition") String search,
             @RequestParam(value = "searchFields", required = false)
             @Parameter(name = "search fields",
                     description = "This parameter is a white space separated list of fields to search in. " +
                             "The fields are weighted equally. The fields are defined in the schema. " +
                             "The default fields are label and definition. " +
                             "The fields weights can be boosted by appending a caret ^ and a positive integer to the field name. " +
-                            "For example, label^3 synonyms^2 description^1 logical_definition^1",
-                    example = "label^100 description") String searchFields,
+                            "For example, label^3 synonyms^2 description^1 logical_definition^1") String searchFields,
             @RequestParam(value = "boostFields", required = false)
             @Parameter(name = "boost fields",
                     description = "This parameter is a white space separated list of fields appended with a caret to boost in search. " +
                             "The default fields are type, is_defining_ontology, label, curie, shortForm and synonym . " +
-                            "The fields weights can be boosted by appending a caret ^ and a positive integer to the field name. ",
-                    example = "label^100 curie^50") String boostFields,
+                            "The fields weights can be boosted by appending a caret ^ and a positive integer to the field name. ") String boostFields,
             @RequestParam(value = "exactMatch", required = false, defaultValue = "false")
             @Parameter(name = "exactMatch",
                     description = "As the name suggests its a boolean parameter to specify if search should be exact match or not." +
@@ -116,7 +122,9 @@ public class V2PropertyController {
             @Parameter(name = "includeObsoleteEntities",
                     description = "A boolean parameter to specify if obsolete entities should be included or not. Default value is false.") boolean includeObsoleteEntities,
             @RequestParam
-            @Parameter(name="search properties", description = "Specify any other search field here which are not specified by searchFields or boostFields.") MultiValueMap<String,String> searchProperties
+            @Parameter(name="searchProperties",
+                    description = "Specify any other search field here which are not specified by searchFields or boostFields.",
+                    example = "{}") MultiValueMap<String,String> searchProperties
     ) throws ResourceNotFoundException, IOException {
 
         Map<String,Collection<String>> properties = new HashMap<>();
@@ -153,7 +161,10 @@ public class V2PropertyController {
 
     @RequestMapping(path = "/ontologies/{onto}/properties/{property}/children", produces = {MediaType.APPLICATION_JSON_VALUE }, method = RequestMethod.GET)
     public HttpEntity<V2PagedResponse<V2Entity>> getChildrenByOntology(
-            @PageableDefault(size = 20, page = 0) Pageable pageable,
+            @PageableDefault(size = 20, page = 0)
+            @Parameter(name = "pageable",
+                    description = "Specify the size of the result you want to get in the output",
+                    example = "{\"page\": 0,\"size\": 20}") Pageable pageable,
             @PathVariable("onto")
             @Parameter(name = "onto",
                     description = "Ontology Id to search properties in.",
@@ -161,7 +172,7 @@ public class V2PropertyController {
             @PathVariable("property")
             @Parameter(name = "property",
                     description = "The IRI of the property, this value must be double URL encoded",
-                    example = "http%3A%2F%2Fwww.ebi.ac.uk%2Fefo%2FEFO_0000742") String iri,
+                    example = "http%3A%2F%2Fwww.ebi.ac.uk%2Fefo%2FEFO_0000824") String iri,
             @RequestParam(value = "lang", required = false, defaultValue = "en") String lang
     ) throws ResourceNotFoundException {
 
@@ -176,7 +187,10 @@ public class V2PropertyController {
 
     @RequestMapping(path = "/ontologies/{onto}/properties/{property}/ancestors", produces = {MediaType.APPLICATION_JSON_VALUE }, method = RequestMethod.GET)
     public HttpEntity<V2PagedResponse<V2Entity>> getAncestorsByOntology(
-            @PageableDefault(size = 20, page = 0) Pageable pageable,
+            @PageableDefault(size = 20, page = 0)
+            @Parameter(name = "pageable",
+                    description = "Specify the size of the result you want to get in the output",
+                    example = "{\"page\": 0,\"size\": 20}") Pageable pageable,
             @PathVariable("onto")
             @Parameter(name = "onto",
                     description = "Ontology Id to search properties in.",

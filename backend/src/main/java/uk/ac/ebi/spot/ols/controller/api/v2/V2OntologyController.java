@@ -41,20 +41,23 @@ public class V2OntologyController {
 
     @RequestMapping(path = "", produces = {MediaType.APPLICATION_JSON_VALUE }, method = RequestMethod.GET)
     public HttpEntity<V2PagedAndFacetedResponse<V2Entity>> getOntologies(
-            @PageableDefault(size = 20, page = 0) Pageable pageable,
+            @PageableDefault(size = 20, page = 0)
+            @Parameter(name = "pageable",
+                    description = "Specify the size of the result you want to get in the output",
+                    example = "{\"page\": 0,\"size\": 20}") Pageable pageable,
             @RequestParam(value = "lang", required = false, defaultValue = "en") String lang,
             @RequestParam(value = "search", required = false)
             @Parameter(name="search",
                     description = "This parameter specify the search query text.",
-                    example = "liver disease") String search,
+                    example = "efo") String search,
             @RequestParam(value = "searchFields", required = false)
             @Parameter(name = "searchFields",
                     description = "This parameter is a white space separated list of fields to search in. " +
                             "The fields are weighted equally. The fields are defined in the schema. " +
-                            "The default fields are label and definition. " +
+                            "The default fields are label, ontologyId and definition. " +
                             "The fields weights can be boosted by appending a caret ^ and a positive integer to the field name. " +
                             "For example, label^3 synonyms^2 description^1 logical_definition^1",
-                    example = "label^100 description") String searchFields,
+                    example = "ontologyId") String searchFields,
             @RequestParam(value = "boostFields", required = false)
             @Parameter(name = "boostFields",
                     description = "This parameter is a white space separated list of fields appended with a caret to boost in search. " +
@@ -70,7 +73,8 @@ public class V2OntologyController {
                     description = "A boolean parameter to specify if obsolete entities should be included or not. Default value is false.") boolean includeObsoleteEntities,
             @RequestParam
             @Parameter(name="searchProperties",
-                    description = "Specify any other search field here which are not specified by searchFields or boostFields.") Map<String, Collection<String>> searchProperties
+                    description = "Specify any other search field here which are not specified by searchFields or boostFields.",
+                    example = "{}") Map<String, Collection<String>> searchProperties
     ) throws ResourceNotFoundException, IOException {
 
         Map<String,Collection<String>> properties = new HashMap<>();
