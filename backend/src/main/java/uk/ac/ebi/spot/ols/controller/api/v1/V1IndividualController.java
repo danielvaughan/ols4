@@ -120,13 +120,16 @@ public class V1IndividualController implements
     HttpEntity<PagedModel<V1Individual>> getAllIndividualsByIdAndIsDefiningOntology(
             @RequestParam(value = "iri", required = false)
             @Parameter(name = "iri",
-                    description = "The IRI of the individual, this value must be double URL encoded") String iri,
+                    description = "The IRI of the individual, this value must be double URL encoded",
+                    example = "http://purl.obolibrary.org/obo/OHD_0000363") String iri,
             @RequestParam(value = "short_form", required = false)
             @Parameter(name = "short_form",
-                    description = "This refers to the short form of the individual.") String shortForm,
+                    description = "This refers to the short form of the individual.",
+                    example = "OHD_0000363") String shortForm,
             @RequestParam(value = "obo_id", required = false)
             @Parameter(name = "obo_id",
-                    description = "This refers to the OBO ID of the individual.") String oboId,
+                    description = "This refers to the OBO ID of the individual.",
+                    example = "OHD:0000363") String oboId,
             @RequestParam(value = "lang", required = false, defaultValue = "en") String lang,
             @Parameter(hidden = true) Pageable pageable,
             @Parameter(hidden = true) PagedResourcesAssembler assembler) {
