@@ -118,13 +118,16 @@ public class V1PropertyController implements
     HttpEntity<PagedModel<V1Property>> getPropertiesByIdAndIsDefiningOntology(
             @RequestParam(value = "iri", required = false)
             @Parameter(name = "iri",
-                    description = "The IRI of the property, this value must be double URL encoded") String iri,
+                    description = "The IRI of the property.",
+                    example = "http://purl.obolibrary.org/obo/GALLONT_0000000") String iri,
             @RequestParam(value = "short_form", required = false)
             @Parameter(name = "short_form",
-                    description = "This refers to the short form of the property.") String shortForm,
+                    description = "This refers to the short form of the property.",
+                    example = "GALLONT_0000000") String shortForm,
             @RequestParam(value = "obo_id", required = false)
             @Parameter(name = "obo_id",
-                    description = "This refers to the OBO ID of the property.") String oboId,
+                    description = "This refers to the OBO ID of the property.",
+                    example = "GALLONT:0000000") String oboId,
             @RequestParam(value = "lang", required = false, defaultValue = "en") String lang,
             @Parameter(hidden = true) Pageable pageable,
             @Parameter(hidden = true) PagedResourcesAssembler assembler) {
