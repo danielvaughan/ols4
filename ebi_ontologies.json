@@ -19,8 +19,9 @@
       "preferredPrefix": "DMBA",
       "title": "Developing Mouse Brain Atlas Ontology",
       "uri": "https://purl.brain-bican.org/ontology/dmbao/dmbao.owl",
-      "description": "An application ontology built by combining ontologised versions of the Allen Institute Human Brain Atlas (HBA) StructureGraph mapped to Uberon.",
+      "description": "An application ontology built by combining ontologised versions of the Allen Institute Developing Mouse Brain Atlas (DMBA) StructureGraph mapped to Uberon.",
       "homepage": "https://purl.brain-bican.org/ontology/dmbao",
+      "mailing_list": "cellsemantics@gmail.com",
       "label_property": [
         "rdfs:label",
         "IAO:0000589",
@@ -47,8 +48,9 @@
       "preferredPrefix": "MBA",
       "title": "Mouse Brain Atlas Ontology",
       "uri": "https://purl.brain-bican.org/ontology/mbao/mbao.owl",
-      "description": "An application ontology built by combining ontologised versions of the Allen Institute Human Brain Atlas (HBA) StructureGraph mapped to Uberon.",
+      "description": "An application ontology built by combining ontologised versions of the Allen Institute Mouse Brain Atlas (MBA) StructureGraph mapped to Uberon.",
       "homepage": "https://purl.brain-bican.org/ontology/mbao",
+      "mailing_list": "cellsemantics@gmail.com",
       "label_property": [
         "rdfs:label",
         "IAO:0000589",
