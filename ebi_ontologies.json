@@ -13,6 +13,62 @@
       "ontology_purl": "https://ftp.uniprot.org/pub/databases/uniprot/current_release/rdf/core.owl"
     },
     {
+      "id": "dmba",
+      "creator": ["David Osumi-Sutherland", "Huseyin Kir"],
+      "is_foundary": false,
+      "preferredPrefix": "DMBA",
+      "title": "Developing Mouse Brain Atlas Ontology",
+      "uri": "https://purl.brain-bican.org/ontology/dmbao/dmbao.owl",
+      "description": "An application ontology built by combining ontologised versions of the Allen Institute Human Brain Atlas (HBA) StructureGraph mapped to Uberon.",
+      "homepage": "https://purl.brain-bican.org/ontology/dmbao",
+      "label_property": [
+        "rdfs:label",
+        "IAO:0000589",
+        "http://www.w3.org/2004/02/skos/core#prefLabel"
+      ],
+      "definition_property": [
+        "http://purl.obolibrary.org/obo/IAO_0000115"
+      ],
+      "synonym_property": [
+        "http://www.geneontology.org/formats/oboInOwl#hasExactSynonym"
+      ],
+      "hierarchical_property": [
+        "http://purl.obolibrary.org/obo/BFO_0000050"
+      ],
+      "base_uri": "https://purl.brain-bican.org/ontology/dmbao/DMBA_",
+      "reasoner": "OWL2",
+      "oboSlims": false,
+      "ontology_purl": "https://purl.brain-bican.org/ontology/dmbao/dmbao.owl"
+    },
+    {
+      "id": "mba",
+      "creator": ["David Osumi-Sutherland", "Huseyin Kir"],
+      "is_foundary": false,
+      "preferredPrefix": "MBA",
+      "title": "Mouse Brain Atlas Ontology",
+      "uri": "https://purl.brain-bican.org/ontology/mbao/mbao.owl",
+      "description": "An application ontology built by combining ontologised versions of the Allen Institute Human Brain Atlas (HBA) StructureGraph mapped to Uberon.",
+      "homepage": "https://purl.brain-bican.org/ontology/mbao",
+      "label_property": [
+        "rdfs:label",
+        "IAO:0000589",
+        "http://www.w3.org/2004/02/skos/core#prefLabel"
+      ],
+      "definition_property": [
+        "http://purl.obolibrary.org/obo/IAO_0000115"
+      ],
+      "synonym_property": [
+        "http://www.geneontology.org/formats/oboInOwl#hasExactSynonym"
+      ],
+      "hierarchical_property": [
+        "http://purl.obolibrary.org/obo/BFO_0000050"
+      ],
+      "base_uri": "https://purl.brain-bican.org/ontology/mbao/MBA_",
+      "reasoner": "OWL2",
+      "oboSlims": false,
+      "ontology_purl": "https://purl.brain-bican.org/ontology/mbao/mbao.owl"
+    },
+    {
       "id": "emi",
       "creator": [
         "Tarcisio Mendes de Farias",
