@@ -489,6 +489,7 @@ public class OntologyGraph implements StreamRDF {
 
 
     public void writePropertyValue(JsonWriter writer, PropertyValue value, Set<String> types) throws Throwable {
+        if(value == null) { return; }
         if (value.axioms.size() > 0) {
             // reified
             writer.beginObject();
