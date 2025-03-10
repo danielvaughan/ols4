@@ -1,7 +1,7 @@
 {
   "ontologies": [
     {
-      "id": "evora",
+      "id": "evorao",
       "ontology_purl": "https://raw.githubusercontent.com/EVORA-project/evora-ontology/refs/heads/main/models/owl/evora_ontology.owl.ttl"
     },
     {
