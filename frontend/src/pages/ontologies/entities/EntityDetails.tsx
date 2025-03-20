@@ -19,11 +19,11 @@ export default function EntityDetails({ ontologyId, entityIri, entityType }) {
                 const doubleEncodedIri = encodeURIComponent(encodeURIComponent(entityIri));
                 let fetchUrl = ''
                 if(entityType === 'classes'){
-                    fetchUrl = `/api/ontologies/${ontologyId}/terms/${doubleEncodedIri}`;
+                    fetchUrl = `${process.env.REACT_APP_APIURL}api/ontologies/${ontologyId}/terms/${doubleEncodedIri}`;
                 } else if (entityType === 'individuals'){
-                    fetchUrl = `/api/ontologies/${ontologyId}/individuals/${doubleEncodedIri}`;
+                    fetchUrl = `${process.env.REACT_APP_APIURL}api/ontologies/${ontologyId}/individuals/${doubleEncodedIri}`;
                 } else if (entityType === 'properties'){
-                    fetchUrl = `/api/ontologies/${ontologyId}/properties/${doubleEncodedIri}`;
+                    fetchUrl = `${process.env.REACT_APP_APIURL}api/ontologies/${ontologyId}/properties/${doubleEncodedIri}`;
                 } else {
                     throw new Error(`Invalid entity type: ${entityType}`);
                 }
