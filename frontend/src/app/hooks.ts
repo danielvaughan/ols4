@@ -42,13 +42,7 @@ export function useOntologyGraph(ontologyId: string, iri: string | undefined) {
 
             try {
                 const apiUrl = `${process.env.REACT_APP_APIURL}api/ontologies/${ontologyId}/terms/${encodeURIComponent(encodeURIComponent(iri))}/graph`;
-                const response = await fetch(apiUrl, {
-                    method: 'GET',
-                    credentials: 'include',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                });
+                const response = await fetch(apiUrl);
 
                 if (!response.ok) {
                     throw new Error(`HTTP error ${response.status}`);
