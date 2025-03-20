@@ -1,0 +1,141 @@
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+
+export default function EntityDetails({ ontologyId, entityIri, entityType }) {
+    const [entityDetails, setEntityDetails] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const fetchEntityDetails = async () => {
+            if (!entityIri || !ontologyId) return;
+
+            setLoading(true);
+            setError(null);
+
+            try {
+                // Double encode the IRI as required by the API
+                const doubleEncodedIri = encodeURIComponent(encodeURIComponent(entityIri));
+                let fetchUrl = ''
+                if(entityType === 'classes'){
+                    fetchUrl = `/api/ontologies/${ontologyId}/terms/${doubleEncodedIri}`;
+                } else if (entityType === 'individuals'){
+                    fetchUrl = `/api/ontologies/${ontologyId}/individuals/${doubleEncodedIri}`;
+                } else if (entityType === 'properties'){
+                    fetchUrl = `/api/ontologies/${ontologyId}/properties/${doubleEncodedIri}`;
+                } else {
+                    throw new Error(`Invalid entity type: ${entityType}`);
+                }
+
+                const response = await fetch(fetchUrl);
+
+                if (!response.ok) {
+                    throw new Error(`Error fetching entity details: ${response.status}`);
+                }
+
+                const data = await response.json();
+                setEntityDetails(data);
+            } catch (err) {
+                console.error("Failed to fetch entity details:", err);
+                setError(err.message || "Failed to fetch entity details");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchEntityDetails();
+    }, [ontologyId, entityIri]);
+
+    const handleNavigateToEntity = () => {
+        if (!entityDetails) return;
+
+        // Navigate to the entity page
+        navigate(`/ontologies/${ontologyId}/entities/${encodeURIComponent(encodeURIComponent(entityIri))}`);
+    };
+
+    if (loading) {
+        return (
+            <div className="p-4 border rounded-md bg-gray-50 animate-pulse">
+                <div className="h-6 bg-gray-200 rounded w-1/3 mb-4"></div>
+                <div className="h-4 bg-gray-200 rounded w-full mb-2"></div>
+                <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="p-4 border border-red-300 rounded-md bg-red-50 text-red-700">
+                <h3 className="font-semibold mb-1">Error loading entity details</h3>
+                <p className="text-sm">{error}</p>
+            </div>
+        );
+    }
+
+    if (!entityDetails) {
+        return (
+            <div className="p-4 border rounded-md bg-gray-50">
+                <p className="text-gray-500 italic">Select an entity to view details</p>
+            </div>
+        );
+    }
+
+    // Extract the required information
+    const {
+        label,
+        description = [],
+        synonyms = [],
+        short_form,
+        iri
+    } = entityDetails;
+
+    // Format description array into a string
+    const formattedDescription = Array.isArray(description)
+        ? description.join(' ')
+        : description || "No description available";
+
+    return (
+        <div className="p-4 border rounded-md bg-white">
+            <h2 className="text-xl font-semibold mb-4">{label}</h2>
+
+            <div className="mb-4">
+                <h3 className="font-semibold mb-1">Description:</h3>
+                <p className="text-gray-700">{formattedDescription}</p>
+            </div>
+
+            {synonyms && synonyms.length > 0 && (
+                <div className="mb-4">
+                    <h3 className="font-semibold mb-1">Synonyms:</h3>
+                    <div className="flex flex-wrap gap-1">
+                        {synonyms.map((synonym, index) => (
+                            <span
+                                key={index}
+                                className="inline-block bg-blue-100 text-blue-800 px-2 py-1 rounded-md text-sm"
+                            >
+                {synonym}
+              </span>
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            <div className="mt-3 pt-3 border-t border-gray-200">
+                <p className="text-gray-600 mb-3">
+                    <span className="font-semibold">Short ID:</span> {short_form}
+                    {' '}
+                    <span className="text-gray-500">
+            (IRI: <span className="font-mono text-xs">{iri}</span>)
+          </span>
+                </p>
+
+                <button
+                    onClick={handleNavigateToEntity}
+                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors"
+                >
+                    Find this term in OLS
+                </button>
+            </div>
+        </div>
+    );
+}
