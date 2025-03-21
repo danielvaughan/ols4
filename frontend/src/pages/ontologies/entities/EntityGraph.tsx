@@ -47,12 +47,38 @@ export default function EntityGraph({
     };
   }, []);
 
-  // Generate colors for relationships
+  // Generate distinct colors for relationships
   const generateColor = (index, total) => {
-    const hue = (index * 137.5) % 360;
-    const saturation = 65 + (index % 3) * 10;
-    const lightness = 45 + (index % 2) * 10;
-    return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+    // Use a high-contrast color palette with clearly distinguishable colors
+    const distinctColors = [
+      '#e41a1c', // red
+      '#377eb8', // blue
+      '#4daf4a', // green
+      '#984ea3', // purple
+      '#ff7f00', // orange
+      '#ffff33', // yellow
+      '#a65628', // brown
+      '#f781bf', // pink
+      '#1b9e77', // teal
+      '#d95f02', // rust
+      '#7570b3', // slate blue
+      '#e7298a', // magenta
+      '#66a61e', // lime green
+      '#e6ab02', // amber
+      '#a6761d', // dark tan
+      '#666666'  // dark gray
+    ];
+
+    // For more than 16 relationships, generate additional colors with HSL spread
+    if (index < distinctColors.length) {
+      return distinctColors[index];
+    } else {
+      // For additional colors, use HSL with maximum separation
+      const hue = (index * 137.5) % 360; // golden ratio to spread hues evenly
+      const saturation = 75 + (index % 3) * 5; // high saturation for distinctiveness
+      const lightness = 45 + (index % 4) * 5; // mid-range lightness for visibility
+      return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+    }
   };
 
   // Toggle single relationship visibility
@@ -492,11 +518,11 @@ export default function EntityGraph({
         {/* Relationship filters */}
         {graphData.nodes.length > 0 && (
             <div className="mb-2 p-3 border rounded-md bg-gray-50">
-              <div className="flex justify-between items-center mb-2">
+              <div className="flex justify-between items-center mb-3 pb-2 border-b border-gray-200">
                 <h3 className="font-semibold text-sm">Relationship Types:</h3>
-                <div className="flex gap-2">
+                <div className="flex gap-3">
                   <button
-                      className="text-xs text-blue-600 hover:text-blue-800"
+                      className="text-xs text-blue-600 hover:text-blue-800 font-medium"
                       onClick={() => {
                         toggleAllRelationships(true);
                       }}
@@ -505,7 +531,7 @@ export default function EntityGraph({
                   </button>
                   <span className="text-gray-400">|</span>
                   <button
-                      className="text-xs text-blue-600 hover:text-blue-800"
+                      className="text-xs text-blue-600 hover:text-blue-800 font-medium"
                       onClick={() => {
                         toggleAllRelationships(false);
                         // Apply special zoom handling for "hide all" case
@@ -516,7 +542,7 @@ export default function EntityGraph({
                   </button>
                 </div>
               </div>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 text-sm">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 text-sm">
                 {Object.entries(relationshipTypes).map(([type, { color, count, visible }]) => (
                     <div key={type} className="flex items-center">
                       <label className="flex items-center cursor-pointer">
@@ -526,8 +552,14 @@ export default function EntityGraph({
                             onChange={() => toggleRelationship(type)}
                             className="mr-1 h-4 w-4"
                         />
-                        <div className="w-6 h-2 mx-1" style={{ backgroundColor: color }}></div>
-                        <span>{type}</span>
+                        <div
+                            className="w-6 h-3 mx-1"
+                            style={{
+                              backgroundColor: color,
+                              border: "1px solid rgba(0,0,0,0.2)"  // Add border for better visibility
+                            }}
+                        ></div>
+                        <span className="text-sm font-medium">{type}</span>
                         <span className="text-xs text-gray-500 ml-1">({count})</span>
                       </label>
                     </div>
