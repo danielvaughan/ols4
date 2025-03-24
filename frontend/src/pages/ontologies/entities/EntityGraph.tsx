@@ -145,15 +145,57 @@ export default function EntityGraph({
       originalNode: node
     }));
 
-    // Create links with relationship colors
-    const links = rawData.edges.map(edge => {
+    // Track multiple edges between the same node pairs
+    const edgeCounts = {};
+
+    // First pass: count how many edges exist between each node pair
+    rawData.edges.forEach(edge => {
+      const nodeKey = `${edge.source}|${edge.target}`;
+      const reverseKey = `${edge.target}|${edge.source}`;
+
+      if (!edgeCounts[nodeKey]) {
+        edgeCounts[nodeKey] = 1;
+      } else {
+        edgeCounts[nodeKey]++;
+      }
+
+      // Also count reverse edges for bidirectional tracking
+      if (!edgeCounts[reverseKey]) {
+        edgeCounts[reverseKey] = 0;
+      }
+    });
+
+    // Create links with relationship colors and curvature
+    const links = rawData.edges.map((edge, index) => {
       const type = edge.label || 'unlabeled';
+      const nodeKey = `${edge.source}|${edge.target}`;
+      const totalEdges = edgeCounts[nodeKey];
+
+      // Calculate curvature based on number of edges and edge index
+      let curvature = 0;
+      if (totalEdges > 1) {
+        // For multiple edges, calculate curvature to space them out
+        const edgeIndex = rawData.edges.findIndex(e =>
+            e.source === edge.source &&
+            e.target === edge.target &&
+            e.label === edge.label
+        );
+
+        // Spacing between multiple edges
+        const curveStep = 0.2;
+        const initialCurve = 0.15;
+
+        // Calculate different curvature for each edge
+        curvature = initialCurve + (edgeIndex % totalEdges) * curveStep;
+      }
+
       return {
         source: edge.source,
         target: edge.target,
         label: type,
         color: relationTypes[type]?.color || '#aaaaaa',
-        visible: relationTypes[type]?.visible ?? true
+        visible: relationTypes[type]?.visible ?? false,
+        curvature: curvature
       };
     });
 
@@ -237,8 +279,22 @@ export default function EntityGraph({
       }
     }
 
+    // Apply opacity to color if it's a hex color
+    let finalNodeColor = nodeColor;
+    let opacity = isHovered ? 1 : 0.9;
+
+    if (nodeColor.startsWith('#')) {
+      const rgbMatch = nodeColor.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i);
+      if (rgbMatch) {
+        const r = parseInt(rgbMatch[1], 16);
+        const g = parseInt(rgbMatch[2], 16);
+        const b = parseInt(rgbMatch[3], 16);
+        finalNodeColor = `rgba(${r}, ${g}, ${b}, ${opacity})`;
+      }
+    }
+
     // Draw rounded rectangle
-    ctx.fillStyle = nodeColor;
+    ctx.fillStyle = finalNodeColor;
     ctx.strokeStyle = isHovered ? '#000000' : '#666666';
     ctx.lineWidth = isHovered ? 2 : 1;
 
@@ -268,22 +324,70 @@ export default function EntityGraph({
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(displayLabel, x, y);
+
+    // Function to calculate color brightness (0-255)
+    function getBrightness(color) {
+      // Default brightness for non-parsable colors
+      if (!color || typeof color !== 'string') return 200;
+
+      let r, g, b;
+
+      if (color.startsWith('#')) {
+        // Parse hex color
+        const hex = color.substring(1);
+        r = parseInt(hex.substring(0, 2), 16);
+        g = parseInt(hex.substring(2, 4), 16);
+        b = parseInt(hex.substring(4, 6), 16);
+      } else if (color.startsWith('rgba')) {
+        // Parse rgba color
+        const rgba = color.match(/rgba\((\d+),\s*(\d+),\s*(\d+),\s*[\d.]+\)/);
+        if (rgba) {
+          r = parseInt(rgba[1]);
+          g = parseInt(rgba[2]);
+          b = parseInt(rgba[3]);
+        } else {
+          return 200;
+        }
+      } else if (color.startsWith('rgb')) {
+        // Parse rgb color
+        const rgb = color.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+        if (rgb) {
+          r = parseInt(rgb[1]);
+          g = parseInt(rgb[2]);
+          b = parseInt(rgb[3]);
+        } else {
+          return 200;
+        }
+      } else if (color.startsWith('hsl')) {
+        // For HSL colors, approximate brightness
+        return 180; // Default to medium brightness
+      } else {
+        return 200;
+      }
+
+      // Calculate perceived brightness using weighted average
+      return (r * 0.299 + g * 0.587 + b * 0.114);
+    }
   }, [graphData.links, hoveredNode]);
 
-  // Draw links with proper connections to nodes
+  // Draw links with proper connections to nodes, including curved links for multiple relationships
   const paintLink = useCallback((link, ctx) => {
     const source = link.source;
     const target = link.target;
 
-    // Calculate link points
+    // Get positions and calculate angle
     const x1 = source.x;
     const y1 = source.y;
     const x2 = target.x;
     const y2 = target.y;
 
-    // Calculate angle for arrow
+    // Get the curvature from link (or default to 0)
+    const curvature = link.curvature || 0;
+
+    // Calculate angle and distance
     const dx = x2 - x1;
     const dy = y2 - y1;
+    const distance = Math.sqrt(dx * dx + dy * dy);
     const angle = Math.atan2(dy, dx);
 
     // Get node dimensions (stored during node painting)
@@ -299,104 +403,221 @@ export default function EntityGraph({
     const sourceHalfWidth = sourceWidth / 2;
     const sourceHalfHeight = sourceHeight / 2;
 
-    // Check if angle intersects horizontal or vertical edges
-    if (Math.abs(Math.tan(angle)) < sourceHalfHeight / sourceHalfWidth) {
-      // Intersects with right or left edge
-      const xSign = Math.sign(Math.cos(angle));
-      startX = x1 + xSign * sourceHalfWidth;
-      startY = y1 + Math.tan(angle) * xSign * sourceHalfWidth;
-    } else {
-      // Intersects with top or bottom edge
-      const ySign = Math.sign(Math.sin(angle));
-      startY = y1 + ySign * sourceHalfHeight;
-      startX = x1 + (1 / Math.tan(angle)) * ySign * sourceHalfHeight;
-    }
-
     // Calculate target intersection (which edge of rectangle)
     const targetHalfWidth = targetWidth / 2;
     const targetHalfHeight = targetHeight / 2;
 
-    // Check if angle intersects horizontal or vertical edges
-    if (Math.abs(Math.tan(angle)) < targetHalfHeight / targetHalfWidth) {
-      // Intersects with right or left edge
-      const xSign = -Math.sign(Math.cos(angle));
-      endX = x2 + xSign * targetHalfWidth;
-      endY = y2 + Math.tan(angle) * xSign * targetHalfWidth;
-    } else {
-      // Intersects with top or bottom edge
-      const ySign = -Math.sign(Math.sin(angle));
-      endY = y2 + ySign * targetHalfHeight;
-      endX = x2 + (1 / Math.tan(angle)) * ySign * targetHalfHeight;
-    }
+    // Use modified angle for curved links
+    let effectiveAngle = angle;
 
-    // Handle special case when angle is close to 0 or PI
-    if (Math.abs(dy) < 0.001) {
-      startX = x1 + Math.sign(dx) * sourceHalfWidth;
-      startY = y1;
-      endX = x2 - Math.sign(dx) * targetHalfWidth;
-      endY = y2;
-    }
+    // For curved links, we need to adjust the starting and ending angles
+    if (curvature > 0) {
+      // Calculate control point for the curve
+      const controlPointDistance = distance * 0.5;
+      const controlPointOffset = distance * curvature;
 
-    // Handle special case when angle is close to PI/2 or 3PI/2
-    if (Math.abs(dx) < 0.001) {
-      startX = x1;
-      startY = y1 + Math.sign(dy) * sourceHalfHeight;
-      endX = x2;
-      endY = y2 - Math.sign(dy) * targetHalfHeight;
-    }
+      // Calculate perpendicular vector
+      const perpX = -Math.sin(angle);
+      const perpY = Math.cos(angle);
 
-    // Draw link
-    ctx.beginPath();
-    ctx.moveTo(startX, startY);
-    ctx.lineTo(endX, endY);
-    ctx.strokeStyle = link.color;
-    ctx.lineWidth = hoveredNode &&
-    (hoveredNode.id === source.id || hoveredNode.id === target.id) ? 2 : 1.5;
-    ctx.stroke();
+      // Calculate control point
+      const cpX = x1 + dx * 0.5 + perpX * controlPointOffset;
+      const cpY = y1 + dy * 0.5 + perpY * controlPointOffset;
 
-    // Draw arrow
-    const arrowLength = 8;
-    ctx.beginPath();
-    ctx.moveTo(endX, endY);
-    ctx.lineTo(
-        endX - arrowLength * Math.cos(angle - Math.PI/6),
-        endY - arrowLength * Math.sin(angle - Math.PI/6)
-    );
-    ctx.lineTo(
-        endX - arrowLength * Math.cos(angle + Math.PI/6),
-        endY - arrowLength * Math.sin(angle + Math.PI/6)
-    );
-    ctx.closePath();
-    ctx.fillStyle = link.color;
-    ctx.fill();
+      // Calculate angles from source to control point and from control point to target
+      const angleStart = Math.atan2(cpY - y1, cpX - x1);
+      const angleEnd = Math.atan2(y2 - cpY, x2 - cpX);
 
-    // Draw label on hover or for all connected links
-    if (hoveredNode &&
-        (hoveredNode.id === source.id || hoveredNode.id === target.id)) {
-      const midX = (startX + endX) / 2;
-      const midY = (startY + endY) / 2;
+      // Use these angles for intersection calculations
+      startX = x1 + sourceHalfWidth * Math.cos(angleStart);
+      startY = y1 + sourceHalfWidth * Math.sin(angleStart);
+      endX = x2 - targetHalfWidth * Math.cos(angleEnd);
+      endY = y2 - targetHalfWidth * Math.sin(angleEnd);
 
-      // Position label perpendicular to link
-      const perpX = -dy / Math.sqrt(dx*dx + dy*dy) * 8;
-      const perpY = dx / Math.sqrt(dx*dx + dy*dy) * 8;
+      // Check if angle intersects horizontal or vertical edges
+      if (Math.abs(Math.tan(angleStart)) < sourceHalfHeight / sourceHalfWidth) {
+        // Intersects with right or left edge
+        const xSign = Math.sign(Math.cos(angleStart));
+        startX = x1 + xSign * sourceHalfWidth;
+        startY = y1 + Math.tan(angleStart) * xSign * sourceHalfWidth;
+      } else {
+        // Intersects with top or bottom edge
+        const ySign = Math.sign(Math.sin(angleStart));
+        startY = y1 + ySign * sourceHalfHeight;
+        startX = x1 + (1 / Math.tan(angleStart)) * ySign * sourceHalfHeight;
+      }
 
-      ctx.font = '10px Arial';
-      const textWidth = ctx.measureText(link.label).width;
+      // Same for end point
+      if (Math.abs(Math.tan(angleEnd)) < targetHalfHeight / targetHalfWidth) {
+        // Intersects with right or left edge
+        const xSign = -Math.sign(Math.cos(angleEnd));
+        endX = x2 + xSign * targetHalfWidth;
+        endY = y2 + Math.tan(angleEnd) * xSign * targetHalfWidth;
+      } else {
+        // Intersects with top or bottom edge
+        const ySign = -Math.sign(Math.sin(angleEnd));
+        endY = y2 + ySign * targetHalfHeight;
+        endX = x2 + (1 / Math.tan(angleEnd)) * ySign * targetHalfHeight;
+      }
 
-      // Draw text background
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-      ctx.fillRect(
-          midX + perpX - textWidth/2 - 3,
-          midY + perpY - 7,
-          textWidth + 6,
-          14
+      // Draw curved link
+      ctx.beginPath();
+      ctx.moveTo(startX, startY);
+
+      // Create quadratic curve
+      ctx.quadraticCurveTo(cpX, cpY, endX, endY);
+
+      // Style based on whether the link is highlighted
+      const isHighlighted = hoveredNode &&
+          (hoveredNode.id === source.id || hoveredNode.id === target.id);
+
+      ctx.strokeStyle = isHighlighted ? link.color : `${link.color}CC`;
+      ctx.lineWidth = isHighlighted ? 2.5 : 1.8;
+      ctx.stroke();
+
+      // Draw arrow at the end of the curve
+      // We need to calculate the tangent direction at the end point
+      const arrowLength = 8;
+      const arrowAngle = Math.atan2(endY - cpY, endX - cpX);
+
+      ctx.beginPath();
+      ctx.moveTo(endX, endY);
+      ctx.lineTo(
+          endX - arrowLength * Math.cos(arrowAngle - Math.PI / 6),
+          endY - arrowLength * Math.sin(arrowAngle - Math.PI / 6)
       );
+      ctx.lineTo(
+          endX - arrowLength * Math.cos(arrowAngle + Math.PI / 6),
+          endY - arrowLength * Math.sin(arrowAngle + Math.PI / 6)
+      );
+      ctx.closePath();
+      ctx.fillStyle = isHighlighted ? link.color : `${link.color}CC`;
+      ctx.fill();
 
-      // Draw text
-      ctx.fillStyle = '#000000';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(link.label, midX + perpX, midY + perpY);
+      // Draw label for curved links
+      if (hoveredNode &&
+          (hoveredNode.id === source.id || hoveredNode.id === target.id)) {
+        // Position label at the highest point of the curve
+        const labelX = cpX;
+        const labelY = cpY - 10; // Offset slightly above the curve
+
+        ctx.font = '10px Arial';
+        const textWidth = ctx.measureText(link.label).width;
+
+        // Draw text background
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+        ctx.fillRect(
+            labelX - textWidth / 2 - 3,
+            labelY - 7,
+            textWidth + 6,
+            16
+        );
+
+        // Draw text
+        ctx.fillStyle = '#000000';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(link.label, labelX, labelY);
+      }
+    } else {
+      // For straight links, use the original intersection calculation
+      // Check if angle intersects horizontal or vertical edges
+      if (Math.abs(Math.tan(angle)) < sourceHalfHeight / sourceHalfWidth) {
+        // Intersects with right or left edge
+        const xSign = Math.sign(Math.cos(angle));
+        startX = x1 + xSign * sourceHalfWidth;
+        startY = y1 + Math.tan(angle) * xSign * sourceHalfWidth;
+      } else {
+        // Intersects with top or bottom edge
+        const ySign = Math.sign(Math.sin(angle));
+        startY = y1 + ySign * sourceHalfHeight;
+        startX = x1 + (1 / Math.tan(angle)) * ySign * sourceHalfHeight;
+      }
+
+      // Calculate target intersection (which edge of rectangle)
+      if (Math.abs(Math.tan(angle)) < targetHalfHeight / targetHalfWidth) {
+        // Intersects with right or left edge
+        const xSign = -Math.sign(Math.cos(angle));
+        endX = x2 + xSign * targetHalfWidth;
+        endY = y2 + Math.tan(angle) * xSign * targetHalfWidth;
+      } else {
+        // Intersects with top or bottom edge
+        const ySign = -Math.sign(Math.sin(angle));
+        endY = y2 + ySign * targetHalfHeight;
+        endX = x2 + (1 / Math.tan(angle)) * ySign * targetHalfHeight;
+      }
+
+      // Handle special case when angle is close to 0 or PI
+      if (Math.abs(dy) < 0.001) {
+        startX = x1 + Math.sign(dx) * sourceHalfWidth;
+        startY = y1;
+        endX = x2 - Math.sign(dx) * targetHalfWidth;
+        endY = y2;
+      }
+
+      // Handle special case when angle is close to PI/2 or 3PI/2
+      if (Math.abs(dx) < 0.001) {
+        startX = x1;
+        startY = y1 + Math.sign(dy) * sourceHalfHeight;
+        endX = x2;
+        endY = y2 - Math.sign(dy) * targetHalfHeight;
+      }
+
+      // Draw straight link
+      ctx.beginPath();
+      ctx.moveTo(startX, startY);
+      ctx.lineTo(endX, endY);
+      ctx.strokeStyle = hoveredNode &&
+      (hoveredNode.id === source.id || hoveredNode.id === target.id) ? link.color : `${link.color}CC`;
+      ctx.lineWidth = hoveredNode &&
+      (hoveredNode.id === source.id || hoveredNode.id === target.id) ? 2 : 1.5;
+      ctx.stroke();
+
+      // Draw arrow
+      const arrowLength = 8;
+      ctx.beginPath();
+      ctx.moveTo(endX, endY);
+      ctx.lineTo(
+          endX - arrowLength * Math.cos(angle - Math.PI / 6),
+          endY - arrowLength * Math.sin(angle - Math.PI / 6)
+      );
+      ctx.lineTo(
+          endX - arrowLength * Math.cos(angle + Math.PI / 6),
+          endY - arrowLength * Math.sin(angle + Math.PI / 6)
+      );
+      ctx.closePath();
+      ctx.fillStyle = hoveredNode &&
+      (hoveredNode.id === source.id || hoveredNode.id === target.id) ? link.color : `${link.color}CC`;
+      ctx.fill();
+
+      // Draw label on hover or for all connected links
+      if (hoveredNode &&
+          (hoveredNode.id === source.id || hoveredNode.id === target.id)) {
+        const midX = (startX + endX) / 2;
+        const midY = (startY + endY) / 2;
+
+        // Position label perpendicular to link
+        const perpX = -dy / Math.sqrt(dx * dx + dy * dy) * 8;
+        const perpY = dx / Math.sqrt(dx * dx + dy * dy) * 8;
+
+        ctx.font = '10px Arial';
+        const textWidth = ctx.measureText(link.label).width;
+
+        // Draw text background
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+        ctx.fillRect(
+            midX + perpX - textWidth / 2 - 3,
+            midY + perpY - 7,
+            textWidth + 6,
+            16
+        );
+
+        // Draw text
+        ctx.fillStyle = '#000000';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(link.label, midX + perpX, midY + perpY);
+      }
     }
   }, [hoveredNode]);
 
@@ -590,6 +811,10 @@ export default function EntityGraph({
                   width={dimensions.width}
                   height={dimensions.height}
                   cooldownTicks={100}
+                  // Enable curved links
+                  linkCurvature="curvature"
+                  // Don't use built-in link rendering at all - we'll do it manually
+                  linkColor={() => 'rgba(0,0,0,0)'}
                   // Custom node hover area calculation - important for improved hover detection
                   nodePointerAreaPaint={(node, color, ctx) => {
                     // Use stored dimensions or calculate them
@@ -601,19 +826,14 @@ export default function EntityGraph({
                     ctx.beginPath();
                     const padding = 4; // Extra padding for easier hovering
                     ctx.roundRect(
-                        node.x - nodeWidth/2 - padding,
-                        node.y - nodeHeight/2 - padding,
-                        nodeWidth + padding*2,
-                        nodeHeight + padding*2,
+                        node.x - nodeWidth / 2 - padding,
+                        node.y - nodeHeight / 2 - padding,
+                        nodeWidth + padding * 2,
+                        nodeHeight + padding * 2,
                         5
                     );
                     ctx.fill();
                   }}
-                  // Increase link hover area for better detection
-                  linkCurvature={0}
-                  linkDirectionalParticles={0}
-                  linkWidth={2}
-                  linkDirectionalArrowLength={8}
               />
           ) : !loading && (
               <div className="flex items-center justify-center h-full">
