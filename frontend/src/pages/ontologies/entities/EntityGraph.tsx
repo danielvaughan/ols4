@@ -30,8 +30,8 @@ export default function EntityGraph({
 
     const updateDimensions = () => {
       if (containerRef.current) {
-        const { width, height } = containerRef.current.getBoundingClientRect();
-        setDimensions({ width, height });
+        const {width, height} = containerRef.current.getBoundingClientRect();
+        setDimensions({width, height});
       }
     };
 
@@ -97,21 +97,38 @@ export default function EntityGraph({
     setRelationshipFilters(prev => {
       const updated = {};
       Object.entries(prev).forEach(([key, value]) => {
-        updated[key] = { ...value, visible: showAll };
+        updated[key] = {...value, visible: showAll};
       });
       return updated;
     });
   }, []);
 
   // Process the graph data for visualization
-  const { graphData, relationshipTypes } = useMemo(() => {
+  const {graphData, relationshipTypes} = useMemo(() => {
     if (!rawData || !rawData.nodes || !rawData.edges) {
-      return { graphData: { nodes: [], links: [] }, relationshipTypes: {} };
+      return {graphData: {nodes: [], links: []}, relationshipTypes: {}};
     }
+
+    // Create a map to deduplicate edges
+    const uniqueEdges = new Map();
+
+    // Process edges to keep only unique combinations of source, target, and relationship type
+    rawData.edges.forEach(edge => {
+      const label = edge.label || 'unlabeled';
+      const edgeKey = `${edge.source}|${edge.target}|${label}`;
+
+      // Only keep the first instance of each unique edge
+      if (!uniqueEdges.has(edgeKey)) {
+        uniqueEdges.set(edgeKey, edge);
+      }
+    });
+
+    // Convert unique edges back to array
+    const deduplicatedEdges = Array.from(uniqueEdges.values());
 
     // Extract and count unique relationship types
     const relationTypes = {};
-    rawData.edges.forEach(edge => {
+    deduplicatedEdges.forEach(edge => {
       const label = edge.label || 'unlabeled';
       if (!relationTypes[label]) {
         relationTypes[label] = {
@@ -145,37 +162,66 @@ export default function EntityGraph({
       originalNode: node
     }));
 
-    // Track multiple edges between the same node pairs
+    // Track multiple edges between the same node pairs (but not duplicates)
     const edgeCounts = {};
+    const bidirectionalPairs = new Map();
 
-    // First pass: count how many edges exist between each node pair
-    rawData.edges.forEach(edge => {
-      const nodeKey = `${edge.source}|${edge.target}`;
+    // First pass: count how many edges exist between each node pair (in each direction)
+    deduplicatedEdges.forEach(edge => {
+      // Create directional keys
+      const forwardKey = `${edge.source}|${edge.target}`;
       const reverseKey = `${edge.target}|${edge.source}`;
 
-      if (!edgeCounts[nodeKey]) {
-        edgeCounts[nodeKey] = 1;
+      // Create a normalized key that's the same regardless of source/target order
+      const nodeIds = [edge.source, edge.target].sort();
+      const normalizedKey = `${nodeIds[0]}|${nodeIds[1]}`;
+
+      // Track directional counts
+      if (!edgeCounts[forwardKey]) {
+        edgeCounts[forwardKey] = 1;
       } else {
-        edgeCounts[nodeKey]++;
+        edgeCounts[forwardKey]++;
       }
 
-      // Also count reverse edges for bidirectional tracking
-      if (!edgeCounts[reverseKey]) {
-        edgeCounts[reverseKey] = 0;
+      // Check for bidirectional edges
+      const hasBidirectional = deduplicatedEdges.some(e =>
+          e.source === edge.target && e.target === edge.source
+      );
+
+      // Store bidirectional information
+      if (hasBidirectional) {
+        if (!bidirectionalPairs.has(normalizedKey)) {
+          bidirectionalPairs.set(normalizedKey, true);
+        }
       }
     });
 
     // Create links with relationship colors and curvature
-    const links = rawData.edges.map((edge, index) => {
+    const links = deduplicatedEdges.map((edge, index) => {
       const type = edge.label || 'unlabeled';
-      const nodeKey = `${edge.source}|${edge.target}`;
-      const totalEdges = edgeCounts[nodeKey];
 
-      // Calculate curvature based on number of edges and edge index
+      // Get directional key
+      const directionalKey = `${edge.source}|${edge.target}`;
+
+      // Get normalized key (direction-agnostic)
+      const nodeIds = [edge.source, edge.target].sort();
+      const normalizedKey = `${nodeIds[0]}|${nodeIds[1]}`;
+
+      // Get number of edges in this specific direction
+      const directionalCount = edgeCounts[directionalKey] || 0;
+
+      // Determine if we have a bidirectional relationship for these nodes
+      const isBidirectional = bidirectionalPairs.has(normalizedKey);
+
+      // Start with no curvature (straight line)
       let curvature = 0;
-      if (totalEdges > 1) {
-        // For multiple edges, calculate curvature to space them out
-        const edgeIndex = rawData.edges.findIndex(e =>
+
+      // Only add curvature in two cases:
+      // 1. Multiple edges in the same direction
+      // 2. Bidirectional relationship
+      if (directionalCount > 1) {
+        // For multiple edges in the same direction, calculate distinct curvatures
+        const edgeIndex = deduplicatedEdges.findIndex(e =>
             e.source === edge.source &&
             e.target === edge.target &&
             e.label === edge.label
@@ -186,7 +232,12 @@ export default function EntityGraph({
         const initialCurve = 0.15;
 
         // Calculate different curvature for each edge
-        curvature = initialCurve + (edgeIndex % totalEdges) * curveStep;
+        curvature = initialCurve + (edgeIndex % directionalCount) * curveStep;
+      } else if (isBidirectional) {
+        // For bidirectional edges, make them curve in opposite directions
+        // Consistent direction based on node IDs to ensure opposite curves
+        const direction = edge.source < edge.target ? 1 : -1;
+        curvature = 0.2 * direction;
       }
 
       return {
@@ -216,7 +267,7 @@ export default function EntityGraph({
     );
 
     return {
-      graphData: { nodes: visibleNodes, links: visibleLinks },
+      graphData: {nodes: visibleNodes, links: visibleLinks},
       relationshipTypes: relationTypes
     };
   }, [rawData, relationshipFilters, selectedEntity]);
@@ -233,7 +284,7 @@ export default function EntityGraph({
 
   // Draw nodes with labels inside
   const paintNode = useCallback((node, ctx, globalScale) => {
-    const { x, y, label, isSelected, isObsolete } = node;
+    const {x, y, label, isSelected, isObsolete} = node;
     const isHovered = hoveredNode === node;
 
     // Store node dimensions for hit detection and link connections
@@ -301,15 +352,15 @@ export default function EntityGraph({
     const cornerRadius = 5;
 
     ctx.beginPath();
-    ctx.moveTo(x - rectWidth/2 + cornerRadius, y - rectHeight/2);
-    ctx.lineTo(x + rectWidth/2 - cornerRadius, y - rectHeight/2);
-    ctx.quadraticCurveTo(x + rectWidth/2, y - rectHeight/2, x + rectWidth/2, y - rectHeight/2 + cornerRadius);
-    ctx.lineTo(x + rectWidth/2, y + rectHeight/2 - cornerRadius);
-    ctx.quadraticCurveTo(x + rectWidth/2, y + rectHeight/2, x + rectWidth/2 - cornerRadius, y + rectHeight/2);
-    ctx.lineTo(x - rectWidth/2 + cornerRadius, y + rectHeight/2);
-    ctx.quadraticCurveTo(x - rectWidth/2, y + rectHeight/2, x - rectWidth/2, y + rectHeight/2 - cornerRadius);
-    ctx.lineTo(x - rectWidth/2, y - rectHeight/2 + cornerRadius);
-    ctx.quadraticCurveTo(x - rectWidth/2, y - rectHeight/2, x - rectWidth/2 + cornerRadius, y - rectHeight/2);
+    ctx.moveTo(x - rectWidth / 2 + cornerRadius, y - rectHeight / 2);
+    ctx.lineTo(x + rectWidth / 2 - cornerRadius, y - rectHeight / 2);
+    ctx.quadraticCurveTo(x + rectWidth / 2, y - rectHeight / 2, x + rectWidth / 2, y - rectHeight / 2 + cornerRadius);
+    ctx.lineTo(x + rectWidth / 2, y + rectHeight / 2 - cornerRadius);
+    ctx.quadraticCurveTo(x + rectWidth / 2, y + rectHeight / 2, x + rectWidth / 2 - cornerRadius, y + rectHeight / 2);
+    ctx.lineTo(x - rectWidth / 2 + cornerRadius, y + rectHeight / 2);
+    ctx.quadraticCurveTo(x - rectWidth / 2, y + rectHeight / 2, x - rectWidth / 2, y + rectHeight / 2 - cornerRadius);
+    ctx.lineTo(x - rectWidth / 2, y - rectHeight / 2 + cornerRadius);
+    ctx.quadraticCurveTo(x - rectWidth / 2, y - rectHeight / 2, x - rectWidth / 2 + cornerRadius, y - rectHeight / 2);
     ctx.closePath();
     ctx.fill();
     ctx.stroke();
@@ -764,7 +815,7 @@ export default function EntityGraph({
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 text-sm">
-                {Object.entries(relationshipTypes).map(([type, { color, count, visible }]) => (
+                {Object.entries(relationshipTypes).map(([type, {color, count, visible}]) => (
                     <div key={type} className="flex items-center">
                       <label className="flex items-center cursor-pointer">
                         <input
