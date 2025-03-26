@@ -9,20 +9,52 @@ export default function EntityGraph({
                                       ontologyId,
                                       selectedEntity,
                                       entityType,
-                                      onNodeSelect
+                                      onNodeSelect,
+                                      expandedNodes = new Set(),
+                                      onStoreFetchFunc,
+                                      setExpandedNodes
                                     }) {
   const navigate = useNavigate();
   const containerRef = useRef(null);
   const graphRef = useRef(null);
-  const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
+  const [dimensions, setDimensions] = useState({width: 800, height: 600});
   const [hoveredNode, setHoveredNode] = useState(null);
   const [relationshipFilters, setRelationshipFilters] = useState({});
 
+  // Create a local expanded nodes state if no setter is provided
+  const [localExpandedNodes, setLocalExpandedNodes] = useState(new Set());
+
+  // Use either the prop state or local state depending on whether a setter was provided
+  const expandedNodesSet = expandedNodes || localExpandedNodes;
+  const updateExpandedNodes = useCallback((updaterFn) => {
+    if (setExpandedNodes) {
+      // If external setter is provided, use it
+      setExpandedNodes(updaterFn);
+    } else {
+      // Otherwise use local state
+      setLocalExpandedNodes(updaterFn);
+    }
+  }, [setExpandedNodes]);
+
   // Fetch graph data using the hook
-  const { graphData: rawData, loading, error } = useOntologyGraph(
+  const {graphData: rawData, loading, error, fetchNodeConnections} = useOntologyGraph(
       ontologyId,
       selectedEntity?.getIri()
   );
+
+  // Pass the fetchNodeConnections function to the parent component once
+  // Using useEffect with explicit dependency control to prevent loops
+  const fetchNodeConnectionsRef = useRef(fetchNodeConnections);
+
+  useEffect(() => {
+    fetchNodeConnectionsRef.current = fetchNodeConnections;
+  }, [fetchNodeConnections]);
+
+  useEffect(() => {
+    if (onStoreFetchFunc && fetchNodeConnectionsRef.current) {
+      onStoreFetchFunc(fetchNodeConnectionsRef.current);
+    }
+  }, [onStoreFetchFunc]);
 
   // Update dimensions when container size changes
   useEffect(() => {
@@ -251,7 +283,17 @@ export default function EntityGraph({
     });
 
     // Filter visible links
-    const visibleLinks = links.filter(link => link.visible);
+    const visibleLinks = links.filter(link => {
+      const sourceId = typeof link.source === 'object' ? link.source.id : link.source;
+      const targetId = typeof link.target === 'object' ? link.target.id : link.target;
+
+      // Include links if both source and target are expanded nodes or already in visible links
+      const isExpansionChainLink =
+          (expandedNodesSet.has(sourceId) && expandedNodesSet.has(targetId)) ||
+          link.visible;
+
+      return isExpansionChainLink;
+    });
 
     // Get nodes connected by visible links
     const nodesInVisibleLinks = new Set();
@@ -263,7 +305,9 @@ export default function EntityGraph({
     // Filter nodes to only include those in visible links (plus the selected node)
     const selectedNodeId = selectedEntity?.getIri();
     const visibleNodes = nodes.filter(node =>
-        nodesInVisibleLinks.has(node.id) || (selectedNodeId && node.id === selectedNodeId)
+        nodesInVisibleLinks.has(node.id) ||
+        (selectedNodeId && node.id === selectedNodeId) ||
+        expandedNodesSet.has(node.id)
     );
 
     return {
@@ -272,20 +316,134 @@ export default function EntityGraph({
     };
   }, [rawData, relationshipFilters, selectedEntity]);
 
-  // Node click handler - update selected entity in details panel
-  const handleNodeClick = useCallback((node) => {
-    const iri = node.id;
+  // For double-click detection
+  const [clickTimeout, setClickTimeout] = useState(null);
+  const [prevClick, setPrevClick] = useState(null);
+  const DBL_CLICK_TIMEOUT = 500; // ms
 
-    // Notify parent component about node selection
-    if (onNodeSelect) {
-      onNodeSelect(iri);
+  // Node click handler
+  const handleNodeClick = useCallback((node) => {
+    const now = new Date();
+
+    if (prevClick &&
+        prevClick.node.id === node.id &&
+        (now - prevClick.time) < DBL_CLICK_TIMEOUT) {
+      // This is a double-click
+      setPrevClick(null); // Reset click tracking
+
+      // Handle double-click
+      handleNodeDblClick(node);
+    } else {
+      // This is a first click or a click on a different node
+      setPrevClick({ node, time: now });
+
+      // Set a timeout to handle as a single click if no double-click occurs
+      const timeout = setTimeout(() => {
+        // Notify parent component about node selection
+        if (onNodeSelect) {
+          onNodeSelect(node.id);
+        }
+      }, DBL_CLICK_TIMEOUT + 50);
+
+      // Clear any existing timeout
+      if (clickTimeout) {
+        clearTimeout(clickTimeout);
+      }
+
+      setClickTimeout(timeout);
     }
-  }, [onNodeSelect]);
+  }, [onNodeSelect, clickTimeout, prevClick]);
+
+  // Handle double-click
+  const handleNodeDblClick = useCallback((node) => {
+
+    // Cancel any pending single-click action
+    if (clickTimeout) {
+      clearTimeout(clickTimeout);
+      setClickTimeout(null);
+    }
+
+    // Check if this is a leaf node (no outgoing links)
+    const isLeafNode = !graphData.links.some(link =>
+        (typeof link.source === 'object' ? link.source.id : link.source) === node.id
+    );
+
+    console.log("Is leaf node:", isLeafNode);
+
+    if (isLeafNode) {
+      try {
+        console.log("Fetching connections for node:", node.id);
+
+        // Set loading state for this node
+        setExpandedNodes(prev => {
+          const newSet = new Set(prev);
+          newSet.add(node.id);
+          return newSet;
+        });
+
+        // Fetch additional connections for this node
+        if (fetchNodeConnections) {
+          fetchNodeConnections(node.id)
+              .then(success => {
+                if (success) {
+                  // Reheat simulation after adding new nodes
+                  if (graphRef.current) {
+                    graphRef.current.d3ReheatSimulation();
+
+                    // After some stabilization, fit to view
+                    setTimeout(() => {
+                      graphRef.current?.zoomToFit(400);
+                    }, 1000);
+                  }
+                } else {
+                  // Remove from expanded nodes if failed
+                  setExpandedNodes(prev => {
+                    const newSet = new Set(prev);
+                    newSet.delete(node.id);
+                    return newSet;
+                  });
+                }
+              })
+              .catch(err => {
+                // Remove from expanded nodes if failed
+                setExpandedNodes(prev => {
+                  const newSet = new Set(prev);
+                  newSet.delete(node.id);
+                  return newSet;
+                });
+              });
+        } else {
+          // Remove from expanded nodes if function not available
+          setExpandedNodes(prev => {
+            const newSet = new Set(prev);
+            newSet.delete(node.id);
+            return newSet;
+          });
+        }
+      } catch (error) {
+        console.error("Error expanding node:", error);
+
+        // Remove from expanded nodes if failed
+        setExpandedNodes(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(node.id);
+          return newSet;
+        });
+      }
+    }
+  }, [graphData.links, fetchNodeConnections, clickTimeout]);
+
 
   // Draw nodes with labels inside
   const paintNode = useCallback((node, ctx, globalScale) => {
     const {x, y, label, isSelected, isObsolete} = node;
     const isHovered = hoveredNode === node;
+    const isExpanded = expandedNodes.has(node.id);
+
+    // Check if this is a leaf node
+    const isLeafNode = !graphData.links.some(link =>
+        (typeof link.source === 'object' ? link.source.id : link.source) === node.id
+    );
 
     // Store node dimensions for hit detection and link connections
     const fontSize = isHovered ? 12 : 11;
@@ -312,6 +470,10 @@ export default function EntityGraph({
     // Center/selected node is gold
     if (isSelected) {
       nodeColor = '#FFD700';
+    }
+    // Expanded nodes get a highlight color
+    else if (isExpanded) {
+      nodeColor = '#E57373'; // Light blue
     }
     // Obsolete nodes are red
     else if (isObsolete) {
@@ -376,6 +538,55 @@ export default function EntityGraph({
     ctx.textBaseline = 'middle';
     ctx.fillText(displayLabel, x, y);
 
+    // Draw expansion indicator for leaf nodes
+    if (isLeafNode && !isExpanded) {
+      // Draw a small plus sign in the bottom right corner
+      const plusSize = 8;
+      const plusX = x + rectWidth / 2 - plusSize;
+      const plusY = y + rectHeight / 2 - plusSize;
+
+      // Background circle for the plus
+      ctx.beginPath();
+      ctx.arc(plusX, plusY, plusSize / 2, 0, 2 * Math.PI);
+      ctx.fillStyle = '#ffffff';
+      ctx.fill();
+      ctx.strokeStyle = '#666666';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      // Plus sign
+      ctx.beginPath();
+      ctx.moveTo(plusX - 3, plusY);
+      ctx.lineTo(plusX + 3, plusY);
+      ctx.moveTo(plusX, plusY - 3);
+      ctx.lineTo(plusX, plusY + 3);
+      ctx.strokeStyle = '#666666';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    } else if (isExpanded) {
+      // Draw a minus sign in the bottom right corner to indicate collapse
+      const minusSize = 8;
+      const minusX = x + rectWidth / 2 - minusSize;
+      const minusY = y + rectHeight / 2 - minusSize;
+
+      // Background circle for the minus
+      ctx.beginPath();
+      ctx.arc(minusX, minusY, minusSize / 2, 0, 2 * Math.PI);
+      ctx.fillStyle = '#ffffff';
+      ctx.fill();
+      ctx.strokeStyle = '#666666';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      // Minus sign
+      ctx.beginPath();
+      ctx.moveTo(minusX - 3, minusY);
+      ctx.lineTo(minusX + 3, minusY);
+      ctx.strokeStyle = '#666666';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+
     // Function to calculate color brightness (0-255)
     function getBrightness(color) {
       // Default brightness for non-parsable colors
@@ -419,7 +630,7 @@ export default function EntityGraph({
       // Calculate perceived brightness using weighted average
       return (r * 0.299 + g * 0.587 + b * 0.114);
     }
-  }, [graphData.links, hoveredNode]);
+  }, [graphData.links, hoveredNode, expandedNodes]);
 
   // Draw links with proper connections to nodes, including curved links for multiple relationships
   const paintLink = useCallback((link, ctx) => {

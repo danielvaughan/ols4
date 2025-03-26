@@ -1,15 +1,23 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, memo } from "react";
 import { useNavigate } from "react-router-dom";
 
-export default function EntityDetails({ ontologyId, entityIri, entityType }) {
+const EntityDetails = memo(function EntityDetails({
+                                                      ontologyId,
+                                                      entityIri,
+                                                      entityType,
+                                                      onExpandNode,
+                                                      isNodeExpanded
+                                                  }) {
     const [entityDetails, setEntityDetails] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [lastFetchedIri, setLastFetchedIri] = useState(null);
     const navigate = useNavigate();
 
+    // Fetch entity details only when entityIri changes
     useEffect(() => {
         const fetchEntityDetails = async () => {
-            if (!entityIri || !ontologyId) return;
+            if (!entityIri || !ontologyId || entityIri === lastFetchedIri) return;
 
             setLoading(true);
             setError(null);
@@ -17,7 +25,8 @@ export default function EntityDetails({ ontologyId, entityIri, entityType }) {
             try {
                 // Double encode the IRI as required by the API
                 const doubleEncodedIri = encodeURIComponent(encodeURIComponent(entityIri));
-                let fetchUrl = ''
+                let fetchUrl = '';
+
                 if(entityType === 'classes'){
                     fetchUrl = `${process.env.REACT_APP_APIURL}api/ontologies/${ontologyId}/terms/${doubleEncodedIri}`;
                 } else if (entityType === 'individuals'){
@@ -36,6 +45,7 @@ export default function EntityDetails({ ontologyId, entityIri, entityType }) {
 
                 const data = await response.json();
                 setEntityDetails(data);
+                setLastFetchedIri(entityIri);
             } catch (err) {
                 console.error("Failed to fetch entity details:", err);
                 setError(err.message || "Failed to fetch entity details");
@@ -44,14 +54,22 @@ export default function EntityDetails({ ontologyId, entityIri, entityType }) {
             }
         };
 
-        fetchEntityDetails();
-    }, [ontologyId, entityIri]);
+        if (entityIri !== lastFetchedIri) {
+            fetchEntityDetails();
+        }
+    }, [ontologyId, entityIri, entityType, lastFetchedIri]);
 
     const handleNavigateToEntity = () => {
         if (!entityDetails) return;
 
         // Navigate to the entity page
         navigate(`/ontologies/${ontologyId}/entities/${encodeURIComponent(encodeURIComponent(entityIri))}`);
+    };
+
+    const handleExpandNode = () => {
+        if (onExpandNode && entityIri && !isNodeExpanded) {
+            onExpandNode(entityIri);
+        }
     };
 
     if (loading) {
@@ -113,8 +131,8 @@ export default function EntityDetails({ ontologyId, entityIri, entityType }) {
                                 key={index}
                                 className="inline-block bg-blue-100 text-blue-800 px-2 py-1 rounded-md text-sm"
                             >
-                {synonym}
-              </span>
+                                {synonym}
+                            </span>
                         ))}
                     </div>
                 </div>
@@ -125,17 +143,32 @@ export default function EntityDetails({ ontologyId, entityIri, entityType }) {
                     <span className="font-semibold">Short ID:</span> {short_form}
                     {' '}
                     <span className="text-gray-500">
-            (IRI: <span className="font-mono text-xs">{iri}</span>)
-          </span>
+                        (IRI: <span className="font-mono text-xs">{iri}</span>)
+                    </span>
                 </p>
 
-                <button
-                    onClick={handleNavigateToEntity}
-                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors"
-                >
-                    Find this term in OLS
-                </button>
+                <div className="flex flex-wrap gap-2">
+                    <button
+                        onClick={handleNavigateToEntity}
+                        className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors"
+                    >
+                        Find this term in OLS
+                    </button>
+
+                    {/* Graph Expansion/Collapse Buttons */}
+                        <button
+                            onClick={handleExpandNode}
+                            className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors flex items-center"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                            </svg>
+                            Expand Node
+                        </button>
+                </div>
             </div>
         </div>
     );
-}
+});
+
+export default EntityDetails;

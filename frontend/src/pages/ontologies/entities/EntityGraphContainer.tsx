@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import EntityGraph from "./EntityGraph";
 import EntityDetails from "./EntityDetails";
 
@@ -9,6 +9,10 @@ export default function GraphContainer({
                                        }) {
     // Track the currently displayed entity (either selected from props or clicked in graph)
     const [currentEntityIri, setCurrentEntityIri] = useState(null);
+    // Track expanded nodes
+    const [expandedNodes, setExpandedNodes] = useState(new Set());
+    // Store the fetchNodeConnections function reference
+    const [fetchNodeConnectionsFunc, setFetchNodeConnectionsFunc] = useState(null);
 
     // When selectedEntity prop changes, update the current entity IRI
     useEffect(() => {
@@ -18,13 +22,49 @@ export default function GraphContainer({
     }, [selectedEntity]);
 
     // Handle node selection in the graph
-    const handleNodeSelect = (iri) => {
+    const handleNodeSelect = useCallback((iri) => {
         setCurrentEntityIri(iri);
-    };
+    }, []);
+
+    // Store the fetchNodeConnections function passed from EntityGraph
+    const storeFetchNodeConnectionsFunc = useCallback((func) => {
+        setFetchNodeConnectionsFunc(prevFunc => {
+            // Only update if function reference has changed
+            if (prevFunc !== func && func) {
+                return func;
+            }
+            return prevFunc;
+        });
+    }, []);
+
+    // Handle node expansion
+    const handleNodeExpand = useCallback(async (nodeIri) => {
+        if (!fetchNodeConnectionsFunc || !nodeIri) return;
+
+        // Prevent expanding already expanded nodes
+        if (expandedNodes.has(nodeIri)) return;
+
+        try {
+            const success = await fetchNodeConnectionsFunc(nodeIri);
+            if (success) {
+                setExpandedNodes(prev => {
+                    const newSet = new Set(prev);
+                    newSet.add(nodeIri);
+                    return newSet;
+                });
+            }
+        } catch (error) {
+            console.error("Error expanding node:", error);
+        }
+    }, [fetchNodeConnectionsFunc, expandedNodes]);
+
+    // Function to check if a node is expanded
+    const isNodeExpanded = useCallback((nodeIri) => {
+        return nodeIri ? expandedNodes.has(nodeIri) : false;
+    }, [expandedNodes]);
 
     return (
         <div className="space-y-4">
-
             {/* Graph visualization */}
             <div className="graph-container">
                 <EntityGraph
@@ -32,6 +72,9 @@ export default function GraphContainer({
                     selectedEntity={selectedEntity}
                     entityType={entityType}
                     onNodeSelect={handleNodeSelect}
+                    expandedNodes={expandedNodes}
+                    setExpandedNodes={setExpandedNodes}
+                    onStoreFetchFunc={storeFetchNodeConnectionsFunc}
                 />
             </div>
 
@@ -42,8 +85,10 @@ export default function GraphContainer({
                     ontologyId={ontologyId}
                     entityIri={currentEntityIri}
                     entityType={entityType}
+                    onExpandNode={handleNodeExpand}
+                    isNodeExpanded={isNodeExpanded(currentEntityIri)}
                 />
             </div>
         </div>
-    );
+    )
 }
