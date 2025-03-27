@@ -282,17 +282,20 @@ export default function EntityGraph({
       };
     });
 
-    // Filter visible links
+    // Filter visible links - always keep links in the expansion chain
     const visibleLinks = links.filter(link => {
       const sourceId = typeof link.source === 'object' ? link.source.id : link.source;
       const targetId = typeof link.target === 'object' ? link.target.id : link.target;
 
-      // Include links if both source and target are expanded nodes or already in visible links
-      const isExpansionChainLink =
-          (expandedNodesSet.has(sourceId) && expandedNodesSet.has(targetId)) ||
-          link.visible;
+      // Links are visible if:
+      // 1. They're selected in the filter
+      // 2. OR they connect a node that's explicitly expanded to its parent/source
+      const isDirectExpansionLink =
+          (expandedNodesSet.has(sourceId) && selectedEntity?.getIri() === targetId) ||
+          (expandedNodesSet.has(targetId) && selectedEntity?.getIri() === sourceId) ||
+          (expandedNodesSet.has(sourceId) && expandedNodesSet.has(targetId));
 
-      return isExpansionChainLink;
+      return link.visible || isDirectExpansionLink;
     });
 
     // Get nodes connected by visible links
@@ -302,12 +305,21 @@ export default function EntityGraph({
       nodesInVisibleLinks.add(typeof link.target === 'object' ? link.target.id : link.target);
     });
 
-    // Filter nodes to only include those in visible links (plus the selected node)
+    const nodesInExpansionChain = new Set();
+    visibleLinks.forEach(link => {
+      const sourceId = typeof link.source === 'object' ? link.source.id : link.source;
+      const targetId = typeof link.target === 'object' ? link.target.id : link.target;
+      nodesInExpansionChain.add(sourceId);
+      nodesInExpansionChain.add(targetId);
+    });
+
+    // Filter nodes to include visible links, selected node, and expanded nodes
     const selectedNodeId = selectedEntity?.getIri();
     const visibleNodes = nodes.filter(node =>
         nodesInVisibleLinks.has(node.id) ||
         (selectedNodeId && node.id === selectedNodeId) ||
-        expandedNodesSet.has(node.id)
+        expandedNodesSet.has(node.id) ||
+        nodesInExpansionChain.has(node.id)
     );
 
     return {
