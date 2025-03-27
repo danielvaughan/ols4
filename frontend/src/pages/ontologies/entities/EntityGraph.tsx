@@ -1065,7 +1065,28 @@ export default function EntityGraph({
               </div>
             </div>
         )}
+        {/* Expanded Nodes List */}
+        {expandedNodesSet.size > 0 && (
+            <div className="mb-2 p-3 border rounded-md bg-gray-50">
+              <h3 className="font-semibold text-sm mb-2">List of expanded nodes (*):</h3>
+              <ul className="list-disc list-inside text-sm">
+                {Array.from(expandedNodesSet).map(nodeId => {
+                  // Find the node data to get its label
+                  const node = rawData?.nodes?.find(n => n.iri === nodeId);
+                  if (!node) return null;
 
+                  const nodeLabel = node.label || nodeId.split('/').pop() || nodeId.split('#').pop() || nodeId;
+                  const nodeShortForm = nodeId.split('/').pop() || nodeId.split('#').pop() || nodeId;
+
+                  return (
+                      <li key={nodeId} className="ml-2">
+                        {nodeLabel} ({nodeShortForm})
+                      </li>
+                  );
+                })}
+              </ul>
+            </div>
+        )}
         {/* Graph container */}
         <div
             ref={containerRef}
