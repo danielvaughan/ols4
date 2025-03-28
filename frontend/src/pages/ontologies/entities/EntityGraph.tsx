@@ -642,6 +642,66 @@ export default function EntityGraph({
       // Calculate perceived brightness using weighted average
       return (r * 0.299 + g * 0.587 + b * 0.114);
     }
+
+    // Draw tooltip for hovered node
+    if (isHovered) {
+      // Draw tooltip background with nicer styling
+      const tooltipLabelText = "Label: " + label;
+      const tooltipIriText = "IRI: " + node.id;
+
+      // Use a more accurate font measurement
+      ctx.font = 'bold 12px Arial';
+      const labelWidth = ctx.measureText(tooltipLabelText).width;
+
+      ctx.font = '11px Arial';
+      const iriWidth = ctx.measureText(tooltipIriText).width;
+
+      // Add extra padding to ensure text doesn't overflow
+      const textWidth = Math.max(labelWidth, iriWidth);
+      const boxWidth = textWidth + 30; // Increase padding from 20 to 30
+      const boxHeight = 50;
+
+      // Calculate position - centered above the node
+      const boxX = x - boxWidth/2;
+      const boxY = y - 67;
+
+      // Draw shadow
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+      ctx.beginPath();
+      ctx.roundRect(
+          boxX + 2,
+          boxY + 2,
+          boxWidth,
+          boxHeight,
+          5
+      );
+      ctx.fill();
+
+      // Draw background
+      ctx.fillStyle = '#f8f8f8'; // Off-white background
+      ctx.strokeStyle = '#dddddd'; // Light gray border
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.roundRect(
+          boxX,
+          boxY,
+          boxWidth,
+          boxHeight,
+          5
+      );
+      ctx.fill();
+      ctx.stroke();
+
+      // Draw tooltip text with proper labels
+      ctx.fillStyle = '#333333'; // Dark gray text
+      ctx.textAlign = 'left';
+      ctx.font = 'bold 12px Arial';
+      ctx.fillText(tooltipLabelText, boxX + 10, boxY + 17);
+
+      ctx.fillStyle = '#555555'; // Lighter gray for IRI
+      ctx.font = '11px Arial';
+      ctx.fillText(tooltipIriText, boxX + 10, boxY + 37);
+    }
   }, [graphData.links, hoveredNode, expandedNodes]);
 
   // Draw links with proper connections to nodes, including curved links for multiple relationships
@@ -1100,6 +1160,7 @@ export default function EntityGraph({
                   linkCanvasObject={paintLink}
                   onNodeClick={handleNodeClick}
                   onNodeHover={setHoveredNode}
+                  nodeCanvasObjectMode={() => 'after'}
                   enableZoomInteraction={true}
                   enablePanInteraction={true}
                   enableNodeDrag={true}
