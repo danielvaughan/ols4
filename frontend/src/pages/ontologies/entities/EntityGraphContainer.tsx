@@ -2,17 +2,24 @@ import { useState, useEffect, useCallback } from "react";
 import EntityGraph from "./EntityGraph";
 import EntityDetails from "./EntityDetails";
 
+interface GraphContainerProps {
+    ontologyId: string;
+    selectedEntity: any;
+    entityType: string;
+}
+
 export default function GraphContainer({
                                            ontologyId,
                                            selectedEntity,
                                            entityType
-                                       }) {
+                                       }: GraphContainerProps) {
     // Track the currently displayed entity (either selected from props or clicked in graph)
     const [currentEntityIri, setCurrentEntityIri] = useState(null);
     // Track expanded nodes
-    const [expandedNodes, setExpandedNodes] = useState(new Set());
+    const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set<string>());
     // Store the fetchNodeConnections function reference
-    const [fetchNodeConnectionsFunc, setFetchNodeConnectionsFunc] = useState(null);
+    type FetchNodeConnectionsFuncType = (nodeId: string) => Promise<boolean>;
+    const [fetchNodeConnectionsFunc, setFetchNodeConnectionsFunc] = useState<FetchNodeConnectionsFuncType | null>(null);
 
     // When selectedEntity prop changes, update the current entity IRI
     useEffect(() => {

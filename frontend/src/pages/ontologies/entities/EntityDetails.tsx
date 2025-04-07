@@ -1,17 +1,25 @@
 import { useState, useEffect, memo } from "react";
 import { useNavigate } from "react-router-dom";
 
-const EntityDetails = memo(function EntityDetails({
-                                                      ontologyId,
-                                                      entityIri,
-                                                      entityType,
-                                                      onExpandNode,
-                                                      isNodeExpanded
-                                                  }) {
-    const [entityDetails, setEntityDetails] = useState(null);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
-    const [lastFetchedIri, setLastFetchedIri] = useState(null);
+export interface EntityDetailsProps {
+    ontologyId: string;
+    entityIri: string | null;
+    entityType: string;
+    onExpandNode?: (nodeIri: string) => void;
+    isNodeExpanded?: boolean;
+}
+
+function EntityDetailsComponent({
+                                    ontologyId,
+                                    entityIri,
+                                    entityType,
+                                    onExpandNode,
+                                    isNodeExpanded = false
+                                }: EntityDetailsProps) {
+    const [entityDetails, setEntityDetails] = useState<any>(null);
+    const [loading, setLoading] = useState<boolean>(false);
+    const [error, setError] = useState<string | null>(null);
+    const [lastFetchedIri, setLastFetchedIri] = useState<string | null>(null);
     const navigate = useNavigate();
 
     // Fetch entity details only when entityIri changes
@@ -48,7 +56,7 @@ const EntityDetails = memo(function EntityDetails({
                 setLastFetchedIri(entityIri);
             } catch (err) {
                 console.error("Failed to fetch entity details:", err);
-                setError(err.message || "Failed to fetch entity details");
+                setError(err instanceof Error ? err.message : "Failed to fetch entity details");
             } finally {
                 setLoading(false);
             }
@@ -63,7 +71,7 @@ const EntityDetails = memo(function EntityDetails({
         if (!entityDetails) return;
 
         // Navigate to the entity page
-        navigate(`/ontologies/${ontologyId}/entities/${encodeURIComponent(encodeURIComponent(entityIri))}`);
+        navigate(`/ontologies/${ontologyId}/entities/${encodeURIComponent(encodeURIComponent(entityIri ?? ""))}`);
     };
 
     const handleExpandNode = () => {
@@ -126,13 +134,13 @@ const EntityDetails = memo(function EntityDetails({
                 <div className="mb-4">
                     <h3 className="font-semibold mb-1">Synonyms:</h3>
                     <div className="flex flex-wrap gap-1">
-                        {synonyms.map((synonym, index) => (
+                        {synonyms.map((synonym: string, index: number) => (
                             <span
                                 key={index}
                                 className="inline-block bg-blue-100 text-blue-800 px-2 py-1 rounded-md text-sm"
                             >
-                                {synonym}
-                            </span>
+                {synonym}
+              </span>
                         ))}
                     </div>
                 </div>
@@ -143,8 +151,8 @@ const EntityDetails = memo(function EntityDetails({
                     <span className="font-semibold">Short ID:</span> {short_form}
                     {' '}
                     <span className="text-gray-500">
-                        (IRI: <span className="font-mono text-xs">{iri}</span>)
-                    </span>
+            (IRI: <span className="font-mono text-xs">{iri}</span>)
+          </span>
                 </p>
 
                 <div className="flex flex-wrap gap-2">
@@ -156,19 +164,24 @@ const EntityDetails = memo(function EntityDetails({
                     </button>
 
                     {/* Graph Expansion/Collapse Buttons */}
-                        <button
-                            onClick={handleExpandNode}
-                            className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors flex items-center"
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                            </svg>
-                            Expand Node
-                        </button>
+                    <button
+                        onClick={handleExpandNode}
+                        className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors flex items-center"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                        Expand Node
+                    </button>
                 </div>
             </div>
         </div>
     );
-});
+}
 
+// Then wrap the component with memo
+// Why memo? -> https://react.dev/reference/react/memo
+const EntityDetails = memo(EntityDetailsComponent);
+
+// Export both the memoized component and its props interface
 export default EntityDetails;
