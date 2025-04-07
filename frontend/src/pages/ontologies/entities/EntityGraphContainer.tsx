@@ -1,4 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
+import { getEntity } from "../ontologiesSlice";
+import { useAppDispatch } from "../../../app/hooks";
 import EntityGraph from "./EntityGraph";
 import EntityDetails from "./EntityDetails";
 
@@ -13,24 +15,49 @@ export default function GraphContainer({
                                            selectedEntity,
                                            entityType
                                        }: GraphContainerProps) {
-    // Track the currently displayed entity (either selected from props or clicked in graph)
-    const [currentEntityIri, setCurrentEntityIri] = useState(null);
+
+    // Track the current entity type - initialize with the prop value
+    const [currentEntity, setCurrentEntity] = useState({
+        iri: selectedEntity?.getIri(),
+        type: entityType
+    });
+    const dispatch = useAppDispatch();
+    const updateSelectedEntity = (ontologyId, entityIri) => {
+        dispatch(getEntity({ ontologyId, entityIri }));
+    };
     // Track expanded nodes
     const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set<string>());
     // Store the fetchNodeConnections function reference
     type FetchNodeConnectionsFuncType = (nodeId: string) => Promise<boolean>;
     const [fetchNodeConnectionsFunc, setFetchNodeConnectionsFunc] = useState<FetchNodeConnectionsFuncType | null>(null);
-
-    // When selectedEntity prop changes, update the current entity IRI
+    // When selectedEntity or entityType props change, update the current entity state
     useEffect(() => {
         if (selectedEntity && selectedEntity.getIri) {
-            setCurrentEntityIri(selectedEntity.getIri());
+            setCurrentEntity({
+                iri: selectedEntity.getIri(),
+                type: entityType
+            });
         }
-    }, [selectedEntity]);
+    }, [selectedEntity, entityType]);
 
     // Handle node selection in the graph
-    const handleNodeSelect = useCallback((iri) => {
-        setCurrentEntityIri(iri);
+    const handleNodeSelect = useCallback((entity) => {
+        if (entity && typeof entity === 'object') {
+            updateSelectedEntity(ontologyId, entity.iri);
+            // Received an object with entity info
+            const updates = {
+                iri: undefined,
+                type: undefined
+            };
+
+            if (entity.iri) updates.iri = entity.iri;
+            if (entity.nodeType) updates.type = entity.nodeType;
+            // Update the entity state with available information
+            setCurrentEntity(prev => ({
+                iri: updates.iri || prev.iri,
+                type: updates.type || prev.type
+            }));
+        }
     }, []);
 
     // Store the fetchNodeConnections function passed from EntityGraph
@@ -90,10 +117,10 @@ export default function GraphContainer({
                 <h3 className="text-lg font-semibold mb-2">Entity Details</h3>
                 <EntityDetails
                     ontologyId={ontologyId}
-                    entityIri={currentEntityIri}
-                    entityType={entityType}
+                    entityIri={currentEntity.iri}
+                    entityType={currentEntity.type}
                     onExpandNode={handleNodeExpand}
-                    isNodeExpanded={isNodeExpanded(currentEntityIri)}
+                    isNodeExpanded={isNodeExpanded(currentEntity.iri)}
                 />
             </div>
         </div>

@@ -300,39 +300,6 @@ const EntityGraph: React.FC<EntityGraphProps> = ({
   const [prevClick, setPrevClick] = useState<{ node: any, time: Date } | null>(null);
   const DBL_CLICK_TIMEOUT = 500; // ms
 
-  // Node click handler
-  const handleNodeClick = useCallback((node: any) => {
-    const now = new Date();
-
-    if (prevClick &&
-        prevClick.node.id === node.id &&
-        (now.getTime() - prevClick.time.getTime()) < DBL_CLICK_TIMEOUT) {
-      // This is a double-click
-      setPrevClick(null); // Reset click tracking
-
-      // Handle double-click
-      handleNodeDblClick(node);
-    } else {
-      // This is a first click or a click on a different node
-      setPrevClick({ node, time: now });
-
-      // Set a timeout to handle as a single click if no double-click occurs
-      const timeout = setTimeout(() => {
-        // Notify parent component about node selection
-        if (onNodeSelect) {
-          onNodeSelect(node.id);
-        }
-      }, DBL_CLICK_TIMEOUT + 50);
-
-      // Clear any existing timeout
-      if (clickTimeout) {
-        clearTimeout(clickTimeout);
-      }
-
-      setClickTimeout(timeout);
-    }
-  }, [onNodeSelect, clickTimeout, prevClick]);
-
   // Handle double-click
   const handleNodeDblClick = useCallback((node: any) => {
     // Cancel any pending single-click action
@@ -406,6 +373,89 @@ const EntityGraph: React.FC<EntityGraphProps> = ({
       }
     }
   }, [graphData.links, fetchNodeConnections, clickTimeout, updateExpandedNodes]);
+
+  // Node click handler
+  const handleNodeClick = useCallback((node: any) => {
+    const now = new Date();
+
+    if (prevClick &&
+        prevClick.node.id === node.id &&
+        (now.getTime() - prevClick.time.getTime()) < DBL_CLICK_TIMEOUT) {
+      // This is a double-click
+      setPrevClick(null); // Reset click tracking
+
+      // Handle double-click
+      handleNodeDblClick(node);
+    } else {
+      // This is a first click or a click on a different node
+      setPrevClick({ node, time: now });
+
+      // Set a timeout to handle as a single click if no double-click occurs
+      const timeout = setTimeout(async () => {
+        // Clear any existing timeout
+        if (clickTimeout) {
+          clearTimeout(clickTimeout);
+          setClickTimeout(null);
+        }
+
+        try {
+          // Fetch the entity details when a node is clicked
+          const entityIri = node.id;
+
+          // API call to get the complete entity data
+          const doubleEncodedIri = encodeURIComponent(encodeURIComponent(entityIri));
+          const apiUrl = `${process.env.REACT_APP_APIURL}api/v2/ontologies/${ontologyId}/entities/${doubleEncodedIri}`;
+
+          const response = await fetch(apiUrl);
+
+          if (!response.ok) {
+            throw new Error(`Failed to fetch entity: ${response.status}`);
+          }
+
+          const entityData = await response.json();
+
+          // Determine entity type from the fetched data
+          let detectedType = entityType; // Default to current type
+
+          if (entityData.type && Array.isArray(entityData.type)) {
+            if (entityData.type.includes("class")) {
+              detectedType = "classes";
+            } else if (entityData.type.includes("individual")) {
+              detectedType = "individuals";
+            } else if (entityData.type.includes("property")) {
+              detectedType = "properties";
+            }
+          }
+
+          // Create an entity-like object with the fetched data
+          const entityObject = {
+            iri: entityIri,
+            nodeType: detectedType,
+            data: entityData // Include the full entity data
+          };
+
+          // Notify parent component with the fetched entity data
+          if (onNodeSelect) {
+            onNodeSelect(entityObject);
+          }
+        } catch (error) {
+          console.error("Error fetching entity data:", error);
+
+          // If fetch fails, fall back to just passing the ID
+          if (onNodeSelect) {
+            onNodeSelect(node.id);
+          }
+        }
+      }, DBL_CLICK_TIMEOUT + 50);
+
+      // Clear any existing timeout
+      if (clickTimeout) {
+        clearTimeout(clickTimeout);
+      }
+
+      setClickTimeout(timeout);
+    }
+  }, [onNodeSelect, clickTimeout, prevClick, ontologyId, entityType, handleNodeDblClick]);
 
   // Custom node renderer
   const paintNode = useCallback((node: any, ctx: CanvasRenderingContext2D) => {
