@@ -106,8 +106,6 @@ export function useOntologyGraph(ontologyId: string, iri: string | undefined) {
                     return !existingEdgeKeys.has(edgeKey);
                 });
 
-                console.log(`Expanding node: Adding ${newNodes.length} nodes and ${newEdges.length} edges`);
-
                 // Return merged data
                 return {
                     nodes: [...prevData.nodes, ...newNodes],

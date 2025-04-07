@@ -1,11 +1,10 @@
-// EntityGraph.tsx
 import React, { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import ForceGraph2D, { ForceGraphMethods } from "react-force-graph-2d";
 import * as d3 from 'd3-force';
 
 // Import hooks and types
 import { useOntologyGraph } from "../../../app/hooks";
-import { EntityGraphProps, GraphData, RelationshipType } from "./graphUtils/types";
+import { EntityGraphProps, RelationshipType } from "./graphUtils/types";
 import { generateColor } from "./graphUtils/colorUtils";
 import { getShortFormFromIri } from "./graphUtils/nodeUtils";
 import { renderNode } from "./graphRenderers/nodeRenderer";
@@ -18,9 +17,6 @@ import { RelationshipFilters } from "./graphUIComponents/RelationshipFilters";
 import { ExpandedNodesList } from "./graphUIComponents/ExpandedNodesList";
 import { EmptyGraphDisplay } from "./graphUIComponents/EmptyGraphDisplay";
 
-/**
- * EntityGraph component for visualizing ontology relationships
- */
 const EntityGraph: React.FC<EntityGraphProps> = ({
                                                    ontologyId,
                                                    selectedEntity,
@@ -435,8 +431,8 @@ const EntityGraph: React.FC<EntityGraphProps> = ({
         if (nodeToCenter) {
           setTimeout(() => {
             graphRef.current?.centerAt(
-                nodeToCenter.x || 0,
-                nodeToCenter.y || 0,
+                (nodeToCenter as any).x || 0,
+                (nodeToCenter as any).y || 0,
                 1000 // transition duration
             );
           }, 50);
@@ -463,9 +459,19 @@ const EntityGraph: React.FC<EntityGraphProps> = ({
   useEffect(() => {
     if (graphData.nodes.length > 0 && graphRef.current) {
       // Configure force simulation for better spacing
-      graphRef.current.d3Force('link').distance(() => 180);
-      graphRef.current.d3Force('charge').strength(-800).distanceMax(1500);
-      graphRef.current.d3Force('collision', d3.forceCollide().radius(80));
+      if (graphRef.current) {
+        const linkForce = graphRef.current.d3Force('link');
+        if (linkForce) {
+          linkForce.distance(() => 180);
+        }
+
+        const chargeForce = graphRef.current.d3Force('charge');
+        if (chargeForce) {
+          chargeForce.strength(-800).distanceMax(1500);
+        }
+        // Add collision force safely
+        graphRef.current.d3Force('collision', d3.forceCollide().radius(80));
+      }
 
       // Reheat the simulation
       graphRef.current.d3ReheatSimulation();

@@ -1,5 +1,4 @@
 import { getColorBrightness, applyOpacity } from '../graphUtils/colorUtils';
-import { GraphNode } from '../graphUtils/types';
 
 /**
  * Renders a node on the canvas
