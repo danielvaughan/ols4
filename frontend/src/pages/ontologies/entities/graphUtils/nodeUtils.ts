@@ -1,8 +1,3 @@
-export const truncateLabel = (label: string, maxLength: number = 25): string => {
-    if (label.length <= maxLength) return label;
-    return `${label.substring(0, maxLength - 3)}...`;
-};
-
 /**
  * Gets a display-friendly short form of an IRI
  * @param iri The IRI string
