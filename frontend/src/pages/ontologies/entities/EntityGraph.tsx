@@ -20,7 +20,6 @@ import { EmptyGraphDisplay } from "./graphUIComponents/EmptyGraphDisplay";
 const EntityGraph: React.FC<EntityGraphProps> = ({
                                                    ontologyId,
                                                    selectedEntity,
-                                                   entityType,
                                                    onNodeSelect,
                                                    expandedNodes = new Set(),
                                                    onStoreFetchFunc,
@@ -415,7 +414,7 @@ const EntityGraph: React.FC<EntityGraphProps> = ({
           const entityData = await response.json();
 
           // Determine entity type from the fetched data
-          let detectedType = entityType; // Default to current type
+          let detectedType = "classes"; // Default to classes
 
           if (entityData.type && Array.isArray(entityData.type)) {
             if (entityData.type.includes("class")) {
@@ -455,7 +454,7 @@ const EntityGraph: React.FC<EntityGraphProps> = ({
 
       setClickTimeout(timeout);
     }
-  }, [onNodeSelect, clickTimeout, prevClick, ontologyId, entityType, handleNodeDblClick]);
+  }, [onNodeSelect, clickTimeout, prevClick, ontologyId, handleNodeDblClick]);
 
   // Custom node renderer
   const paintNode = useCallback((node: any, ctx: CanvasRenderingContext2D) => {

@@ -7,7 +7,6 @@ export interface RelationshipType {
 export interface EntityGraphProps {
     ontologyId: string;
     selectedEntity: any;  // Assuming Entity class has getIri() method
-    entityType: string;
     onNodeSelect?: (nodeInfo: { iri: any; nodeType: string; data?: any }) => void;
     expandedNodes?: Set<string>;
     onStoreFetchFunc?: (func: (nodeId: string) => Promise<boolean>) => void;

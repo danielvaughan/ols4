@@ -1,8 +1,5 @@
 import { getColorBrightness, applyOpacity } from '../graphUtils/colorUtils';
 
-/**
- * Renders a node on the canvas
- */
 export const renderNode = (
     node: any,
     ctx: CanvasRenderingContext2D,

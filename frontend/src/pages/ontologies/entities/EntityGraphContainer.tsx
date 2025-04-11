@@ -1,6 +1,4 @@
 import { useState, useEffect, useCallback } from "react";
-import { getEntity } from "../ontologiesSlice";
-import { useAppDispatch } from "../../../app/hooks";
 import EntityGraph from "./EntityGraph";
 import EntityDetails from "./EntityDetails";
 
@@ -21,10 +19,6 @@ export default function GraphContainer({
         iri: selectedEntity?.getIri(),
         type: entityType
     });
-    const dispatch = useAppDispatch();
-    const updateSelectedEntity = (ontologyId, entityIri) => {
-        dispatch(getEntity({ ontologyId, entityIri }));
-    };
     // Track expanded nodes
     const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set<string>());
     // Store the fetchNodeConnections function reference
@@ -43,7 +37,6 @@ export default function GraphContainer({
     // Handle node selection in the graph
     const handleNodeSelect = useCallback((entity) => {
         if (entity && typeof entity === 'object') {
-            updateSelectedEntity(ontologyId, entity.iri);
             // Received an object with entity info
             const updates = {
                 iri: undefined,
@@ -104,7 +97,6 @@ export default function GraphContainer({
                 <EntityGraph
                     ontologyId={ontologyId}
                     selectedEntity={selectedEntity}
-                    entityType={entityType}
                     onNodeSelect={handleNodeSelect}
                     expandedNodes={expandedNodes}
                     setExpandedNodes={setExpandedNodes}

@@ -21,7 +21,6 @@ function EntityDetailsComponent({
     const [error, setError] = useState<string | null>(null);
     const [lastFetchedIri, setLastFetchedIri] = useState<string | null>(null);
     const navigate = useNavigate();
-
     // Fetch entity details only when entityIri changes
     useEffect(() => {
         const fetchEntityDetails = async () => {
@@ -70,8 +69,20 @@ function EntityDetailsComponent({
     const handleNavigateToEntity = () => {
         if (!entityDetails) return;
 
+        let targetUrl = '';
+        const doubleEncodedIri = encodeURIComponent(encodeURIComponent(entityIri ?? ""));
+
+        if(entityType === 'classes'){
+            targetUrl = `/ontologies/${ontologyId}/classes/${doubleEncodedIri}`;
+        } else if (entityType === 'individuals'){
+            targetUrl = `/ontologies/${ontologyId}/individuals/${doubleEncodedIri}`;
+        } else if (entityType === 'properties'){
+            targetUrl = `/ontologies/${ontologyId}/properties/${doubleEncodedIri}`;
+        } else {
+            throw new Error(`Invalid entity type: ${entityType}`);
+        }
         // Navigate to the entity page
-        navigate(`/ontologies/${ontologyId}/entities/${encodeURIComponent(encodeURIComponent(entityIri ?? ""))}`);
+        navigate(targetUrl);
     };
 
     const handleExpandNode = () => {
