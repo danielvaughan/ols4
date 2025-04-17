@@ -1,12 +1,16 @@
 {
   "ontologies": [
     {
+      "id": "mondo",
+      "ontology_purl": "https://purl.obolibrary.org/obo/mondo/mondo-international.owl"
+    },
+    {
       "id": "evorao",
       "ontology_purl": "https://raw.githubusercontent.com/EVORA-project/evora-ontology/refs/heads/main/models/owl/evora_ontology.owl.ttl"
     },
     {
       "id": "ictv",
-      "ontology_purl": "https://raw.githubusercontent.com/EVORA-project/ictv-ontology/refs/heads/main/out/ictv_2023.owl.ttl"
+      "ontology_purl": "https://github.com/EVORA-project/ictv-ontology/raw/refs/heads/main/out/MSL40.owl.ttl"
     },
     {
       "id": "uniprotrdfs",
@@ -750,9 +754,6 @@
       ],
       "base_uri": [
         "http://purl.obolibrary.org/obo/PRIDE_"
-      ],
-      "hierarchical_property": [
-        "http://purl.obolibrary.org/obo/pride_cv.obo#part_of"
       ],
       "oboSlims": false,
       "ontology_purl": "https://raw.githubusercontent.com/PRIDE-Utilities/pride-ontology/master/pride_cv.owl"
