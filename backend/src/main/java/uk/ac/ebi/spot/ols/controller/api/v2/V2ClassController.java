@@ -29,9 +29,11 @@ import java.util.Map;
 
 import static uk.ac.ebi.ols.shared.DefinedFields.*;
 
-@Tag(name = "V2 Class Controller", description = "This endpoint provides access to class information. Additionally, if you want to retrieve detailed information about class synonyms then you need to parse the response using the 'synonymProperty' field." +
-        "For each element of the synonymProperty array you can then find the detailed information about each synonym type within the response as each synonym type is a separate object." +
-        "For further details about the meaning of different synonym types please refer to this link: https://ontology-development-kit.readthedocs.io/en/latest/Synonyms.html.")
+@Tag(name = "V2 Class Controller", description = "This endpoint provides access to class information. \n\n" +
+                "**Additionally**, if you want to retrieve detailed information about class synonyms then you need to parse the response using the `synonymProperty` field. \n\n" +
+                "For each element of the `synonymProperty` array you can then find the detailed information about each synonym type within the response as each synonym type is a separate object. \n\n" +
+                "For further details about the meaning of different synonym types please refer to this link: [Synonym Documentation](https://ontology-development-kit.readthedocs.io/en/latest/Synonyms.html)."
+)
 @RestController
 @RequestMapping("/api/v2")
 public class V2ClassController {
