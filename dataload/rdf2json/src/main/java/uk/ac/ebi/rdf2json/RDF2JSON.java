@@ -82,21 +82,36 @@ public class RDF2JSON {
 
         List<InputJson> configs = configFilePaths.stream().map(configPath -> {
 
-            InputStream inputStream;
+            // If an OWL file was given instead of a config JSON, we make a simple config JSON for it.
+            // This enables OLS to be easily run for an ontology without having to make a config.
+            // For the ID we use the filename of the OWL file without the extension.
+            //
+            if(configPath.endsWith(".json")) { 
 
-            try {
-                if (configPath.contains("://")) {
-                    inputStream = new URL(configPath).openStream();
-                } else {
-                    inputStream = new FileInputStream(configPath);
+                InputStream inputStream;
+
+                try {
+                    if (configPath.contains("://")) {
+                        inputStream = new URL(configPath).openStream();
+                    } else {
+                        inputStream = new FileInputStream(configPath);
+                    }
+                } catch(IOException e) {
+                    throw new RuntimeException("Error loading config file: " + configPath);
                 }
-            } catch(IOException e) {
-                throw new RuntimeException("Error loading config file: " + configPath);
+
+                JsonReader reader = new JsonReader(new InputStreamReader(inputStream));
+
+                return (InputJson) gson.fromJson(reader, InputJson.class);
+
+            } else {
+
+                // for example both .owl and .owl.gz is removed from the end of the path
+                String ontologyId = configPath.substring(configPath.lastIndexOf("/") + 1, configPath.indexOf('.', configPath.lastIndexOf("/")));
+                InputJson autoConfig = new InputJson();
+                autoConfig.ontologies = List.of(Map.of("id", ontologyId, "ontology_purl", configPath));
+                return autoConfig;
             }
-
-            JsonReader reader = new JsonReader(new InputStreamReader(inputStream));
-
-            return (InputJson) gson.fromJson(reader, InputJson.class);
 
         }).collect(Collectors.toList());
 

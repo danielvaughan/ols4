@@ -176,4 +176,40 @@ public class V2ClassRepository {
                 .map(RemoveLiteralDatatypesTransform::transform)
                 .map(V2Entity::new);
     }
+
+
+    public Page<V2Entity> getSimilarByOntologyId(String ontologyId, Pageable pageable, String iri, String lang) {
+
+        Validation.validateOntologyId(ontologyId);
+        Validation.validateLang(lang);
+
+        return this.neo4jClient.getSimilar("OntologyClass", iri, pageable)
+                .map(e -> LocalizationTransform.transform(e, lang))
+                .map(RemoveLiteralDatatypesTransform::transform)
+                .map(V2Entity::new);
+    }
+
+    public double getSimilarityByOntologyId(String ontologyId, String iri, String iri2) {
+
+        Validation.validateOntologyId(ontologyId);
+
+        return this.neo4jClient.getSimilarity("OntologyClass", iri, iri2);
+    }
+
+    public List<Double> getEmbeddingVectorByOntologyId(String ontologyId, String iri) {
+
+        Validation.validateOntologyId(ontologyId);
+
+        return this.neo4jClient.getEmbeddingVector("OntologyClass", iri);
+    }
+
+    public Page<V2Entity> searchByVector(List<Double> vector, Pageable pageable, String lang) {
+        Validation.validateVector(vector);
+        Validation.validateLang(lang);
+
+        return this.neo4jClient.searchByVector("OntologyClass", vector, pageable)
+                .map(e -> LocalizationTransform.transform(e, lang))
+                .map(RemoveLiteralDatatypesTransform::transform)
+                .map(V2Entity::new);
+    }
 }

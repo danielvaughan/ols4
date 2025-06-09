@@ -30,7 +30,7 @@ spec:
             claimName: {{ .Release.Name }}-neo4j-pvc
       containers:
         - name: neo4j
-          image: ghcr.io/ebispot/ols4-neo4j:4.4.9-community
+          image: neo4j:2025.03.0-community
           volumeMounts:
             - mountPath: "/data"
               name: {{ .Release.Name }}-neo4j-storage
@@ -52,6 +52,8 @@ spec:
               value: {{.Values.neo4jTarballUrl}}
             - name: NEO4J_AUTH
               value: none
+            - name: JAVA_OPTS
+              value: --add-modules jdk.incubator.vector
           ports:
             - containerPort: 7474
             - containerPort: 7687

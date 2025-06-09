@@ -32,7 +32,7 @@ spec:
         fsGroup: 8983
       containers:
         - name: solr
-          image: ghcr.io/ebispot/ols4-solr:9.0.0
+          image: ghcr.io/ebispot/ols4-solr:9.8.1
           volumeMounts:
             - mountPath: "/data"
               name: {{ .Release.Name }}-solr-storage
@@ -52,6 +52,8 @@ spec:
               value: /data
             - name: SOLR_JAVA_MEM
               value: -Xms2g -Xmx8g
+            - name: JAVA_OPTS
+              value: --add-modules jdk.incubator.vector
           ports:
             - containerPort: 8983
 
