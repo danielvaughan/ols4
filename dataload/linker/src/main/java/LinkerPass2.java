@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
 import static uk.ac.ebi.ols.shared.DefinedFields.*;
 
 public class LinkerPass2 {
@@ -565,7 +566,10 @@ public class LinkerPass2 {
     }
 
     private static String getProcessedCurieValue(LinkerPass1.LinkerPass1Result pass1Result, String entityIri) {
-        var def = pass1Result.iriToDefinitions.get(entityIri);
+        if(isNullOrEmpty(entityIri)) {
+            return "";
+        }
+        var def =  pass1Result.iriToDefinitions.get(entityIri);
         if (def.definitions.iterator().hasNext()) {
             JsonObject defCurieObject = def.definitions.iterator().next().curie.getAsJsonObject();
             if (defCurieObject.has("value")) {
