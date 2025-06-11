@@ -79,6 +79,8 @@ public class OntologyGraph implements StreamRDF {
 
         Lang lang = null;
         if(contentType != null) {
+	    // handle "content-type: text/turtle; charset ..."
+	    contentType = contentType.split(";")[0];
             lang = RDFLanguages.contentTypeToLang(contentType);
         }
         if(lang == null) {
