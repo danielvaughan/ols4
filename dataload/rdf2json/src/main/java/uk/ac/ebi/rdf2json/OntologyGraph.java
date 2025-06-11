@@ -79,9 +79,15 @@ public class OntologyGraph implements StreamRDF {
 
         Lang lang = null;
         if(contentType != null) {
+
 	    // handle "content-type: text/turtle; charset ..."
 	    contentType = contentType.split(";")[0];
-            lang = RDFLanguages.contentTypeToLang(contentType);
+
+	    // lots of the OBO ontologies are text/plain but are actually rdfxml
+	    // RDFLanguages interprets text/plain as turtle which would break them
+	    if(!contentType.equals("text/plain")) {
+		    lang = RDFLanguages.contentTypeToLang(contentType);
+	    }
         }
         if(lang == null) {
             lang = RDFLanguages.filenameToLang(url, Lang.RDFXML);
