@@ -25,7 +25,7 @@ spec:
                     - hh-rke-wp-webadmin-56-worker-2.caas.ebi.ac.uk
       initContainers:
         - name: wait-for-backend
-          image: busybox
+          image: gcr.io/google-containers/busybox
           command: [ 'sh', '-c', 'until nc -z {{ .Release.Name }}-backend 8080; do echo waiting for backend; sleep 5; done;' ]
       containers:
         - name: web
