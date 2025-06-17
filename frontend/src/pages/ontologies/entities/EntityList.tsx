@@ -3,37 +3,85 @@ import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../../app/hooks";
 import DataTable, { Column } from "../../../components/DataTable";
 import Entity from "../../../model/Entity";
-import { getEntities } from "../ontologiesSlice";
+import { getEntities, getDirectChildrenEntities } from "../ontologiesSlice";
 import Individual from "../../../model/Individual";
 import Property from "../../../model/Property";
 
 export default function EntityList({
   ontologyId,
   entityType,
+  parentEntityIri,
+  lang,
+  showObsoleteEnabled,
+  onNavigateToEntity,
+  title,
 }: {
   ontologyId: string;
   entityType: "entities" | "classes" | "properties" | "individuals";
+  parentEntityIri?: string;
+  lang?: string;
+  showObsoleteEnabled?: boolean;
+  onNavigateToEntity?: (ontologyId: string, entity: Entity) => void;
+  title?: string;
 }) {
   const dispatch = useAppDispatch();
-  const entities = useAppSelector((state) => state.ontologies.entities);
-  // const loading = useAppSelector((state) => state.ontologies.loadingEntities);
-  const totalEntities = useAppSelector(
-    (state) => state.ontologies.totalEntities
-  );
+  
 
   const [page, setPage] = useState<number>(0);
   const [rowsPerPage, setRowsPerPage] = useState<number>(10);
   const [search, setSearch] = useState<string>("");
 
+  const entities = useAppSelector((state) => 
+    parentEntityIri ? state.ontologies.directChildrenEntities : state.ontologies.entities
+  );
+  const totalEntities = useAppSelector((state) => 
+    parentEntityIri ? state.ontologies.totalDirectChildrenEntities : state.ontologies.totalEntities
+  );
+  const loading = useAppSelector((state) => 
+    parentEntityIri ? state.ontologies.loadingDirectChildrenEntities : state.ontologies.loadingEntities
+  );
+
   useEffect(() => {
-    dispatch(
-      getEntities({ ontologyId, entityType, page, rowsPerPage, search })
-    );
-  }, [dispatch, ontologyId, entityType, page, rowsPerPage, search]);
+    if (parentEntityIri) {
+      // Fetch direct children using the specific API endpoint
+      dispatch(
+        getDirectChildrenEntities({
+          ontologyId,
+          entityIri: parentEntityIri,
+          entityType,
+          page,
+          size: rowsPerPage,
+          search,
+          lang,
+          showObsoleteEnabled,
+        })
+      );
+    } else {
+      // Use regular entities endpoint for general browsing
+      const searchParam = search ? `*${search}*` : search;
+      const params: any = { 
+        ontologyId, 
+        entityType, 
+        page, 
+        rowsPerPage, 
+        search: searchParam 
+      };
+      
+      if (lang) params.lang = lang;
+      if (showObsoleteEnabled !== undefined) params.includeObsoleteEntities = showObsoleteEnabled;
+      
+      dispatch(getEntities(params));
+    }
+  }, [dispatch, ontologyId, entityType, page, rowsPerPage, search, parentEntityIri, lang, showObsoleteEnabled]);
 
   useEffect(() => {
     setPage(0);
-  }, [entityType]);
+  }, [entityType, parentEntityIri]);
+
+  // Reset page when search changes
+  useEffect(() => {
+    setPage(0);
+  }, [search]);
 
   const navigate = useNavigate();
 
@@ -336,7 +384,6 @@ export default function EntityList({
   };
 
   // Merge columns based on the entity type.
-  // Merge columns based on the entity type.
   let columns = [...baseColumns];
 
   if (entityType === "individuals") {
@@ -346,7 +393,18 @@ export default function EntityList({
   }
 
   return (
-    <div className="mt-2">
+    <div className={parentEntityIri ? "mt-4 p-4 bg-gray-50 rounded-lg" : "mt-2"}>
+      {title && (
+        <div className="mb-3">
+          <h4 className="text-lg font-semibold text-gray-700">
+            {title}
+          </h4>
+          <p className="text-sm text-gray-600">
+            This node has more than 1000 direct children. Use the list below to browse them.
+          </p>
+        </div>
+      )}
+      
       <DataTable
         columns={columns}
         data={entities}
@@ -364,18 +422,19 @@ export default function EntityList({
           });
         }}
         onSelectRow={(row) => {
-          const termUrl = encodeURIComponent(
-            encodeURIComponent(row.properties.iri)
-          );
-          navigate(
-            `/ontologies/${ontologyId}/${row.getTypePlural()}/${termUrl}`
-          );
+          if (onNavigateToEntity) {
+            onNavigateToEntity(ontologyId, row);
+          } else {
+            const termUrl = encodeURIComponent(
+              encodeURIComponent(row.properties.iri)
+            );
+            navigate(
+              `/ontologies/${ontologyId}/${row.getTypePlural()}/${termUrl}`
+            );
+          }
         }}
-        onFilter={(key: string) => {
-          setSearch((prev) => {
-            if (key !== prev) setPage(0);
-            return key;
-          });
+        onFilter={(searchTerm: string) => {
+          setSearch(searchTerm);
         }}
       />
     </div>

@@ -219,6 +219,10 @@ public class V2ClassController {
             @Parameter(name = "class",
                     description = "The IRI of the class, this value must be double URL encoded",
                     example = "http%3A%2F%2Fwww.ebi.ac.uk%2Fefo%2FEFO_0000001") String iri,
+            @RequestParam(value = "searchQuery", required = false)
+            @Parameter(name="searchQuery",
+                    description = "This parameter specify the search query text.",
+                    example = "liver disease") String searchQuery,
             @RequestParam(value = "lang", required = false, defaultValue = "en") String lang
     ) throws ResourceNotFoundException {
 
@@ -226,7 +230,7 @@ public class V2ClassController {
 
         return new ResponseEntity<>(
                 new V2PagedResponse<>(
-                    classRepository.getChildrenByOntologyId(ontologyId, pageable, iri, lang)
+                    classRepository.getChildrenByOntologyId(ontologyId, pageable, iri, searchQuery, lang)
                 ),
                 HttpStatus.OK);
     }

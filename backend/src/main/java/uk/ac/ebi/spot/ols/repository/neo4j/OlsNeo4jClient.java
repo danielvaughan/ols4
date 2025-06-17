@@ -116,22 +116,34 @@ public class OlsNeo4jClient {
 		return neo4jClient.queryPaginated(query, "b", countQuery, parameters("type", type, "id", id), pageable);
     }
 
-    public Page<JsonElement> traverseIncomingEdges(String type, String id, List<String> edgeIRIs, Map<String,String> edgeProps, Pageable pageable) {
+    public Page<JsonElement> traverseIncomingEdges(String type, String id, List<String> edgeIRIs, Map<String,String> edgeProps, Pageable pageable, String searchQuery) {
 
 		String edge = makeEdgesList(edgeIRIs, Map.of());
 
+		String searchCondition = "";
+
+		if (searchQuery != null && !searchQuery.trim().isEmpty()) {
+			// Since label is an array, we need to check if any element contains the search term
+			searchCondition = "AND ANY(labelItem IN b.label WHERE toLower(labelItem) CONTAINS toLower($searchQuery)) ";
+		}
+
 		String query =
 		  "MATCH (a:" + type + ")<-[edge:" + edge + "]-(b) "
-		+ "WHERE a.id = $id "
+		+ "WHERE a.id = $id " + searchCondition
 		+ "RETURN distinct b";
 
 		String countQuery =
 		  "MATCH (a:" + type + ")<-[edge:" + edge + "]-(b) "
-		+ "WHERE a.id = $id "
+		+ "WHERE a.id = $id " + searchCondition
 		+ "RETURN count(distinct b)";
 
-		return neo4jClient.queryPaginated(query, "b", countQuery, parameters("type", type, "id", id), pageable);
+		return neo4jClient.queryPaginated(query, "b", countQuery, parameters("type", type, "id", id, "searchQuery", searchQuery), pageable);
     }
+
+	// Overloaded method for backward compatibility
+	public Page<JsonElement> traverseIncomingEdges(String type, String id, List<String> edgeIRIs, Map<String,String> edgeProps, Pageable pageable) {
+		return traverseIncomingEdges(type, id, edgeIRIs, edgeProps, pageable, null);
+	}
 
     public Page<JsonElement> recursivelyTraverseOutgoingEdges(String type, String id, List<String> edgeIRIs, Map<String,String> edgeProps, Pageable pageable) {
 
