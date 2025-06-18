@@ -109,6 +109,7 @@ public class OntologyGraph implements StreamRDF {
         }
 
         if (downloadedPath != null) {
+	    try {
             String existingDownload = downloadedPath + "/" + urlToFilename(url);
             InputStream is = new FileInputStream(existingDownload);
             logger.debug("parseRDF: Using predownloaded file for {}", url);
@@ -116,6 +117,9 @@ public class OntologyGraph implements StreamRDF {
             String existingDownloadMimeType = Files.readString(Paths.get(existingDownload + ".mimetype"));
             parseRDF(url, is, existingDownloadMimeType);
             return;
+	    } catch(Exception e){
+		    logger.debug("parseRDF: unable to use predownloaded file for {}", url);
+	    }
         }
 
         logger.error("parseRDF: Downloading (not predownloaded) {}", url);
