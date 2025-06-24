@@ -22,9 +22,9 @@ export default function FallbackWarning({ ontology }: FallbackWarningProps) {
           <WarningAmber className="mr-3" />
         </div>
         <div>
-          <p className="font-bold">Outdated Version Warning</p>
+          <p className="font-bold">Outdated Ontology Warning</p>
           <p className="text-sm">
-            You are currently viewing an older version of this ontology because the latest version is experiencing issues.
+            OLS was unable to index this ontology, so the version you are viewing may not be up to date.
           </p>
         </div>
       </div>
