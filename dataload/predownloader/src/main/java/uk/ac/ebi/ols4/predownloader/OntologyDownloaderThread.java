@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.zip.GZIPInputStream;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.input.TeeInputStream;
@@ -73,11 +74,20 @@ public class OntologyDownloaderThread implements Runnable {
 
             Lang lang = RDFLanguages.contentTypeToLang(mimetype);
             if(lang == null) {
+                lang = RDFLanguages.filenameToLang(ontologyUrl, Lang.RDFXML);
+            }
+            if(lang == null) {
                 lang = Lang.RDFXML;
+            }
+            
+            InputStream is = new FileInputStream(path);
+
+            if(ontologyUrl.endsWith(".gz")) {
+                is = new GZIPInputStream(is);
             }
 
             // parse to look for imports only
-            createParser(lang).source(new FileInputStream(path)).parse(new StreamRDF() {
+            createParser(lang).source(is).parse(new StreamRDF() {
                 public void start() {}
                 public void quad(Quad quad) {}
                 public void base(String base) {}
@@ -117,6 +127,13 @@ public class OntologyDownloaderThread implements Runnable {
 
     private static String downloadURL(String url, String filename) throws FileNotFoundException, IOException {
 
+        var asURL = new URL(url);
+        if(asURL.getProtocol().equals("file")) {
+            Files.copy(asURL.openStream(), Paths.get(filename));
+            Files.write(Paths.get(filename + ".mimetype"), "application/octet-stream".getBytes());
+            return "application/octet-stream";
+        }
+
         RequestConfig config = RequestConfig.custom()
                 .setConnectTimeout(5000)
                 .setConnectionRequestTimeout(5000)
@@ -125,6 +142,8 @@ public class OntologyDownloaderThread implements Runnable {
         CloseableHttpClient client = HttpClientBuilder.create().setDefaultRequestConfig(config).build();
 
         HttpGet request = new HttpGet(url);
+        request.addHeader("Accept", "application/rdf+xml, text/turtle, text/n3");
+
         HttpResponse response = client.execute(request);
         HttpEntity entity = response.getEntity();
         if (entity != null) {

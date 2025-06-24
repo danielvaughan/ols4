@@ -14,6 +14,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriUtils;
+
+import com.google.gson.Gson;
+
 import uk.ac.ebi.spot.ols.controller.api.v2.helpers.DynamicQueryHelper;
 import uk.ac.ebi.spot.ols.controller.api.v2.responses.V2PagedAndFacetedResponse;
 import uk.ac.ebi.spot.ols.controller.api.v2.responses.V2PagedResponse;
@@ -71,6 +74,8 @@ import static uk.ac.ebi.ols.shared.DefinedFields.*;
 @RestController
 @RequestMapping("/api/v2")
 public class V2ClassController {
+
+    Gson gson = new Gson();
 
     @Autowired
     V2ClassRepository classRepository;
@@ -305,8 +310,6 @@ public class V2ClassController {
                 HttpStatus.OK
         );
     }
-
-
 
     // The ancestors of individuals are classes. So, the /ancestors endpoint is part of the Class controller.
     //

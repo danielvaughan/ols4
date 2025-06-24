@@ -1,18 +1,32 @@
 package uk.ac.ebi.spot.ols.repository.neo4j;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+
+import org.neo4j.driver.Record;
+import org.neo4j.driver.Result;
+import org.neo4j.driver.Session;
+import org.neo4j.driver.types.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
+import org.webjars.NotFoundException;
+
+import uk.ac.ebi.spot.ols.controller.api.exception.ResourceNotFoundException;
 import uk.ac.ebi.spot.ols.repository.solr.OlsSolrClient;
 import uk.ac.ebi.spot.ols.service.Neo4jClient;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.neo4j.driver.Values.parameters;
 
@@ -21,6 +35,8 @@ public class OlsNeo4jClient {
 
 	@Autowired
 	Neo4jClient neo4jClient;
+
+	Gson gson = new Gson();
   
 	private static final Logger logger = LoggerFactory.getLogger(OlsNeo4jClient.class);
   
@@ -172,5 +188,113 @@ public class OlsNeo4jClient {
 		return edge;
 	}
 
+    public static class SimilarResult {
+        public JsonElement entity;
+        public double score;
+    }
+
+    public Page<JsonElement> getSimilar(String type, String iri, Pageable pageable) {
+
+		// Only the defining class has vector embeddings. So instead of searching by
+		// ID (where we may get an imported class with no embeddings), search by IRI
+		// and isDefiningOntology=true
+
+		String index = type == "OntologyClass" ? "class_embeddings" : "property_embeddings";
+
+		String query = "MATCH (c:" + type + " {iri: $iri}) "
+		+ "WHERE \"true\" IN c.isDefiningOntology "
+		+ "CALL db.index.vector.queryNodes('" + index + "', $size, c.embeddings) "
+		+ "YIELD node AS similar, score "
+		+ "RETURN similar as entity, score "
+		+ "ORDER BY score DESC ";
+
+
+		ArrayList<JsonElement> res = new ArrayList<>();
+
+		Session session = neo4jClient.getSession();
+		Result result = session.run(query, Map.of("iri", iri, "size", pageable.getPageSize()));
+
+		for(Record r : result.list()) {
+
+			var rmap = r.asMap();
+
+			Map<String,Object> entity = ((Node) rmap.get("entity")).asMap();
+			double score = (Double) rmap.get("score");
+
+			var resRow = JsonParser.parseString((String) entity.get("_json"));
+			var json = gson.fromJson(resRow, JsonElement.class);
+			json.getAsJsonObject().addProperty("score", score);
+
+			res.add(resRow);
+		}
+
+		return new PageImpl<JsonElement>(res, pageable, res.size());
+    }
+
+    public double getSimilarity(String type, String iri, String iri2) {
+
+		String query = "MATCH (c:" + type + " {iri: $iri, isDefiningOntology:['true']}) " +
+		"MATCH (c2:" + type + " {iri: $iri2, isDefiningOntology:['true']}) " +
+		"RETURN vector.similarity.cosine(c.embeddings, c2.embeddings) AS score";
+
+		Session session = neo4jClient.getSession();
+		Result result = session.run(query, Map.of("iri", iri, "iri2", iri2));
+
+		for(Record r : result.list()) {
+			var rmap = r.asMap();
+			double score = (Double) rmap.get("score");
+			return score;
+		}
+
+		throw new ResourceNotFoundException("entity not found");
+    }
+
+    public List<Double> getEmbeddingVector(String type, String iri) {
+
+		String query = "MATCH (c:" + type + " {iri: $iri, isDefiningOntology:['true']}) " +
+		"RETURN c.embeddings AS embeddings";
+
+		Session session = neo4jClient.getSession();
+		Result result = session.run(query, Map.of("iri", iri));
+
+		for(Record r : result.list()) {
+			var rmap = r.asMap();
+			List<Double> embeddings = (List<Double>) rmap.get("embeddings");
+			return embeddings;
+		}
+
+		throw new ResourceNotFoundException("entity not found");
+    }
+
+    public Page<JsonElement> searchByVector(String type, List<Double> vector, Pageable pageable) {
+
+		String index = type == "OntologyClass" ? "class_embeddings" : "property_embeddings";
+
+		String query = "CALL db.index.vector.queryNodes('" + index + "', $size, $vec) "
+		+ "YIELD node AS similar, score "
+		+ "RETURN similar as entity, score "
+		+ "ORDER BY score DESC ";
+
+		ArrayList<JsonElement> res = new ArrayList<>();
+
+		Session session = neo4jClient.getSession();
+		Result result = session.run(query, Map.of("vec", vector, "size", pageable.getPageSize()));
+
+		for(Record r : result.list()) {
+
+			var rmap = r.asMap();
+
+			Map<String,Object> entity = ((Node) rmap.get("entity")).asMap();
+			double score = (Double) rmap.get("score");
+
+			var resRow = JsonParser.parseString((String) entity.get("_json"));
+			var json = gson.fromJson(resRow, JsonElement.class);
+			json.getAsJsonObject().addProperty("score", score);
+
+			res.add(resRow);
+		}
+
+		return new PageImpl<JsonElement>(res, pageable, res.size());
+    }
 	
 }

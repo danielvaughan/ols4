@@ -1,4 +1,5 @@
 import { asArray } from "../app/util";
+import { LinkedEntity } from "./LinkedEntities";
 import Reified from "./Reified";
 import Thing from "./Thing";
 
