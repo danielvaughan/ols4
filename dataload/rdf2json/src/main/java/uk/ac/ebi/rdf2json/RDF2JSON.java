@@ -175,7 +175,14 @@ public class RDF2JSON {
                 loadedOntologyIds.add(ontologyId);
 
             } catch(Throwable t) {
-                 t.printStackTrace();
+                logger.error("Error processing ontology {}: {}", ontologyId, t.getMessage());
+                t.printStackTrace();
+                // If we have a mergeOutputWith file, we'll handle the fallback in the merge section
+                if (mergeOutputWith == null) {
+                    logger.info("No previous build available for fallback for: {}", ontologyId);
+                } else {
+                    logger.info("Will attempt to use previous build as fallback for: {}", ontologyId);
+                }
             }
         }
 
@@ -183,8 +190,7 @@ public class RDF2JSON {
 
             // Need to look for any ontologies that we didn't load but were loaded last time, and
             // keep the old versions of them from the previous JSON file.
-
-            logger.info("Adding previously loaded ontologies from {} (--mergeOutputWith)", mergeOutputWith);
+            logger.info("Adding previously loaded ontologies and fallbacks from {} (--mergeOutputWith)", mergeOutputWith);
             long startTime = System.nanoTime();
 
             JsonReader scanReader = new JsonReader(new InputStreamReader(new FileInputStream(mergeOutputWith)));
@@ -215,12 +221,24 @@ public class RDF2JSON {
 
                         String ontologyId = scanReader.nextString().toLowerCase();
 
+                        // There are two cases where we want to use the previous ontology data:
+                        // 1. We didn't process this ontology at all in the current run
+                        // 2. We tried to process this ontology but it failed (not in loadedOntologyIds)
                         if(!loadedOntologyIds.contains(ontologyId)) {
+                            // Check if this was actually a failed ontology in the current run
+                            boolean wasInConfig = mergedConfigs.containsKey(ontologyId);
 
-                            logger.info("Keeping output for ontology {} from previous run (--mergeOutputWith)",
-                                    ontologyId);
+                            if (wasInConfig) {
+                                logger.info("Using previous build as fallback for failed ontology: {}", ontologyId);
+                            } else {
+                                logger.info("Keeping output for ontology {} from previous run (--mergeOutputWith)", ontologyId);
+                            }
 
                             Map<String,Object> ontology = gson.fromJson(actualReader, Map.class);
+                            // If this is a fallback for a failed ontology, add a note about it
+                            ontology.put("is_fallback", true); // this is to use in frontend to show a warning about outdated ontology
+                            ontology.put("fallback_reason", "Latest ontology version is failing to load, using the last successful version instead");
+
                             writeGenericValue(writer, ontology);
 
                         } else {
@@ -261,11 +279,23 @@ public class RDF2JSON {
             }
             writer.endArray();
         } else if(val instanceof Map) {
-            Map<String,Object> map = new TreeMap<String,Object> ( (Map<String,Object>) val );
+            Map<String,Object> originalMap = (Map<String,Object>) val;
+            Map<String,Object> orderedMap = new LinkedHashMap<>();
+            
+            // First write ontologyId if it exists
+            if (originalMap.containsKey("ontologyId")) {
+                orderedMap.put("ontologyId", originalMap.get("ontologyId"));
+            }
+            
+            // Then write remaining keys in alphabetical order
+            Map<String,Object> sortedRemainder = new TreeMap<>(originalMap);
+            sortedRemainder.remove("ontologyId"); // Remove it to avoid duplication
+            orderedMap.putAll(sortedRemainder);
+            
             writer.beginObject();
-            for(String k : map.keySet()) {
+            for(String k : orderedMap.keySet()) {
                 writer.name(k);
-                writeGenericValue(writer, map.get(k));
+                writeGenericValue(writer, orderedMap.get(k));
             }
             writer.endObject();
         } else if(val instanceof String) {
