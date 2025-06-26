@@ -2,6 +2,7 @@ import { Fragment } from "react";
 import { randomString } from "../../../../app/util";
 import ClassExpression from "../../../../components/ClassExpression";
 import EntityLink from "../../../../components/EntityLink";
+import PropertyValuesList from "../../../../components/PropertyValuesList";
 import Entity from "../../../../model/Entity";
 import Class from "../../../../model/Class";
 import LinkedEntities from "../../../../model/LinkedEntities";
@@ -25,59 +26,39 @@ export default function DomainSection({
   }
 
   return (
-    <div>
-      <div className="font-bold">Domain</div>
-      {domains.length === 1 ? (
-        <p>
-          {typeof domains[0] === "object" &&
-          !Array.isArray(domains[0]) ? (
-            <ClassExpression
-              ontologyId={entity.getOntologyId()}
-              currentEntity={entity}
-              expr={domains[0]}
-              linkedEntities={linkedEntities}
-            />
-          ) : (
-            <EntityLink
-              ontologyId={entity.getOntologyId()}
-	          currentEntity={entity}
-              entityType={
-                entity.getType() === "property" ? "properties" : "classes"
-              }
-              iri={domains[0]}
-              linkedEntities={linkedEntities}
-            />
-          )}
-        </p>
-      ) : (
-        <ul className="list-disc list-inside">
-          {domains.map((domains) => {
-            return (
-              <li key={randomString()}>
-                {typeof domains === "object" &&
-                !Array.isArray(domains) ? (
-                  <ClassExpression
-                    ontologyId={entity.getOntologyId()}
-                    currentEntity={entity}
-                    expr={domains}
-                    linkedEntities={linkedEntities}
-                  />
-                ) : (
-                  <EntityLink
-                    ontologyId={entity.getOntologyId()}
-		            currentEntity={entity}
-                    entityType={
-                      entity.getType() === "property" ? "properties" : "classes"
-                    }
-                    iri={domains}
-                    linkedEntities={linkedEntities}
-                  />
-                )}
-              </li>
-            );
-          })}
-        </ul>
+    <PropertyValuesList
+      values={domains}
+      title="Domain"
+      renderValue={(domain) => (
+        typeof domain === "object" && !Array.isArray(domain) ? (
+          <ClassExpression
+            ontologyId={entity.getOntologyId()}
+            currentEntity={entity}
+            expr={domain}
+            linkedEntities={linkedEntities}
+          />
+        ) : (
+          <EntityLink
+            ontologyId={entity.getOntologyId()}
+            currentEntity={entity}
+            entityType={
+              entity.getType() === "property" ? "properties" : "classes"
+            }
+            iri={domain}
+            linkedEntities={linkedEntities}
+          />
+        )
       )}
-    </div>
+      searchFilter={(domain, searchQuery) => {
+        if (typeof domain === "string") {
+          const iri = domain.toLowerCase();
+          const label = linkedEntities.getLabelForIri(domain)?.toLowerCase() || '';
+          return iri.includes(searchQuery) || label.includes(searchQuery);
+        }
+        // For complex expressions, convert to string
+        const exprStr = JSON.stringify(domain).toLowerCase();
+        return exprStr.includes(searchQuery);
+      }}
+    />
   );
 }
