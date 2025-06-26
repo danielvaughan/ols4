@@ -37,6 +37,8 @@ spec:
           volumeMounts:
             - mountPath: "/data"
               name: {{ .Release.Name }}-neo4j-storage
+            - mountPath: "/data_import"
+              name: {{ .Release.Name }}-import
           command: ["/bin/bash", "-c"]
           args: ["rm -rf /data/* && cat /data_import/neo4j.tgz | tar -xz -C /data/ && tini -g -- /startup/docker-entrypoint.sh neo4j"]
           resources:
