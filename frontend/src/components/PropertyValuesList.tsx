@@ -14,12 +14,11 @@ interface PropertyValuesListProps<T> {
 export default function PropertyValuesList<T>({
   values,
   renderValue,
-  threshold = 4,
-  itemsPerPage = 4,
+  threshold = 25,
+  itemsPerPage = 25,
   searchFilter,
   title,
 }: PropertyValuesListProps<T>) {
-  // Always call hooks at the top level - never conditionally
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(0);
 
@@ -68,8 +67,7 @@ export default function PropertyValuesList<T>({
   return (
     <div className="border border-neutral-200 rounded-md p-3 space-y-3 bg-neutral-50">
       {title && <div className="font-bold">{title}</div>}
-      
-      {/* Search input */}
+
       {searchFilter && (
         <div className="mb-3">
           <input
@@ -82,13 +80,11 @@ export default function PropertyValuesList<T>({
         </div>
       )}
 
-      {/* Results summary */}
       <div className="text-sm text-neutral-600 mb-2">
         Showing {startIndex + 1}-{endIndex} of {filteredValues.length} values
         {searchQuery && ` (filtered from ${values.length} total)`}
       </div>
 
-      {/* Values list */}
       {currentPageValues.length === 0 ? (
         <p className="text-neutral-500 italic">No values found matching your search.</p>
       ) : (
@@ -101,7 +97,6 @@ export default function PropertyValuesList<T>({
         </ul>
       )}
 
-      {/* Pagination */}
       {totalPages > 1 && (
         <div className="mt-4">
           <Pagination
