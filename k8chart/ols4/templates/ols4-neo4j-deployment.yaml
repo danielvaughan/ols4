@@ -49,10 +49,10 @@ spec:
               memory: 20Gi
               cpu: 4
           env:
-            - name: NEO4J_HEAP_MEMORY
-              value: 15g
-            - name: NEO4J_dbms_memory_heap_maxSize
-              value: 8g
+            - name: NEO4J_server_memory_heap_initial__size
+              value: 15000m
+            - name: NEO4J_server_memory_heap_max__size
+              value: 15000m
             - name: NEO4J_AUTH
               value: none
             - name: JAVA_OPTS
