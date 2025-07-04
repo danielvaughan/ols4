@@ -15,7 +15,7 @@ spec:
   mountOptions: ['nfsvers=3']
   nfs:
     server: {{ .Values.nfs_host }}
-    path: /ifs/public-r/rw/ontotools/ols4/{{ .Values.environment | default "prod" }}
+    path: {{ .Values.nfs_path }}
   capacity:
     storage: 2Ti
 ---
