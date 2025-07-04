@@ -14,7 +14,7 @@ spec:
   volumeMode: Filesystem
   mountOptions: ['nfsvers=3']
   nfs:
-    server: hx-isi-srv-vlan157.ebi.ac.uk
+    server: {{ .Values.nfs_host }}
     path: /ifs/public-r/rw/ontotools/ols4/{{ .Values.environment | default "prod" }}
   capacity:
     storage: 2Ti
