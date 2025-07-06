@@ -11,7 +11,7 @@
     },
     {
       "id": "ictv",
-      "ontology_purl": "https://github.com/EVORA-project/ictv-ontology/raw/refs/heads/main/out/ictv_all_versions.owl.ttl.gz"
+      "ontology_purl": "https://github.com/EVORA-project/ictv-ontology/releases/latest/download/ictv_all_versions.owl.ttl.gz"
     },
     {
       "id": "uniprotrdfs",
