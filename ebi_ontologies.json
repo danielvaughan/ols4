@@ -115,7 +115,7 @@
       "base_uri": "https://purl.org/emi#",
       "reasoner": "Hermit",
       "oboSlims": false,
-      "ontology_purl": "https://raw.githubusercontent.com/digital-botanical-gardens-initiative/earth_metabolome_ontology/refs/heads/main/emi-ols.ttl"
+      "ontology_purl": "https://w3id.org/emi/ols"
     },
     {
       "id": "hra",
