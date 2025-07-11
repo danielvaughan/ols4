@@ -11,7 +11,10 @@
     },
     {
       "id": "ictv",
-      "ontology_purl": "https://github.com/EVORA-project/ictv-ontology/releases/latest/download/ictv_all_versions.owl.ttl.gz"
+      "ontology_purl": "https://github.com/EVORA-project/ictv-ontology/releases/latest/download/ictv_all_versions.owl.ttl.gz",
+      "preferred_root_term": [
+        "http://purl.obolibrary.org/obo/NCBITaxon_10239"
+      ]
     },
     {
       "id": "uniprotrdfs",
