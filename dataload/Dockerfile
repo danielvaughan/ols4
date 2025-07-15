@@ -5,6 +5,10 @@ FROM rust:1.79-buster
 
 SHELL ["/bin/bash", "-c"]
 
+RUN sed -i 's|http://deb.debian.org/debian|http://archive.debian.org/debian|g' /etc/apt/sources.list && \
+    sed -i 's|http://deb.debian.org/debian-security|http://archive.debian.org/debian-security|g' /etc/apt/sources.list && \
+    apt-get update
+
 RUN addgroup --system --gid 1000 ols && adduser --system --uid 1000 --ingroup ols ols
 
 # Install JDK
@@ -62,7 +66,7 @@ RUN chmod -R 777 /opt/* /tmp/out
 
 # To enable building embeddings.
 #
-RUN apt-get update && apt install -y build-essential cmake
+RUN apt install -y build-essential cmake
 RUN cd /opt/ols/dataload/embeddings && cargo b --release
 
 USER ols
