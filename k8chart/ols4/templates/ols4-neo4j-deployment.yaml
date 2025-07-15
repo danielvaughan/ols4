@@ -56,7 +56,7 @@ spec:
             - name: NEO4J_AUTH
               value: none
             - name: JAVA_OPTS
-              value: --add-modules jdk.incubator.vector --add-opens java.base/java.util=ALL-UNNAMED
+              value: --add-modules jdk.incubator.vector
           ports:
             - containerPort: 7474
             - containerPort: 7687
