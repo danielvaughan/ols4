@@ -1527,5 +1527,141 @@
       "oboSlims": false,
       "ontology_purl": "https://w3id.org/biopragmatics/resources/mesh/mesh.owl.gz"
     }
-  ]
+  ],
+  {
+    "id": "hgnc",
+    "creator": [
+      "Elspeth Bruford"
+    ],
+    "is_foundary": false,
+    "preferredPrefix": "hgnc",
+    "title": "HUGO Gene Nomenclature Committee",
+    "uri": "https://w3id.org/biopragmatics/resources/hgnc/hgnc.owl.gz",
+    "description": "The HGNC (HUGO Gene Nomenclature Committee) provides an approved gene name and symbol (short-form abbreviation) for each known human gene.  All approved symbols are stored in the HGNC database, and each symbol is unique. HGNC identifiers refer to records in the HGNC symbol database.",
+    "homepage": "http://www.genenames.org",
+    "mailing_list": "hgnc@genenames.org",
+    "label_property": "https://www.w3.org/2000/01/rdf-schema#label",
+    "definition_property": [
+      "http://purl.org/dc/terms/description"
+    ],
+    "synonym_property": [
+      "http://www.geneontology.org/formats/oboInOwl#hasExactSynonym",
+      "http://www.geneontology.org/formats/oboInOwl#hasNarrowSynonym",
+      "http://www.geneontology.org/formats/oboInOwl#hasBroadSynonym",
+      "http://www.geneontology.org/formats/oboInOwl#hasCloseSynonym"
+    ],
+    "hierarchical_property": [
+      "https://www.w3.org/2000/01/rdf-schema#subclassOf"
+    ],
+    "hidden_property": [],
+    "base_uri": [
+      "http://purl.obolibrary.org/obo/",
+      "https://www.genenames.org/data/gene-symbol-report/#!/hgnc_id/"
+    ],
+    "reasoner": "none",
+    "oboSlims": false,
+    "ontology_purl": "https://w3id.org/biopragmatics/resources/hgnc/hgnc.owl.gz"
+  },
+  {
+    "id": "wikipathways",
+    "creator": [
+      "Egon Willighagen"
+    ],
+    "is_foundary": false,
+    "preferredPrefix": "wikipathways",
+    "title": "WikiPathways",
+    "uri": "https://w3id.org/biopragmatics/resources/wikipathways/wikipathways.owl",
+    "description": "WikiPathways is a database of biological pathways maintained by and for the scientific community.",
+    "homepage": "http://www.wikipathways.org/",
+    "mailing_list": "egon.willighagen@gmail.com",
+    "label_property": "https://www.w3.org/2000/01/rdf-schema#label",
+    "definition_property": [
+      "http://purl.org/dc/terms/description"
+    ],
+    "synonym_property": [
+      "http://www.geneontology.org/formats/oboInOwl#hasExactSynonym",
+      "http://www.geneontology.org/formats/oboInOwl#hasNarrowSynonym",
+      "http://www.geneontology.org/formats/oboInOwl#hasBroadSynonym",
+      "http://www.geneontology.org/formats/oboInOwl#hasCloseSynonym"
+    ],
+    "hierarchical_property": [
+      "https://www.w3.org/2000/01/rdf-schema#subclassOf"
+    ],
+    "hidden_property": [],
+    "base_uri": [
+      "http://purl.obolibrary.org/obo/",
+      "http://identifiers.org/wikipathways/"
+    ],
+    "reasoner": "none",
+    "oboSlims": false,
+    "ontology_purl": "https://w3id.org/biopragmatics/resources/wikipathways/wikipathways.owl"
+  },
+  {
+    "id": "ror",
+    "creator": [
+      "Maria Gould"
+    ],
+    "is_foundary": false,
+    "preferredPrefix": "ror",
+    "title": "Research Organization Registry",
+    "uri": "https://w3id.org/biopragmatics/resources/ror/ror.owl.gz",
+    "description": "ROR (Research Organization Registry) is a global, community-led registry\nof open persistent identifiers for research organizations. ROR is jointly\noperated by California Digital Library, Crossref, and Datacite.",
+    "homepage": "https://ror.org",
+    "mailing_list": "info@ror.org",
+    "label_property": "https://www.w3.org/2000/01/rdf-schema#label",
+    "definition_property": [
+      "http://purl.org/dc/terms/description"
+    ],
+    "synonym_property": [
+      "http://www.geneontology.org/formats/oboInOwl#hasExactSynonym",
+      "http://www.geneontology.org/formats/oboInOwl#hasNarrowSynonym",
+      "http://www.geneontology.org/formats/oboInOwl#hasBroadSynonym",
+      "http://www.geneontology.org/formats/oboInOwl#hasCloseSynonym"
+    ],
+    "hierarchical_property": [
+      "https://www.w3.org/2000/01/rdf-schema#subclassOf"
+    ],
+    "hidden_property": [],
+    "base_uri": [
+      "http://purl.obolibrary.org/obo/",
+      "https://ror.org/"
+    ],
+    "reasoner": "none",
+    "oboSlims": false,
+    "ontology_purl": "https://w3id.org/biopragmatics/resources/ror/ror.owl.gz"
+  },
+  {
+    "id": "reactome",
+    "creator": [
+      "Peter D'Eustachio"
+    ],
+    "is_foundary": false,
+    "preferredPrefix": "reactome",
+    "title": "Reactome",
+    "uri": "https://w3id.org/biopragmatics/resources/reactome/reactome.owl.gz",
+    "description": "The Reactome project is a collaboration to develop a curated resource of core pathways and reactions in human biology.",
+    "homepage": "https://www.reactome.org/",
+    "mailing_list": "help@reactome.org",
+    "label_property": "https://www.w3.org/2000/01/rdf-schema#label",
+    "definition_property": [
+      "http://purl.org/dc/terms/description"
+    ],
+    "synonym_property": [
+      "http://www.geneontology.org/formats/oboInOwl#hasExactSynonym",
+      "http://www.geneontology.org/formats/oboInOwl#hasNarrowSynonym",
+      "http://www.geneontology.org/formats/oboInOwl#hasBroadSynonym",
+      "http://www.geneontology.org/formats/oboInOwl#hasCloseSynonym"
+    ],
+    "hierarchical_property": [
+      "https://www.w3.org/2000/01/rdf-schema#subclassOf"
+    ],
+    "hidden_property": [],
+    "base_uri": [
+      "http://purl.obolibrary.org/obo/",
+      "https://reactome.org/content/detail/"
+    ],
+    "reasoner": "none",
+    "oboSlims": false,
+    "ontology_purl": "https://w3id.org/biopragmatics/resources/reactome/reactome.owl.gz"
+  }
 }
