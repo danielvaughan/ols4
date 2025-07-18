@@ -3,9 +3,7 @@ package uk.ac.ebi.spot.ols.repository.neo4j;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
-
-import org.neo4j.cypherdsl.core.*;
-import org.neo4j.cypherdsl.core.Cypher.*;
+import org.neo4j.cypherdsl.core.Cypher;
 import org.neo4j.driver.Record;
 import org.neo4j.driver.Result;
 import org.neo4j.driver.Session;
@@ -18,15 +16,10 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
-import org.webjars.NotFoundException;
-
-
 import uk.ac.ebi.spot.ols.controller.api.exception.ResourceNotFoundException;
-import uk.ac.ebi.spot.ols.repository.solr.OlsSolrClient;
 import uk.ac.ebi.spot.ols.service.Neo4jClient;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
