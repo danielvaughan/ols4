@@ -1631,40 +1631,6 @@
     "ontology_purl": "https://w3id.org/biopragmatics/resources/ror/ror.owl.gz"
   },
   {
-    "id": "reactome",
-    "creator": [
-      "Peter D'Eustachio"
-    ],
-    "is_foundary": false,
-    "preferredPrefix": "reactome",
-    "title": "Reactome",
-    "uri": "https://w3id.org/biopragmatics/resources/reactome/reactome.owl.gz",
-    "description": "The Reactome project is a collaboration to develop a curated resource of core pathways and reactions in human biology.",
-    "homepage": "https://www.reactome.org/",
-    "mailing_list": "help@reactome.org",
-    "label_property": "https://www.w3.org/2000/01/rdf-schema#label",
-    "definition_property": [
-      "http://purl.org/dc/terms/description"
-    ],
-    "synonym_property": [
-      "http://www.geneontology.org/formats/oboInOwl#hasExactSynonym",
-      "http://www.geneontology.org/formats/oboInOwl#hasNarrowSynonym",
-      "http://www.geneontology.org/formats/oboInOwl#hasBroadSynonym",
-      "http://www.geneontology.org/formats/oboInOwl#hasCloseSynonym"
-    ],
-    "hierarchical_property": [
-      "https://www.w3.org/2000/01/rdf-schema#subclassOf"
-    ],
-    "hidden_property": [],
-    "base_uri": [
-      "http://purl.obolibrary.org/obo/",
-      "https://reactome.org/content/detail/"
-    ],
-    "reasoner": "none",
-    "oboSlims": false,
-    "ontology_purl": "https://w3id.org/biopragmatics/resources/reactome/reactome.owl.gz"
-  },
-  {
     "id": "complexportal",
     "creator": [
       "Sucharitha Balu"
