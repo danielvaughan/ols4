@@ -125,7 +125,13 @@ public class OntologyGraph implements StreamRDF {
         logger.error("parseRDF: Downloading (not predownloaded) {}", url);
         sourceFileTimestamp = System.currentTimeMillis();
 
-        var asURL = new URL(url);
+        URL asURL;
+        if(url.contains("://")) {
+            asURL = new URL(url);
+        } else {
+            asURL = new File(url).toURI().toURL();
+        }
+
         if(asURL.getProtocol().equals("file")) {
             parseRDF(url, new FileInputStream(asURL.getPath()), null);
         } else {
