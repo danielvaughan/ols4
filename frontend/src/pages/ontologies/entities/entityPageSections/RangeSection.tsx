@@ -2,6 +2,7 @@ import { Fragment } from "react";
 import { randomString } from "../../../../app/util";
 import ClassExpression from "../../../../components/ClassExpression";
 import EntityLink from "../../../../components/EntityLink";
+import PropertyValuesList from "../../../../components/PropertyValuesList";
 import Entity from "../../../../model/Entity";
 import Class from "../../../../model/Class";
 import LinkedEntities from "../../../../model/LinkedEntities";
@@ -25,59 +26,39 @@ export default function RangeSection({
   }
 
   return (
-    <div>
-      <div className="font-bold">Range</div>
-      {ranges.length === 1 ? (
-        <p>
-          {typeof ranges[0] === "object" &&
-          !Array.isArray(ranges[0]) ? (
-            <ClassExpression
-              ontologyId={entity.getOntologyId()}
-              currentEntity={entity}
-              expr={ranges[0]}
-              linkedEntities={linkedEntities}
-            />
-          ) : (
-            <EntityLink
-              ontologyId={entity.getOntologyId()}
-	          currentEntity={entity}
-              entityType={
-                entity.getType() === "property" ? "properties" : "classes"
-              }
-              iri={ranges[0]}
-              linkedEntities={linkedEntities}
-            />
-          )}
-        </p>
-      ) : (
-        <ul className="list-disc list-inside">
-          {ranges.map((ranges) => {
-            return (
-              <li key={randomString()}>
-                {typeof ranges === "object" &&
-                !Array.isArray(ranges) ? (
-                  <ClassExpression
-                    ontologyId={entity.getOntologyId()}
-                    currentEntity={entity}
-                    expr={ranges}
-                    linkedEntities={linkedEntities}
-                  />
-                ) : (
-                  <EntityLink
-                    ontologyId={entity.getOntologyId()}
-		            currentEntity={entity}
-                    entityType={
-                      entity.getType() === "property" ? "properties" : "classes"
-                    }
-                    iri={ranges}
-                    linkedEntities={linkedEntities}
-                  />
-                )}
-              </li>
-            );
-          })}
-        </ul>
+    <PropertyValuesList
+      values={ranges}
+      title="Range"
+      renderValue={(range) => (
+        typeof range === "object" && !Array.isArray(range) ? (
+          <ClassExpression
+            ontologyId={entity.getOntologyId()}
+            currentEntity={entity}
+            expr={range}
+            linkedEntities={linkedEntities}
+          />
+        ) : (
+          <EntityLink
+            ontologyId={entity.getOntologyId()}
+            currentEntity={entity}
+            entityType={
+              entity.getType() === "property" ? "properties" : "classes"
+            }
+            iri={range}
+            linkedEntities={linkedEntities}
+          />
+        )
       )}
-    </div>
+      searchFilter={(range, searchQuery) => {
+        if (typeof range === "string") {
+          const iri = range.toLowerCase();
+          const label = linkedEntities.getLabelForIri(range)?.toLowerCase() || '';
+          return iri.includes(searchQuery) || label.includes(searchQuery);
+        }
+        // For complex expressions, convert to string
+        const exprStr = JSON.stringify(range).toLowerCase();
+        return exprStr.includes(searchQuery);
+      }}
+    />
   );
 }

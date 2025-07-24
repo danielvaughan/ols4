@@ -4,6 +4,7 @@ import Entity from "../../../../model/Entity";
 import { Typography } from "@mui/material";
 import { getPaginated } from "../../../../app/api";
 import LoadingOverlay from "../../../../components/LoadingOverlay";
+import PropertyValuesList from "../../../../components/PropertyValuesList";
 import Class from "../../../../model/Class";
 import EntityLink from "../../../../components/EntityLink";
 import LinkedEntities from "../../../../model/LinkedEntities";
@@ -39,36 +40,37 @@ export default function SimilarEntitiesSection({entity}:{entity:Entity}) {
     return <div>
         { !similar && <i>Loading...</i> }
         { similar && similar.length === 0 && <p>No similar {entity.getTypePlural()} found</p> }
-        { similar && similar.length > 0 && <Fragment><ul className="list-disc list-inside">
-            {similar.filter(
-                (otherEntity:Entity) => {
-                    return otherEntity.getIri() !== entity.getIri()
-                }
-            ).map((otherEntity:Entity) => {
-                return (
-                <li key={entity.getId()}>
-                <Link
-                    className="link-default"
-                    to={`/ontologies/${otherEntity.getOntologyId()}/${
-                        otherEntity.getTypePlural()
-                    }/${encodeURIComponent(encodeURIComponent(otherEntity.getIri()))}?lang=${lang}`}
-                >
-                    {otherEntity.getName()}
-                    <span
-                    className="link-ontology px-2 py-0.5 rounded-md text-sm text-white uppercase ml-1"
-                    title={otherEntity.getOntologyId().toUpperCase()}
+        { similar && similar.length > 0 && <Fragment>
+            <PropertyValuesList
+                values={similar.filter((otherEntity:Entity) => otherEntity.getIri() !== entity.getIri())}
+                title="Similar entities"
+                renderValue={(otherEntity:Entity) => (
+                    <Link
+                        className="link-default"
+                        to={`/ontologies/${otherEntity.getOntologyId()}/${
+                            otherEntity.getTypePlural()
+                        }/${encodeURIComponent(encodeURIComponent(otherEntity.getIri()))}?lang=${lang}`}
                     >
-                    {otherEntity.getOntologyId()}
-                    </span>
-                </Link>
-                </li>
-                )
-            })}
-        </ul>
-        <p className="text-xs text-gray-500 pt-2">
-            <i className="icon icon-common icon-exclamation-triangle icon-spacer" />
-              Similarity results are derived from LLM embeddings and have not been manually curated. Model: <Link className="link-default" to="https://platform.openai.com/docs/models/text-embedding-3-small"><code>text-embedding-3-small</code></Link>
-        </p></Fragment>
+                        {otherEntity.getName()}
+                        <span
+                        className="link-ontology px-2 py-0.5 rounded-md text-sm text-white uppercase ml-1"
+                        title={otherEntity.getOntologyId().toUpperCase()}
+                        >
+                        {otherEntity.getOntologyId()}
+                        </span>
+                    </Link>
+                )}
+                searchFilter={(otherEntity:Entity, searchQuery) => {
+                    const name = otherEntity.getName()?.toLowerCase() || '';
+                    const ontologyId = otherEntity.getOntologyId().toLowerCase();
+                    const iri = otherEntity.getIri().toLowerCase();
+                    return name.includes(searchQuery) || ontologyId.includes(searchQuery) || iri.includes(searchQuery);
+                }}
+            />
+            <p className="text-xs text-gray-500 pt-2">
+                <i className="icon icon-common icon-exclamation-triangle icon-spacer" />
+                  Similarity results are derived from LLM embeddings and have not been manually curated. Model: <Link className="link-default" to="https://platform.openai.com/docs/models/text-embedding-3-small"><code>text-embedding-3-small</code></Link>
+            </p></Fragment>
         }
     </div>
 
