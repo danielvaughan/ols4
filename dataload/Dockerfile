@@ -5,6 +5,10 @@ FROM rust:1.79-buster
 
 SHELL ["/bin/bash", "-c"]
 
+RUN sed -i 's|http://deb.debian.org/debian|http://archive.debian.org/debian|g' /etc/apt/sources.list && \
+    sed -i 's|http://deb.debian.org/debian-security|http://archive.debian.org/debian-security|g' /etc/apt/sources.list && \
+    apt-get update
+
 RUN addgroup --system --gid 1000 ols && adduser --system --uid 1000 --ingroup ols ols
 
 # Install JDK
@@ -39,7 +43,7 @@ RUN echo "server.jvm.additional=-Dorg.neo4j.kernel.impl.index.schema.GenericNati
 # Copy all the code for dataload into /opt/dataload and build the JARs
 #
 
-RUN mkdir /opt/ols && mkdir /opt/ols/dataload && mkdir /opt/ols/ols-shared
+RUN mkdir /opt/ols && mkdir /opt/ols/dataload && mkdir /opt/ols/ols-shared && mkdir /opt/uv_cache
 
 COPY ./dataload /opt/ols/dataload
 COPY ./ols-shared /opt/ols/ols-shared
@@ -57,13 +61,35 @@ RUN cp -r /opt/ols/dataload/solr_config /opt/solr/server/solr
 
 RUN mkdir /tmp/out
 
+
+
+####
+#### EMBEDDINGS SUPPORT
+####
+RUN apt-get update && apt install -y build-essential cmake pigz vim
+RUN cd /opt/ols/dataload/embeddings/ols_embed && cargo b --release && \
+        cd /opt/ols/dataload/embeddings/ols_inject_hierarchy && cargo b --release
+
+# To enable materialising embeddings using ChromaDB
+# We have to use Debian buster as the base to run on the EBI HPC, so
+# use uv to get Python 3.13 which is not available otherwise.
+#
+ENV UV_INSTALL_DIR="/usr/bin"
+ENV UV_PYTHON_INSTALL_DIR="/usr/bin"
+ENV UV_TOOL_DIR="/usr/bin"
+ENV UV_TOOL_BIN_DIR="/usr/bin"
+ENV UV_CACHE_DIR="/opt/uv_cache"
+#ENV UV_PROJECT_ENVIRONMENT="/opt/uv_venv"
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh && \
+        uv python install cpython-3.13.5-linux-x86_64-gnu
+RUN cd /opt/ols/dataload/embeddings/ols_top_k && uv sync --frozen
+####
+####
+
+
+
 RUN chown -R ols:ols /opt/* /tmp/out
 RUN chmod -R 777 /opt/* /tmp/out
-
-# To enable building embeddings.
-#
-RUN apt-get update && apt install -y build-essential cmake
-RUN cd /opt/ols/dataload/embeddings && cargo b --release
 
 USER ols
 WORKDIR /opt/ols/dataload

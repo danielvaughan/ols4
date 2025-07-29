@@ -79,7 +79,15 @@ public class OntologyGraph implements StreamRDF {
 
         Lang lang = null;
         if(contentType != null) {
-            lang = RDFLanguages.contentTypeToLang(contentType);
+
+	    // handle "content-type: text/turtle; charset ..."
+	    contentType = contentType.split(";")[0];
+
+	    // lots of the OBO ontologies are text/plain but are actually rdfxml
+	    // RDFLanguages interprets text/plain as turtle which would break them
+	    if(!contentType.equals("text/plain")) {
+		    lang = RDFLanguages.contentTypeToLang(contentType);
+	    }
         }
         if(lang == null) {
             lang = RDFLanguages.filenameToLang(url, Lang.RDFXML);
@@ -101,6 +109,7 @@ public class OntologyGraph implements StreamRDF {
         }
 
         if (downloadedPath != null) {
+	    try {
             String existingDownload = downloadedPath + "/" + urlToFilename(url);
             InputStream is = new FileInputStream(existingDownload);
             logger.debug("parseRDF: Using predownloaded file for {}", url);
@@ -108,12 +117,21 @@ public class OntologyGraph implements StreamRDF {
             String existingDownloadMimeType = Files.readString(Paths.get(existingDownload + ".mimetype"));
             parseRDF(url, is, existingDownloadMimeType);
             return;
+	    } catch(Exception e){
+		    logger.debug("parseRDF: unable to use predownloaded file for {}", url);
+	    }
         }
 
         logger.error("parseRDF: Downloading (not predownloaded) {}", url);
         sourceFileTimestamp = System.currentTimeMillis();
 
-        var asURL = new URL(url);
+        URL asURL;
+        if(url.contains("://")) {
+            asURL = new URL(url);
+        } else {
+            asURL = new File(url).toURI().toURL();
+        }
+
         if(asURL.getProtocol().equals("file")) {
             parseRDF(url, new FileInputStream(asURL.getPath()), null);
         } else {

@@ -2,6 +2,7 @@ import { Fragment } from "react";
 import { randomString, sortByKeys } from "../../../../app/util";
 import ClassExpression from "../../../../components/ClassExpression";
 import EntityLink from "../../../../components/EntityLink";
+import PropertyValuesList from "../../../../components/PropertyValuesList";
 import Entity from "../../../../model/Entity";
 import LinkedEntities from "../../../../model/LinkedEntities";
 import Reified from "../../../../model/Reified";
@@ -37,40 +38,27 @@ export default function EntityAnnotationsSection({
 
           return (
             <div key={title.toString().toUpperCase() + randomString()}>
-              <div className="font-bold">{title}</div>
-              {annotations.length === 1 ? (
-                <p>
-                  {renderAnnotation(annotations[0])}
-                  {annotations[0].hasMetadata() && (
-                    <MetadataTooltip
-                      metadata={annotations[0].getMetadata()}
-                      linkedEntities={linkedEntities}
-                    />
-                  )}
-                </p>
-              ) : (
-                <ul className="list-disc list-inside">
-                  {annotations
-                    .map((annotation: Reified<any>) => {
-                      return (
-                        <li
-                          key={
-                            annotation.value.toString().substring(0, 10) + randomString()
-                          }
-                        >
-                          <span>{renderAnnotation(annotation)}</span>
-                          {annotation.hasMetadata() && (
-                            <MetadataTooltip
-                              metadata={annotation.getMetadata()}
-                              linkedEntities={linkedEntities}
-                            />
-                          )}
-                        </li>
-                      );
-                    })
-                    .sort((a, b) => sortByKeys(a, b))}
-                </ul>
-              )}
+              <PropertyValuesList
+                values={annotations}
+                title={title}
+                renderValue={(annotation: Reified<any>) => (
+                  <span>
+                    {renderAnnotation(annotation)}
+                    {annotation.hasMetadata() && (
+                      <MetadataTooltip
+                        metadata={annotation.getMetadata()}
+                        linkedEntities={linkedEntities}
+                      />
+                    )}
+                  </span>
+                )}
+                searchFilter={(annotation: Reified<any>, searchQuery: string) => {
+                  const text = annotation.value.toString().toLowerCase();
+                  const linkedEntity = linkedEntities.get(annotation.value);
+                  const entityLabel = linkedEntity ? entity.getLabelForIri(annotation.value)?.toLowerCase() : '';
+                  return text.includes(searchQuery) || (entityLabel && entityLabel.includes(searchQuery));
+                }}
+              />
             </div>
           );
         })

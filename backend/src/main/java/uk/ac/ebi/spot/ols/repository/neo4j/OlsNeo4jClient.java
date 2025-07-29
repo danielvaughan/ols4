@@ -3,7 +3,7 @@ package uk.ac.ebi.spot.ols.repository.neo4j;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
-
+import org.neo4j.cypherdsl.core.Cypher;
 import org.neo4j.driver.Record;
 import org.neo4j.driver.Result;
 import org.neo4j.driver.Session;
@@ -47,29 +47,31 @@ public class OlsNeo4jClient {
 
     public Page<JsonElement> getAll(String type, Map<String,String> properties, Pageable pageable) {
 
-		String query = "MATCH (a:" + type + ")";
+		var node = Cypher.node(type).named("a") ;
+		var query = Cypher.match(node);
 
 		if(properties.size() > 0) {
-			query += " WHERE ";
-			boolean isFirst = true;
-			for(String property : properties.keySet()) {
-				if(isFirst)
-					isFirst = false;
-				else
-					query += " AND ";
+			var conditions = properties.entrySet().stream()
+				.map((Map.Entry<String, String> entry) -> node.property(entry.getKey()).isEqualTo(Cypher.literalOf(entry.getValue())))
+				.collect(Collectors.toList());
 
-				// TODO escape value
-				query += "a." + property + " = \"" + properties.get(property) + "\"";
-			}
+			var condition = conditions.stream().reduce((c1, c2) -> c1.and(c2))
+				.orElseThrow(() -> new IllegalArgumentException("No properties provided"));
+
+			var queryWithWhere = query.where(condition);
+
+			var getQuery = queryWithWhere.returning(node).build().getCypher();
+			var countQuery = queryWithWhere.returning(Cypher.count(node)).build().getCypher();
+
+			return neo4jClient.queryPaginated(getQuery, "a", countQuery, parameters(), pageable);
+
+		} else {
+
+			var getQuery = query.returning(node).build().getCypher();
+			var countQuery = query.returning(Cypher.count(node)).build().getCypher();
+
+			return neo4jClient.queryPaginated(getQuery, "a", countQuery, parameters(), pageable);
 		}
-	
-		String getQuery = query + " RETURN a";
-		String countQuery = query + " RETURN count(a)";
-
-		// TODO: can we just return _json ?
-		// seems to break the neo4j client to return a string
-		//
-		return neo4jClient.queryPaginated(getQuery, "a", countQuery, parameters("type", type), pageable);
 	}
 
 	public JsonElement getOne(String type, Map<String,String> properties) {
@@ -83,43 +85,52 @@ public class OlsNeo4jClient {
 		return results.getContent().iterator().next();
 	}
 
-	private String makeEdgePropsClause(Map<String,String> edgeProps) {
+    public Page<JsonElement> traverseOutgoingEdges(String type, String id, List<String> edgeIRIs, Map<String,String> edgeProps, Map<String,String> targetNodeProps, Pageable pageable) {
 
-		String where = "";
+		var a = Cypher.node(type).named("a");
+		var b = Cypher.node(type).named("b");
+		var edgeRel = a.relationshipTo(b, edgeIRIs.toArray(String[]::new)).named("edge");
 
-		for(String prop : edgeProps.keySet()) {
-			String value = edgeProps.get(prop);
-			where += " AND \"" + value + "\" IN edge.`" + prop + "` ";
+		var condition = a.property("id").isEqualTo(Cypher.parameter("id"));
+		for (var entry : edgeProps.entrySet()) {
+			condition = condition.and(Cypher.literalOf(entry.getValue()).in(edgeRel.property(entry.getKey())));
+		}
+		for (var entry : targetNodeProps.entrySet()) {
+			condition = condition.and(Cypher.literalOf(entry.getValue()).in(b.property(entry.getKey())));
 		}
 
-		return where;
-	}
+		var statement = Cypher.match(edgeRel).where(condition);
 
-    public Page<JsonElement> traverseOutgoingEdges(String type, String id, List<String> edgeIRIs, Map<String,String> edgeProps, Pageable pageable) {
+		var query = statement.returningDistinct(b).build().getCypher();
+		var countQuery = statement.returning(Cypher.countDistinct(b)).build().getCypher();
 
-		String edge = makeEdgesList(edgeIRIs, edgeProps);
+		System.out.println(query);
 
-		// TODO fix injection
+		return neo4jClient.queryPaginated(query, "b", countQuery, parameters("id", id), pageable);
+    }
 
-		String query =
-		  "MATCH (a:" + type+ ")-[edge:" + edge + "]->(b) "
-		+ "WHERE a.id = $id " + makeEdgePropsClause(edgeProps)
-		+ "RETURN distinct b";
+    public Page<JsonElement> traverseIncomingEdges(String type, String id, List<String> edgeIRIs, Map<String,String> edgeProps, Map<String,String> sourceNodeProps, Pageable pageable) {
 
-		String countQuery =
-		  "MATCH (a:" + type + ")-[edge:" + edge + "]->(b) "
-		+ "WHERE a.id = $id " + makeEdgePropsClause(edgeProps)
-		+ "RETURN count(distinct b)";
+		var a = Cypher.node(type).named("a");
+		var b = Cypher.node(type).named("b");
+		var edgeRel = b.relationshipTo(a, edgeIRIs.toArray(String[]::new)).named("edge");
 
-		logger.trace(query);
-
+		var condition = a.property("id").isEqualTo(Cypher.parameter("id"));
+		for (var entry : edgeProps.entrySet()) {
+			condition = condition.and(Cypher.literalOf(entry.getValue()).in(edgeRel.property(entry.getKey())));
+		}
+		for (var entry : sourceNodeProps.entrySet()) {
+			condition = condition.and(Cypher.literalOf(entry.getValue()).in(b.property(entry.getKey())));
+		}
 		return neo4jClient.queryPaginated(query, "b", countQuery, parameters("type", type, "id", id), pageable);
     }
 
     public Page<JsonElement> traverseIncomingEdges(String type, String id, List<String> edgeIRIs, Map<String,String> edgeProps, Pageable pageable, String searchQuery) {
 
-		String edge = makeEdgesList(edgeIRIs, Map.of());
+		var statement = Cypher.match(edgeRel).where(condition);
 
+		var query = statement.returningDistinct(b).build().getCypher();
+		var countQuery = statement.returning(Cypher.countDistinct(b)).build().getCypher();
 		String searchCondition = "";
 
 		if (searchQuery != null && !searchQuery.trim().isEmpty()) {
@@ -132,11 +143,13 @@ public class OlsNeo4jClient {
 		+ "WHERE a.id = $id " + searchCondition
 		+ "RETURN distinct b";
 
+		System.out.println(query);
 		String countQuery =
 		  "MATCH (a:" + type + ")<-[edge:" + edge + "]-(b) "
 		+ "WHERE a.id = $id " + searchCondition
 		+ "RETURN count(distinct b)";
 
+		return neo4jClient.queryPaginated(query, "b", countQuery, parameters("id", id), pageable);
 		return neo4jClient.queryPaginated(query, "b", countQuery, parameters("type", type, "id", id, "searchQuery", searchQuery), pageable);
     }
 
@@ -145,60 +158,56 @@ public class OlsNeo4jClient {
 		return traverseIncomingEdges(type, id, edgeIRIs, edgeProps, pageable, null);
 	}
 
-    public Page<JsonElement> recursivelyTraverseOutgoingEdges(String type, String id, List<String> edgeIRIs, Map<String,String> edgeProps, Pageable pageable) {
+    public Page<JsonElement> recursivelyTraverseOutgoingEdges(String type, String id, List<String> edgeIRIs, Map<String,String> edgeProps, Map<String,String> targetNodeProps, Pageable pageable) {
 
-		String edge = makeEdgesList(edgeIRIs, Map.of());
+		var a = Cypher.node(type).named("a");
+		var b = Cypher.node(type).named("b");
+		var edgeRel = a.relationshipTo(b, edgeIRIs.toArray(String[]::new)).named("edge").length(1, null);
 
-		String query =
-				"MATCH (c:" + type + ") WHERE c.id = $id "
-						+ "WITH c "
-						+ "OPTIONAL MATCH (c)-[edge:" + edge + " *]->(ancestor) "
-						+ "RETURN DISTINCT ancestor AS a";
-
-		String countQuery =
-				"MATCH (a:" + type + ") WHERE a.id = $id "
-						+ "WITH a "
-						+ "OPTIONAL MATCH (a)-[edge:" + edge + " *]->(ancestor) "
-						+ "RETURN count(DISTINCT ancestor)";
-
-		return neo4jClient.queryPaginated(query, "a", countQuery, parameters("type", type, "id", id), pageable);
-    }
-
-    public Page<JsonElement> recursivelyTraverseIncomingEdges(String type, String id, List<String> edgeIRIs, Map<String,String> edgeProps, Pageable pageable) {
-
-		String edge = makeEdgesList(edgeIRIs, Map.of());
-
-		String query =
-		  "MATCH (a:" + type + ") WHERE a.id = $id "
-		+ "WITH a "
-		+ "OPTIONAL MATCH (a)<-[edge:" + edge + " *]-(descendant) "
-		+ "RETURN DISTINCT descendant AS c";
-
-		String countQuery =
-		  "MATCH (a:" + type + ") WHERE a.id = $id "
-		+ "WITH a "
-		+ "OPTIONAL MATCH (a)<-[edge:" + edge + " *]-(descendant) "
-		+ "RETURN count(DISTINCT descendant)";
-
-		return neo4jClient.queryPaginated(query, "c", countQuery, parameters("id", id), pageable);
-    }
-
-
-
-	private static String makeEdgesList(List<String> edgeIRIs, Map<String,String> edgeProperties) {
-
-		String edge = "";
-
-		for(String iri : edgeIRIs) {
-			if(edge != "") {
-				edge += "|";
-			}
-
-			edge += "`" + iri + "`";
+		var condition = a.property("id").isEqualTo(Cypher.parameter("id"));
+		for (var entry : edgeProps.entrySet()) {
+			condition = condition.and(Cypher.literalOf(entry.getValue()).in(edgeRel.property(entry.getKey())));
+		}
+		for (var entry : targetNodeProps.entrySet()) {
+			condition = condition.and(Cypher.literalOf(entry.getValue()).in(b.property(entry.getKey())));
 		}
 
-		return edge;
-	}
+		var statement = Cypher.match(edgeRel).where(condition);
+
+		var query = statement.returningDistinct(b).build().getCypher();
+		var countQuery = statement.returning(Cypher.countDistinct(b)).build().getCypher();
+
+		System.out.println(query);
+
+		return neo4jClient.queryPaginated(query, "b", countQuery, parameters("id", id), pageable);
+    }
+
+    public Page<JsonElement> recursivelyTraverseIncomingEdges(String type, String id, List<String> edgeIRIs, Map<String,String> edgeProps, Map<String,String> sourceNodeProps, Pageable pageable) {
+
+		var a = Cypher.node(type).named("a");
+		var b = Cypher.node(type).named("b");
+		var edgeRel = b.relationshipTo(a, edgeIRIs.toArray(String[]::new)).named("edge").length(1, null);
+
+		var condition = a.property("id").isEqualTo(Cypher.parameter("id"));
+		for (var entry : edgeProps.entrySet()) {
+			condition = condition.and(Cypher.literalOf(entry.getValue()).in(edgeRel.property(entry.getKey())));
+		}
+		for (var entry : sourceNodeProps.entrySet()) {
+			condition = condition.and(Cypher.literalOf(entry.getValue()).in(b.property(entry.getKey())));
+		}
+
+		var statement = Cypher.match(edgeRel).where(condition);
+
+		var query = statement.returningDistinct(b).build().getCypher();
+		var countQuery = statement.returning(Cypher.countDistinct(b)).build().getCypher();
+
+		System.out.println(query);
+
+		return neo4jClient.queryPaginated(query, "b", countQuery, parameters("id", id), pageable);
+    }
+
+
+
 
     public static class SimilarResult {
         public JsonElement entity;
