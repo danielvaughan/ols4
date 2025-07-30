@@ -116,13 +116,10 @@ public class V2ClassRepository {
 
         Map<String, String> nodeProps = includeObsolete ? Map.of() : Map.of("isObsolete", "false");
 
-        Page<JsonElement> result = isNullOrEmpty(search) ? this.neo4jClient.traverseIncomingEdges("OntologyClass", id,
-                Arrays.asList(DIRECT_PARENT.getText()), Map.of(), pageable) : this.neo4jClient.traverseIncomingEdges("OntologyClass", id, Arrays.asList(DIRECT_PARENT.getText()), Map.of(), pageable, search);
-
-        return this.neo4jClient.traverseIncomingEdges("OntologyClass", id,
-                        Arrays.asList(DIRECT_PARENT.getText()), Map.of(), nodeProps, pageable)
-                .map(e -> LocalizationTransform.transform(e, lang))
-
+        Page<JsonElement> result = isNullOrEmpty(search) ? this.neo4jClient.traverseIncomingEdges(
+                "OntologyClass", id, Arrays.asList(DIRECT_PARENT.getText()), Map.of(), nodeProps, pageable) :
+                this.neo4jClient.traverseIncomingEdges("OntologyClass",
+                id, Arrays.asList(DIRECT_PARENT.getText()), Map.of(), nodeProps, pageable, search);
 
         return  result.map(e -> LocalizationTransform.transform(e, lang))
                 .map(RemoveLiteralDatatypesTransform::transform)

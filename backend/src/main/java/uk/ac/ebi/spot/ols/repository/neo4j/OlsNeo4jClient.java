@@ -16,7 +16,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
-import org.webjars.NotFoundException;
 
 import uk.ac.ebi.spot.ols.controller.api.exception.ResourceNotFoundException;
 import uk.ac.ebi.spot.ols.repository.solr.OlsSolrClient;
@@ -28,6 +27,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static org.neo4j.cypherdsl.core.Cypher.name;
+import static org.neo4j.cypherdsl.core.Cypher.parameter;
 import static org.neo4j.driver.Values.parameters;
 
 @Component
@@ -109,8 +110,8 @@ public class OlsNeo4jClient {
 		return neo4jClient.queryPaginated(query, "b", countQuery, parameters("id", id), pageable);
     }
 
-    public Page<JsonElement> traverseIncomingEdges(String type, String id, List<String> edgeIRIs, Map<String,String> edgeProps, Map<String,String> sourceNodeProps, Pageable pageable) {
 
+	public Page<JsonElement> traverseIncomingEdges(String type, String id, List<String> edgeIRIs, Map<String,String> edgeProps, Map<String,String> sourceNodeProps, Pageable pageable, String searchQuery) {
 		var a = Cypher.node(type).named("a");
 		var b = Cypher.node(type).named("b");
 		var edgeRel = b.relationshipTo(a, edgeIRIs.toArray(String[]::new)).named("edge");
@@ -122,40 +123,32 @@ public class OlsNeo4jClient {
 		for (var entry : sourceNodeProps.entrySet()) {
 			condition = condition.and(Cypher.literalOf(entry.getValue()).in(b.property(entry.getKey())));
 		}
-		return neo4jClient.queryPaginated(query, "b", countQuery, parameters("type", type, "id", id), pageable);
-    }
 
-    public Page<JsonElement> traverseIncomingEdges(String type, String id, List<String> edgeIRIs, Map<String,String> edgeProps, Pageable pageable, String searchQuery) {
+		if (searchQuery != null && !searchQuery.trim().isEmpty()) {
+			var labelItem = name("labelItem");
+			var searchPredicate = Cypher.toLower(labelItem).contains(Cypher.toLower(parameter("searchQuery")));
+			var anyInListCondition = Cypher.any(labelItem).in(b.property("label")).where(searchPredicate);
+			condition = condition.and(anyInListCondition);
+		}
 
 		var statement = Cypher.match(edgeRel).where(condition);
 
 		var query = statement.returningDistinct(b).build().getCypher();
 		var countQuery = statement.returning(Cypher.countDistinct(b)).build().getCypher();
-		String searchCondition = "";
-
-		if (searchQuery != null && !searchQuery.trim().isEmpty()) {
-			// Since label is an array, we need to check if any element contains the search term
-			searchCondition = "AND ANY(labelItem IN b.label WHERE toLower(labelItem) CONTAINS toLower($searchQuery)) ";
-		}
-
-		String query =
-		  "MATCH (a:" + type + ")<-[edge:" + edge + "]-(b) "
-		+ "WHERE a.id = $id " + searchCondition
-		+ "RETURN distinct b";
 
 		System.out.println(query);
-		String countQuery =
-		  "MATCH (a:" + type + ")<-[edge:" + edge + "]-(b) "
-		+ "WHERE a.id = $id " + searchCondition
-		+ "RETURN count(distinct b)";
 
-		return neo4jClient.queryPaginated(query, "b", countQuery, parameters("id", id), pageable);
-		return neo4jClient.queryPaginated(query, "b", countQuery, parameters("type", type, "id", id, "searchQuery", searchQuery), pageable);
-    }
+		return neo4jClient.queryPaginated(
+				query,
+				"b",
+				countQuery,
+				parameters("id", id, "searchQuery", searchQuery),
+				pageable);
+	}
 
 	// Overloaded method for backward compatibility
-	public Page<JsonElement> traverseIncomingEdges(String type, String id, List<String> edgeIRIs, Map<String,String> edgeProps, Pageable pageable) {
-		return traverseIncomingEdges(type, id, edgeIRIs, edgeProps, pageable, null);
+	public Page<JsonElement> traverseIncomingEdges(String type, String id, List<String> edgeIRIs, Map<String,String> edgeProps, Map<String,String> sourceNodeProps, Pageable pageable) {
+		return traverseIncomingEdges(type, id, edgeIRIs, edgeProps, sourceNodeProps, pageable, null);
 	}
 
     public Page<JsonElement> recursivelyTraverseOutgoingEdges(String type, String id, List<String> edgeIRIs, Map<String,String> edgeProps, Map<String,String> targetNodeProps, Pageable pageable) {
