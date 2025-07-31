@@ -67,7 +67,7 @@ export default function DataTable({
             <input
               type="text"
               placeholder={placeholder ? placeholder : "Search table..."}
-              className="input-default text-md pl-10"
+              className="input-default text-md pl-10 text-neutral-black"
               onChange={(e) => {
                 onFilter(e.target.value);
               }}
