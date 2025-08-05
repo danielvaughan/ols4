@@ -1,6 +1,7 @@
 
 package uk.ac.ebi.spot.ols.repository.v2;
 
+import com.google.gson.JsonElement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,6 +19,7 @@ import uk.ac.ebi.spot.ols.repository.transforms.RemoveLiteralDatatypesTransform;
 import uk.ac.ebi.spot.ols.repository.v2.helpers.V2DynamicFilterParser;
 import uk.ac.ebi.spot.ols.repository.v2.helpers.V2SearchFieldsParser;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
 import static uk.ac.ebi.ols.shared.DefinedFields.*;
 
 import java.io.IOException;
@@ -105,7 +107,7 @@ public class V2ClassRepository {
         );
     }
 
-    public Page<V2Entity> getChildrenByOntologyId(String ontologyId, Pageable pageable, String iri, boolean includeObsolete, String lang) {
+    public Page<V2Entity> getChildrenByOntologyId(String ontologyId, Pageable pageable, String iri, boolean includeObsolete, String search, String lang) {
 
         Validation.validateOntologyId(ontologyId);
         Validation.validateLang(lang);
@@ -114,9 +116,12 @@ public class V2ClassRepository {
 
         Map<String, String> nodeProps = includeObsolete ? Map.of() : Map.of("isObsolete", "false");
 
-        return this.neo4jClient.traverseIncomingEdges("OntologyClass", id,
-                        Arrays.asList(DIRECT_PARENT.getText()), Map.of(), nodeProps, pageable)
-                .map(e -> LocalizationTransform.transform(e, lang))
+        Page<JsonElement> result = isNullOrEmpty(search) ? this.neo4jClient.traverseIncomingEdges(
+                "OntologyClass", id, Arrays.asList(DIRECT_PARENT.getText()), Map.of(), nodeProps, pageable) :
+                this.neo4jClient.traverseIncomingEdges("OntologyClass",
+                id, Arrays.asList(DIRECT_PARENT.getText()), Map.of(), nodeProps, pageable, search);
+
+        return  result.map(e -> LocalizationTransform.transform(e, lang))
                 .map(RemoveLiteralDatatypesTransform::transform)
                 .map(V2Entity::new);
     }

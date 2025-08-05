@@ -16,14 +16,19 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
+
 import uk.ac.ebi.spot.ols.controller.api.exception.ResourceNotFoundException;
+import uk.ac.ebi.spot.ols.repository.solr.OlsSolrClient;
 import uk.ac.ebi.spot.ols.service.Neo4jClient;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static org.neo4j.cypherdsl.core.Cypher.name;
+import static org.neo4j.cypherdsl.core.Cypher.parameter;
 import static org.neo4j.driver.Values.parameters;
 
 @Component
@@ -42,7 +47,7 @@ public class OlsNeo4jClient {
 	}
 
     public Page<JsonElement> getAll(String type, Map<String,String> properties, Pageable pageable) {
- 
+
 		var node = Cypher.node(type).named("a") ;
 		var query = Cypher.match(node);
 
@@ -105,8 +110,8 @@ public class OlsNeo4jClient {
 		return neo4jClient.queryPaginated(query, "b", countQuery, parameters("id", id), pageable);
     }
 
-    public Page<JsonElement> traverseIncomingEdges(String type, String id, List<String> edgeIRIs, Map<String,String> edgeProps, Map<String,String> sourceNodeProps, Pageable pageable) {
 
+	public Page<JsonElement> traverseIncomingEdges(String type, String id, List<String> edgeIRIs, Map<String,String> edgeProps, Map<String,String> sourceNodeProps, Pageable pageable, String searchQuery) {
 		var a = Cypher.node(type).named("a");
 		var b = Cypher.node(type).named("b");
 		var edgeRel = b.relationshipTo(a, edgeIRIs.toArray(String[]::new)).named("edge");
@@ -119,6 +124,13 @@ public class OlsNeo4jClient {
 			condition = condition.and(Cypher.literalOf(entry.getValue()).in(b.property(entry.getKey())));
 		}
 
+		if (searchQuery != null && !searchQuery.trim().isEmpty()) {
+			var labelItem = name("labelItem");
+			var searchPredicate = Cypher.toLower(labelItem).contains(Cypher.toLower(parameter("searchQuery")));
+			var anyInListCondition = Cypher.any(labelItem).in(b.property("label")).where(searchPredicate);
+			condition = condition.and(anyInListCondition);
+		}
+
 		var statement = Cypher.match(edgeRel).where(condition);
 
 		var query = statement.returningDistinct(b).build().getCypher();
@@ -126,8 +138,18 @@ public class OlsNeo4jClient {
 
 		System.out.println(query);
 
-		return neo4jClient.queryPaginated(query, "b", countQuery, parameters("id", id), pageable);
-    }
+		return neo4jClient.queryPaginated(
+				query,
+				"b",
+				countQuery,
+				parameters("id", id, "searchQuery", searchQuery),
+				pageable);
+	}
+
+	// Overloaded method for backward compatibility
+	public Page<JsonElement> traverseIncomingEdges(String type, String id, List<String> edgeIRIs, Map<String,String> edgeProps, Map<String,String> sourceNodeProps, Pageable pageable) {
+		return traverseIncomingEdges(type, id, edgeIRIs, edgeProps, sourceNodeProps, pageable, null);
+	}
 
     public Page<JsonElement> recursivelyTraverseOutgoingEdges(String type, String id, List<String> edgeIRIs, Map<String,String> edgeProps, Map<String,String> targetNodeProps, Pageable pageable) {
 

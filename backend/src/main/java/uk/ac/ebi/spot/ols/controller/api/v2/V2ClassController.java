@@ -222,14 +222,18 @@ public class V2ClassController {
             @RequestParam(value = "lang", required = false, defaultValue = "en") String lang,
             @RequestParam(value = "includeObsoleteEntities", required = false, defaultValue = "false")
             @Parameter(name = "includeObsoleteEntities",
-                    description = "A boolean parameter to specify if obsolete entities should be included or not. Default value is false.") boolean includeObsoleteEntities
+                    description = "A boolean parameter to specify if obsolete entities should be included or not. Default value is false.") boolean includeObsoleteEntities,
+            @RequestParam(value = "searchQuery", required = false)
+            @Parameter(name="searchQuery",
+                    description = "This parameter specify the search query text.",
+                    example = "liver disease") String searchQuery
     ) throws ResourceNotFoundException {
 
         iri = UriUtils.decode(iri, "UTF-8");
 
         return new ResponseEntity<>(
                 new V2PagedResponse<>(
-                    classRepository.getChildrenByOntologyId(ontologyId, pageable, iri, includeObsoleteEntities, lang)
+                    classRepository.getChildrenByOntologyId(ontologyId, pageable, iri, includeObsoleteEntities, searchQuery, lang)
                 ),
                 HttpStatus.OK);
     }
