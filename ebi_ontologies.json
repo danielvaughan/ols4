@@ -97,9 +97,9 @@
       "is_foundary": false,
       "preferredPrefix": "EMI",
       "title": "The Earth Metabolome Initiative (EMI) ontology",
-      "uri": "https://purl.org/emi",
+      "uri": "https://w3id.org/emi",
       "description": "The Earth Metabolome Initiative (EMI) ontology is designed to capture and structure the metabolic content of all currently known species on our planet.",
-      "homepage": "https://purl.org/emi/documentation",
+      "homepage": "https://w3id.org/emi",
       "mailing_list": "kru@sib.swiss",
       "label_property": [
         "rdfs:label",
@@ -118,7 +118,7 @@
         "rdfs:subPropertyOf"
       ],
       "hidden_property": "List of properties to that are ignored when rendering the ontology.",
-      "base_uri": "https://purl.org/emi#",
+      "base_uri": "https://w3id.org/emi#",
       "reasoner": "Hermit",
       "oboSlims": false,
       "ontology_purl": "https://w3id.org/emi/ols"
