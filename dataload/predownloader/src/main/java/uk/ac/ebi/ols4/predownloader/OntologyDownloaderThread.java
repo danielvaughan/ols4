@@ -14,6 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.OpenOption;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
@@ -129,7 +130,7 @@ public class OntologyDownloaderThread implements Runnable {
 
         var asURL = new URL(url);
         if(asURL.getProtocol().equals("file")) {
-            Files.copy(asURL.openStream(), Paths.get(filename));
+            Files.copy(asURL.openStream(), Paths.get(filename), StandardCopyOption.REPLACE_EXISTING);
             Files.write(Paths.get(filename + ".mimetype"), "application/octet-stream".getBytes());
             return "application/octet-stream";
         }
