@@ -1,6 +1,10 @@
 {
   "ontologies": [
     {
+      "id": "gold",
+      "ontology_purl": "https://raw.githubusercontent.com/cmungall/gold-ontology/refs/heads/main/gold.owl"
+    },
+    {
       "id": "mondo",
       "ontology_purl": "https://purl.obolibrary.org/obo/mondo/mondo-international.owl"
     },
