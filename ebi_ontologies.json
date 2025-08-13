@@ -125,7 +125,7 @@
       "base_uri": "https://w3id.org/emi#",
       "reasoner": "Hermit",
       "oboSlims": false,
-      "ontology_purl": "https://w3id.org/emi/ols"
+      "ontology_purl": "https://w3id.org/emi/ols.ttl"
     },
     {
       "id": "hra",
