@@ -30,11 +30,11 @@ export default function RangeSection({
       values={ranges}
       title="Range"
       renderValue={(range) => (
-        typeof range === "object" && !Array.isArray(range) ? (
+        typeof range.value === "object" && !Array.isArray(range.value) ? (
           <ClassExpression
             ontologyId={entity.getOntologyId()}
             currentEntity={entity}
-            expr={range}
+            expr={range.value}
             linkedEntities={linkedEntities}
           />
         ) : (
@@ -44,19 +44,19 @@ export default function RangeSection({
             entityType={
               entity.getType() === "property" ? "properties" : "classes"
             }
-            iri={range}
+            iri={range.value}
             linkedEntities={linkedEntities}
           />
         )
       )}
       searchFilter={(range, searchQuery) => {
-        if (typeof range === "string") {
-          const iri = range.toLowerCase();
-          const label = linkedEntities.getLabelForIri(range)?.toLowerCase() || '';
+        if (typeof range.value === "string") {
+          const iri = range.value.toLowerCase();
+          const label = linkedEntities.getLabelForIri(range.value)?.toLowerCase() || '';
           return iri.includes(searchQuery) || label.includes(searchQuery);
         }
         // For complex expressions, convert to string
-        const exprStr = JSON.stringify(range).toLowerCase();
+        const exprStr = JSON.stringify(range.value).toLowerCase();
         return exprStr.includes(searchQuery);
       }}
     />
