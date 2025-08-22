@@ -30,11 +30,11 @@ export default function DomainSection({
       values={domains}
       title="Domain"
       renderValue={(domain) => (
-        typeof domain === "object" && !Array.isArray(domain) ? (
+        typeof domain.value === "object" && !Array.isArray(domain.value) ? (
           <ClassExpression
             ontologyId={entity.getOntologyId()}
             currentEntity={entity}
-            expr={domain}
+            expr={domain.value}
             linkedEntities={linkedEntities}
           />
         ) : (
@@ -44,19 +44,19 @@ export default function DomainSection({
             entityType={
               entity.getType() === "property" ? "properties" : "classes"
             }
-            iri={domain}
+            iri={domain.value}
             linkedEntities={linkedEntities}
           />
         )
       )}
       searchFilter={(domain, searchQuery) => {
-        if (typeof domain === "string") {
-          const iri = domain.toLowerCase();
-          const label = linkedEntities.getLabelForIri(domain)?.toLowerCase() || '';
+        if (typeof domain.value === "string") {
+          const iri = domain.value.toLowerCase();
+          const label = linkedEntities.getLabelForIri(domain.value)?.toLowerCase() || '';
           return iri.includes(searchQuery) || label.includes(searchQuery);
         }
         // For complex expressions, convert to string
-        const exprStr = JSON.stringify(domain).toLowerCase();
+        const exprStr = JSON.stringify(domain.value).toLowerCase();
         return exprStr.includes(searchQuery);
       }}
     />
