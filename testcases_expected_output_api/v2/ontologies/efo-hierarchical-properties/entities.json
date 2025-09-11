@@ -50,7 +50,9 @@
       "BFO:0000050",
       "OBO_REL:part_of"
     ],
-    "http://www.geneontology.org/formats/oboInOwl#hasExactSynonym": "part of",
+    "http://www.geneontology.org/formats/oboInOwl#hasExactSynonym": [
+      "part of"
+    ],
     "http://www.geneontology.org/formats/oboInOwl#hasOBONamespace": [
       "external",
       "human_stages_ontology",

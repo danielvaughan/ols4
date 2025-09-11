@@ -28680,17 +28680,19 @@
         "value": "hereditary disease"
       }
     ],
-    "http://www.geneontology.org/formats/oboInOwl#hasNarrowSynonym": {
-      "axioms": [
-        {
-          "http://www.geneontology.org/formats/oboInOwl#hasDbXref": "DOID:0050177"
-        }
-      ],
-      "type": [
-        "reification"
-      ],
-      "value": "Mendelian disease"
-    },
+    "http://www.geneontology.org/formats/oboInOwl#hasNarrowSynonym": [
+      {
+        "axioms": [
+          {
+            "http://www.geneontology.org/formats/oboInOwl#hasDbXref": "DOID:0050177"
+          }
+        ],
+        "type": [
+          "reification"
+        ],
+        "value": "Mendelian disease"
+      }
+    ],
     "http://www.geneontology.org/formats/oboInOwl#hasRelatedSynonym": [
       "familial disorder",
       "inborn disorder"
@@ -31498,31 +31500,35 @@
         "value": "ICD9:783.9"
       }
     ],
-    "http://www.geneontology.org/formats/oboInOwl#hasExactSynonym": {
-      "axioms": [
-        {
-          "http://www.geneontology.org/formats/oboInOwl#hasDbXref": [
-            "DOID:374",
-            "NCIT:C26836"
-          ]
-        }
-      ],
-      "type": [
-        "reification"
-      ],
-      "value": "nutritional disorder"
-    },
-    "http://www.geneontology.org/formats/oboInOwl#hasRelatedSynonym": {
-      "axioms": [
-        {
-          "http://www.geneontology.org/formats/oboInOwl#hasDbXref": "DOID:374"
-        }
-      ],
-      "type": [
-        "reification"
-      ],
-      "value": "nutrition disease"
-    },
+    "http://www.geneontology.org/formats/oboInOwl#hasExactSynonym": [
+      {
+        "axioms": [
+          {
+            "http://www.geneontology.org/formats/oboInOwl#hasDbXref": [
+              "DOID:374",
+              "NCIT:C26836"
+            ]
+          }
+        ],
+        "type": [
+          "reification"
+        ],
+        "value": "nutritional disorder"
+      }
+    ],
+    "http://www.geneontology.org/formats/oboInOwl#hasRelatedSynonym": [
+      {
+        "axioms": [
+          {
+            "http://www.geneontology.org/formats/oboInOwl#hasDbXref": "DOID:374"
+          }
+        ],
+        "type": [
+          "reification"
+        ],
+        "value": "nutrition disease"
+      }
+    ],
     "http://www.geneontology.org/formats/oboInOwl#id": "MONDO:0005137",
     "http://www.geneontology.org/formats/oboInOwl#inSubset": [
       "http://purl.obolibrary.org/obo/mondo#harrisons_view",
@@ -38127,17 +38133,19 @@
         "value": "Orphanet:202940"
       }
     ],
-    "http://www.geneontology.org/formats/oboInOwl#hasExactSynonym": {
-      "axioms": [
-        {
-          "http://www.geneontology.org/formats/oboInOwl#hasDbXref": "MONDO:patterns/genetic"
-        }
-      ],
-      "type": [
-        "reification"
-      ],
-      "value": "genetic anomaly of puberty or/and menstrual cycle"
-    },
+    "http://www.geneontology.org/formats/oboInOwl#hasExactSynonym": [
+      {
+        "axioms": [
+          {
+            "http://www.geneontology.org/formats/oboInOwl#hasDbXref": "MONDO:patterns/genetic"
+          }
+        ],
+        "type": [
+          "reification"
+        ],
+        "value": "genetic anomaly of puberty or/and menstrual cycle"
+      }
+    ],
     "http://www.geneontology.org/formats/oboInOwl#id": "MONDO:0016072",
     "http://www.geneontology.org/formats/oboInOwl#inSubset": [
       "http://purl.obolibrary.org/obo/mondo#disease_grouping",
@@ -41526,18 +41534,20 @@
         "value": "Orphanet:68341"
       }
     ],
-    "http://www.geneontology.org/formats/oboInOwl#hasRelatedSynonym": {
-      "axioms": [
-        {
-          "http://www.geneontology.org/formats/oboInOwl#hasDbXref": "MONDO:Lexical",
-          "http://www.geneontology.org/formats/oboInOwl#hasSynonymType": "http://purl.obolibrary.org/obo/mondo#ABBREVIATION"
-        }
-      ],
-      "type": [
-        "reification"
-      ],
-      "value": "MCAHS"
-    },
+    "http://www.geneontology.org/formats/oboInOwl#hasRelatedSynonym": [
+      {
+        "axioms": [
+          {
+            "http://www.geneontology.org/formats/oboInOwl#hasDbXref": "MONDO:Lexical",
+            "http://www.geneontology.org/formats/oboInOwl#hasSynonymType": "http://purl.obolibrary.org/obo/mondo#ABBREVIATION"
+          }
+        ],
+        "type": [
+          "reification"
+        ],
+        "value": "MCAHS"
+      }
+    ],
     "http://www.geneontology.org/formats/oboInOwl#id": "MONDO:0019042",
     "http://www.geneontology.org/formats/oboInOwl#inSubset": [
       "http://purl.obolibrary.org/obo/mondo#disease_grouping",
@@ -45026,7 +45036,9 @@
       ],
       "value": "A disease or disorder is defined as rare in Europe when it affects fewer than 1 in 2000. A disease or disorder is defined as rare in the USA when it affects fewer than 200,000 persons at any given time. Here we take the European definition to be consistent with Orphanet."
     },
-    "http://www.geneontology.org/formats/oboInOwl#hasExactSynonym": "rare (European definition)",
+    "http://www.geneontology.org/formats/oboInOwl#hasExactSynonym": [
+      "rare (European definition)"
+    ],
     "http://www.geneontology.org/formats/oboInOwl#id": "MONDO:0021136",
     "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": "http://www.w3.org/2002/07/owl#Class",
     "http://www.w3.org/2000/01/rdf-schema#label": "rare",
@@ -45554,7 +45566,9 @@
       "value": "A characteristic of a disease in which the disease is present at birth, regardless of cause."
     },
     "http://purl.obolibrary.org/obo/IAO_0000233": "https://github.com/monarch-initiative/mondo/issues/4069",
-    "http://www.geneontology.org/formats/oboInOwl#hasExactSynonym": "inborn",
+    "http://www.geneontology.org/formats/oboInOwl#hasExactSynonym": [
+      "inborn"
+    ],
     "http://www.geneontology.org/formats/oboInOwl#id": "MONDO:0021140",
     "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": "http://www.w3.org/2002/07/owl#Class",
     "http://www.w3.org/2000/01/rdf-schema#label": "congenital",
@@ -46907,7 +46921,9 @@
     },
     "http://purl.org/dc/elements/1.1/date": "2018-06-29T18:21:11Z",
     "http://purl.org/dc/terms/creator": "https://orcid.org/0000-0001-5208-3432",
-    "http://www.geneontology.org/formats/oboInOwl#hasExactSynonym": "complex neurodevelopmental disorder",
+    "http://www.geneontology.org/formats/oboInOwl#hasExactSynonym": [
+      "complex neurodevelopmental disorder"
+    ],
     "http://www.geneontology.org/formats/oboInOwl#id": "MONDO:0100038",
     "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": "http://www.w3.org/2002/07/owl#Class",
     "http://www.w3.org/2000/01/rdf-schema#label": "complex neurodevelopmental disorder",
@@ -48253,17 +48269,19 @@
     "http://purl.obolibrary.org/obo/IAO_0000233": "https://github.com/monarch-initiative/mondo/issues/5858",
     "http://purl.obolibrary.org/obo/RO_0002175": "http://purl.obolibrary.org/obo/NCBITaxon_9606",
     "http://purl.org/dc/terms/creator": "https://orcid.org/0000-0002-4142-7153",
-    "http://www.geneontology.org/formats/oboInOwl#hasExactSynonym": {
-      "axioms": [
-        {
-          "http://www.geneontology.org/formats/oboInOwl#hasDbXref": "https://orcid.org/0000-0001-5208-3432"
-        }
-      ],
-      "type": [
-        "reification"
-      ],
-      "value": "human disease or disorder"
-    },
+    "http://www.geneontology.org/formats/oboInOwl#hasExactSynonym": [
+      {
+        "axioms": [
+          {
+            "http://www.geneontology.org/formats/oboInOwl#hasDbXref": "https://orcid.org/0000-0001-5208-3432"
+          }
+        ],
+        "type": [
+          "reification"
+        ],
+        "value": "human disease or disorder"
+      }
+    ],
     "http://www.geneontology.org/formats/oboInOwl#id": "MONDO:0700096",
     "http://www.geneontology.org/formats/oboInOwl#inSubset": "http://purl.obolibrary.org/obo/mondo#rare_grouping",
     "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": "http://www.w3.org/2002/07/owl#Class",
