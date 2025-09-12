@@ -116,14 +116,16 @@
             "value": "parent class pref label",
             "lang": "en"
           },
-          "http://exmpl.org/xmpl/Synonym": {
-            "type": [
-              "literal"
-            ],
-            "datatype": "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString",
-            "value": "label of the parent class",
-            "lang": "en"
-          },
+          "http://exmpl.org/xmpl/Synonym": [
+            {
+              "type": [
+                "literal"
+              ],
+              "datatype": "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString",
+              "value": "label of the parent class",
+              "lang": "en"
+            }
+          ],
           "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": "http://www.w3.org/2002/07/owl#Class",
           "http://www.w3.org/2000/01/rdf-schema#label": {
             "type": [
@@ -315,14 +317,16 @@
             "value": "1st children class pref label",
             "lang": "en"
           },
-          "http://exmpl.org/xmpl/Synonym": {
-            "type": [
-              "literal"
-            ],
-            "datatype": "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString",
-            "value": "label of the first children class",
-            "lang": "en"
-          },
+          "http://exmpl.org/xmpl/Synonym": [
+            {
+              "type": [
+                "literal"
+              ],
+              "datatype": "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString",
+              "value": "label of the first children class",
+              "lang": "en"
+            }
+          ],
           "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": "http://www.w3.org/2002/07/owl#Class",
           "http://www.w3.org/2000/01/rdf-schema#label": {
             "type": [
@@ -543,14 +547,16 @@
             "value": "2nd children class pref label",
             "lang": "en"
           },
-          "http://exmpl.org/xmpl/Synonym": {
-            "type": [
-              "literal"
-            ],
-            "datatype": "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString",
-            "value": "label of the second children class",
-            "lang": "en"
-          },
+          "http://exmpl.org/xmpl/Synonym": [
+            {
+              "type": [
+                "literal"
+              ],
+              "datatype": "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString",
+              "value": "label of the second children class",
+              "lang": "en"
+            }
+          ],
           "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": "http://www.w3.org/2002/07/owl#Class",
           "http://www.w3.org/2000/01/rdf-schema#label": {
             "type": [
