@@ -1,6 +1,6 @@
 <a href="https://github.com/EBISPOT/ols4/actions/workflows/test.yml"><img src="https://github.com/EBISPOT/ols4/actions/workflows/test.yml/badge.svg"/></a>
 
-The Ontology Lookup Service (OLS) is a repository for biomedical ontologies that aims to provide a single point of access to the latest ontology versions. 
+The Ontology Lookup Service (OLS) is a repository for biomedical ontologies that aims to provide a single point of access to the latest ontology versions. It provides a [website](https://www.ebi.ac.uk/ols4/), [REST API](https://www.ebi.ac.uk/ols4/api-docs), and [MCP server](https://www.ebi.ac.uk/ols4/mcp).
 
 See also:
 
