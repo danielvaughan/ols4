@@ -1569,40 +1569,6 @@
       "ontology_purl": "https://w3id.org/biopragmatics/resources/hgnc/hgnc.owl.gz"
     },
     {
-      "id": "wikipathways",
-      "creator": [
-        "Egon Willighagen"
-      ],
-      "is_foundary": false,
-      "preferredPrefix": "wikipathways",
-      "title": "WikiPathways",
-      "uri": "https://w3id.org/biopragmatics/resources/wikipathways/wikipathways.owl",
-      "description": "WikiPathways is a database of biological pathways maintained by and for the scientific community.",
-      "homepage": "http://www.wikipathways.org/",
-      "mailing_list": "egon.willighagen@gmail.com",
-      "label_property": "https://www.w3.org/2000/01/rdf-schema#label",
-      "definition_property": [
-        "http://purl.org/dc/terms/description"
-      ],
-      "synonym_property": [
-        "http://www.geneontology.org/formats/oboInOwl#hasExactSynonym",
-        "http://www.geneontology.org/formats/oboInOwl#hasNarrowSynonym",
-        "http://www.geneontology.org/formats/oboInOwl#hasBroadSynonym",
-        "http://www.geneontology.org/formats/oboInOwl#hasCloseSynonym"
-      ],
-      "hierarchical_property": [
-        "https://www.w3.org/2000/01/rdf-schema#subclassOf"
-      ],
-      "hidden_property": [],
-      "base_uri": [
-        "http://purl.obolibrary.org/obo/",
-        "http://identifiers.org/wikipathways/"
-      ],
-      "reasoner": "none",
-      "oboSlims": false,
-      "ontology_purl": "https://w3id.org/biopragmatics/resources/wikipathways/wikipathways.owl"
-    },
-    {
       "id": "ror",
       "creator": [
         "Maria Gould"
