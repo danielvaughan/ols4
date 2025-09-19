@@ -120,6 +120,7 @@ public class V1OntologyIndividualController {
 
         String decoded = UriUtils.decode(termId, "UTF-8");
         V1Individual term = individualRepository.findByOntologyAndIri(ontologyId, decoded, lang);
+        if (term == null) throw new ResourceNotFoundException("No individual with id " + decoded + " in " + ontologyId);
         return new ResponseEntity<>(individualAssembler.toModel(term), HttpStatus.OK);
     }
 

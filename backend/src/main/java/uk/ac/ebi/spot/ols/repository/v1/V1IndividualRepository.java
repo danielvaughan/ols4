@@ -54,14 +54,18 @@ public class V1IndividualRepository {
     }
 
 //    @Query (value = "MATCH (n:Individual) WHERE n.ontology_name = {0} AND n.iri = {1} RETURN n")
-    public V1Individual findByOntologyAndIri(String ontologyId, String iri, String lang) { 
+    public V1Individual findByOntologyAndIri(String ontologyId, String iri, String lang) {
 
         OlsSolrQuery query = new OlsSolrQuery();
 	query.addFilter("type", List.of("individual"), SearchType.WHOLE_FIELD);
 	query.addFilter("ontologyId", List.of(ontologyId), SearchType.WHOLE_FIELD);
 	query.addFilter("iri", List.of(iri), SearchType.WHOLE_FIELD);
 
-        return V1IndividualMapper.mapIndividual(solrClient.getFirst(query), lang);
+        JsonElement result = solrClient.getFirst(query);
+        if (result == null) {
+            return null;
+        }
+        return V1IndividualMapper.mapIndividual(result, lang);
     }
 
 //    @Query (countQuery = "MATCH (n:Individual {ontology_name : {0}}) RETURN count(n)",
@@ -77,25 +81,33 @@ public class V1IndividualRepository {
     }
 
 //    @Query (value = "MATCH (n:Individual) WHERE n.ontology_name = {0} AND n.short_form = {1} RETURN n")
-    public V1Individual findByOntologyAndShortForm(String ontologyId, String lang, String shortForm) { 
+    public V1Individual findByOntologyAndShortForm(String ontologyId, String lang, String shortForm) {
 
         OlsSolrQuery query = new OlsSolrQuery();
 	query.addFilter("type", List.of("individual"), SearchType.WHOLE_FIELD);
 	query.addFilter("ontologyId", List.of(ontologyId), SearchType.WHOLE_FIELD);
 	query.addFilter("shortForm", List.of(shortForm), SearchType.WHOLE_FIELD);
 
-        return V1IndividualMapper.mapIndividual(solrClient.getFirst(query), lang);
+        JsonElement result = solrClient.getFirst(query);
+        if (result == null) {
+            return null;
+        }
+        return V1IndividualMapper.mapIndividual(result, lang);
     }
 
 //    @Query (value = "MATCH (n:Individual) WHERE n.ontology_name = {0} AND n.obo_id = {1} RETURN n")
-    public V1Individual findByOntologyAndOboId(String ontologyId, String lang, String oboId) { 
+    public V1Individual findByOntologyAndOboId(String ontologyId, String lang, String oboId) {
 
         OlsSolrQuery query = new OlsSolrQuery();
 	query.addFilter("type", List.of("individual"), SearchType.WHOLE_FIELD);
 	query.addFilter("ontologyId", List.of(ontologyId), SearchType.WHOLE_FIELD);
 	query.addFilter("oboId", List.of(oboId), SearchType.WHOLE_FIELD);
 
-        return V1IndividualMapper.mapIndividual(solrClient.getFirst(query), lang);
+        JsonElement result = solrClient.getFirst(query);
+        if (result == null) {
+            return null;
+        }
+        return V1IndividualMapper.mapIndividual(result, lang);
 
     }
 
