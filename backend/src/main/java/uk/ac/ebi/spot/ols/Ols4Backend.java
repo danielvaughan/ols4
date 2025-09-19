@@ -41,8 +41,8 @@ public class Ols4Backend {
 	public ToolCallbackProvider mcpClassTools(McpClassService service) {
         return MethodToolCallbackProvider.builder().toolObjects(service).build();
 	}
-	// @Bean
-	// public ToolCallbackProvider mcpSearchTools(McpSearchService service) {
-    //     return MethodToolCallbackProvider.builder().toolObjects(service).build();
-	// }
+	@Bean
+	public ToolCallbackProvider mcpSearchTools(McpSearchService service) {
+        return MethodToolCallbackProvider.builder().toolObjects(service).build();
+	}
 }
