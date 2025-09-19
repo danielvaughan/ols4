@@ -132,6 +132,9 @@ public class V1TermRepository {
             log.error(e.getMessage());
             return null;
         }
+        if (first == null) {
+            return null;
+        }
         return V1TermMapper.mapTerm(first, lang);
 
     }
@@ -161,6 +164,9 @@ public class V1TermRepository {
             log.error(e.getMessage());
             return null;
         }
+        if (first == null) {
+            return null;
+        }
         return V1TermMapper.mapTerm(first, lang);
     }
 
@@ -176,6 +182,9 @@ public class V1TermRepository {
             first = solrClient.getFirst(query);
         } catch (Exception e) {
             log.error(e.getMessage());
+            return null;
+        }
+        if (first == null) {
             return null;
         }
         return V1TermMapper.mapTerm(first, lang);

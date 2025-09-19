@@ -6,7 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.rest.webmvc.ResourceNotFoundException;
+import uk.ac.ebi.spot.ols.controller.api.exception.ResourceNotFoundException;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
@@ -100,7 +100,7 @@ public class V2OntologyController {
     ) throws ResourceNotFoundException {
         logger.trace("ontologyId = {}, lang = {}", ontologyId, lang);
         V2Entity entity = ontologyRepository.getById(ontologyId, lang, outputOpts);
-        if (entity == null) throw new ResourceNotFoundException();
+        if (entity == null) throw new ResourceNotFoundException("The requested resource was not found.");
         return new ResponseEntity<>( entity, HttpStatus.OK);
     }
 }
