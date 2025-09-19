@@ -72,9 +72,14 @@ public class OntologyRepository {
         query.addFilter("type", List.of("ontology"), SearchType.WHOLE_FIELD);
         query.addFilter("ontologyId", List.of(ontologyId), SearchType.CASE_INSENSITIVE_TOKENS);
 
+        JsonElement result = solrClient.getFirst(query);
+        if (result == null) {
+            return null;
+        }
+
         return new V2Entity(
             JsonTransformer.transformJson(
-                solrClient.getFirst(query),
+                result,
                 lang,
                 outputOpts));
     }
