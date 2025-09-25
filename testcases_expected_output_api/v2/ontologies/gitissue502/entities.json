@@ -31920,6 +31920,11 @@
         "source": "https://raw.githubusercontent.com/biopragmatics/bioregistry/main/exports/registry/registry.json",
         "url": "http://www.ebi.ac.uk/efo/EFO_0000618"
       },
+      "ICD10CM:G00-G99": {
+        "curie": "ICD10CM:G00-G99",
+        "source": "https://raw.githubusercontent.com/biopragmatics/bioregistry/main/exports/registry/registry.json",
+        "url": "https://www.icd10data.com/search?s=G00-G99"
+      },
       "MESH:D009422": {
         "curie": "MESH:D009422",
         "source": "https://raw.githubusercontent.com/geneontology/go-site/master/metadata/db-xrefs.yaml",
@@ -41992,6 +41997,11 @@
         "source": "https://raw.githubusercontent.com/biopragmatics/bioregistry/main/exports/registry/registry.json",
         "url": "https://rarediseases.info.nih.gov/diseases/18874/index"
       },
+      "ICD10CM:Q90-Q99": {
+        "curie": "ICD10CM:Q90-Q99",
+        "source": "https://raw.githubusercontent.com/biopragmatics/bioregistry/main/exports/registry/registry.json",
+        "url": "https://www.icd10data.com/search?s=Q90-Q99"
+      },
       "MESH:D025063": {
         "curie": "MESH:D025063",
         "source": "https://raw.githubusercontent.com/geneontology/go-site/master/metadata/db-xrefs.yaml",
@@ -47126,6 +47136,11 @@
       "disorder of development or morphogenesis"
     ],
     "linkedEntities": {
+      "ICD10CM:Q00-Q99": {
+        "curie": "ICD10CM:Q00-Q99",
+        "source": "https://raw.githubusercontent.com/biopragmatics/bioregistry/main/exports/registry/registry.json",
+        "url": "https://www.icd10data.com/search?s=Q00-Q99"
+      },
       "MONDO:0021147": {
         "curie": "MONDO:0021147",
         "source": "https://raw.githubusercontent.com/biopragmatics/bioregistry/main/exports/registry/registry.json",

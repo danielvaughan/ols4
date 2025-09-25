@@ -3064,6 +3064,11 @@
           "entity",
           "property"
         ]
+      },
+      "oboFormat:default-namespace": {
+        "curie": "oboFormat:default-namespace",
+        "source": "https://raw.githubusercontent.com/biopragmatics/bioregistry/main/exports/registry/registry.json",
+        "url": "http://www.geneontology.org/formats/oboInOwl#default-namespace"
       }
     },
     "linksTo": [
