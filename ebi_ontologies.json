@@ -1630,6 +1630,43 @@
       "reasoner": "none",
       "oboSlims": false,
       "ontology_purl": "https://w3id.org/biopragmatics/resources/ror/ror.owl.gz"
+    },
+    {
+      "activity_status": "active",
+      "contact": {
+        "email": "mcarthua@mcmaster.ca",
+        "github": "agmcarthur",
+        "label": "Andrew G. McArthur",
+        "orcid": "0000-0002-1142-3063"
+      },
+      "description": "Antibiotic resistance genes and mutations",
+      "domain": "microbiology",
+      "homepage": "https://github.com/arpcard/aro",
+      "id": "aro",
+      "layout": "ontology_detail",
+      "license": {
+        "label": "CC BY 4.0",
+        "logo": "http://mirrors.creativecommons.org/presskit/buttons/80x15/png/by.png",
+        "url": "https://creativecommons.org/licenses/by/4.0/"
+      },
+      "mailing_list": "https://mailman.mcmaster.ca/mailman/listinfo/card-l",
+      "ontology_purl": "http://purl.obolibrary.org/obo/aro.owl",
+      "preferredPrefix": "ARO",
+      "products": [
+        {
+          "id": "aro.owl",
+          "ontology_purl": "file:///mnt/nfs/local_ontologies/aro.owl"
+        }
+      ],
+      "publications": [
+        {
+          "id": "https://www.ncbi.nlm.nih.gov/pubmed/31665441",
+          "title": "CARD 2020: antibiotic resistome surveillance with the comprehensive antibiotic resistance database."
+        }
+      ],
+      "repository": "https://github.com/arpcard/aro",
+      "title": "Antibiotic Resistance Ontology",
+      "tracker": "https://github.com/arpcard/aro/issues"
     }
   ]
 }
