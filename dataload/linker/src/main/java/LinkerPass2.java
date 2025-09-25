@@ -285,7 +285,7 @@ public class LinkerPass2 {
 
             if(curie == null) {
                 // or maybe the string itself is a curie?
-                if (str.matches("^[A-z0-9]+:[A-z0-9]+$")) {
+                if (str.matches("^[A-z0-9]+:[A-z0-9-]+$")) {
                     curie = str;
                 }
             }
