@@ -92,9 +92,14 @@ public class IndividualRepository {
         query.addFilter("ontologyId", List.of(ontologyId), SearchType.CASE_INSENSITIVE_TOKENS);
         query.addFilter("iri", List.of(iri), SearchType.WHOLE_FIELD);
 
+        JsonElement result = solrClient.getFirst(query);
+        if (result == null) {
+            return null;
+        }
+
         return new V2Entity(
             JsonTransformer.transformJson(
-                solrClient.getFirst(query),
+                result,
                 lang,
                 outputOpts));
     }

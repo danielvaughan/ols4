@@ -1,6 +1,7 @@
 
 package uk.ac.ebi.spot.ols.repository.v1;
 
+import com.google.gson.JsonElement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -29,7 +30,11 @@ public class V1OntologyRepository {
 	query.addFilter("type", List.of("ontology"), SearchType.WHOLE_FIELD);
 	query.addFilter("ontologyId", List.of(ontologyId), SearchType.WHOLE_FIELD);
 
-        return V1OntologyMapper.mapOntology(solrClient.getFirst(query), lang);
+        JsonElement result = solrClient.getFirst(query);
+        if (result == null) {
+            return null;
+        }
+        return V1OntologyMapper.mapOntology(result, lang);
     }
 
     public Page<V1Ontology> getAll(String lang, Pageable pageable) {

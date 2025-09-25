@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.rest.webmvc.ResourceNotFoundException;
+import uk.ac.ebi.spot.ols.controller.api.exception.ResourceNotFoundException;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpEntity;
@@ -162,7 +162,7 @@ public class V2IndividualController {
         iri = UriUtils.decode(iri, "UTF-8");
 
         V2Entity entity = individualRepository.getByOntologyIdAndIri(ontologyId, iri, lang, outputOpts);
-        if (entity == null) throw new ResourceNotFoundException();
+        if (entity == null) throw new ResourceNotFoundException("The requested resource was not found.");
         return new ResponseEntity<>( entity, HttpStatus.OK);
     }
 

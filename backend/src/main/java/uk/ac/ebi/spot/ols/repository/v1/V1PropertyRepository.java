@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import com.google.gson.JsonElement;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -59,7 +60,11 @@ public class V1PropertyRepository {
         query.addFilter("ontologyId", List.of(ontologyId), SearchType.WHOLE_FIELD);
         query.addFilter("iri", List.of(iri), SearchType.WHOLE_FIELD);
 
-        return V1PropertyMapper.mapProperty(solrClient.getFirst(query), lang);
+        JsonElement result = solrClient.getFirst(query);
+        if (result == null) {
+            return null;
+        }
+        return V1PropertyMapper.mapProperty(result, lang);
     }
 
     public Page<V1Property> findAllByOntology(String ontologyId, String lang, Pageable pageable)  {
@@ -78,7 +83,11 @@ public class V1PropertyRepository {
         query.addFilter("ontologyId", List.of(ontologyId), SearchType.WHOLE_FIELD);
         query.addFilter("shortForm", List.of(shortForm), SearchType.WHOLE_FIELD);
 
-        return V1PropertyMapper.mapProperty(solrClient.getFirst(query), lang);
+        JsonElement result = solrClient.getFirst(query);
+        if (result == null) {
+            return null;
+        }
+        return V1PropertyMapper.mapProperty(result, lang);
 
     }
 
@@ -89,7 +98,11 @@ public class V1PropertyRepository {
         query.addFilter("ontologyId", List.of(ontologyId), SearchType.WHOLE_FIELD);
         query.addFilter("oboId", List.of(oboId), SearchType.WHOLE_FIELD);
 
-        return V1PropertyMapper.mapProperty(solrClient.getFirst(query), lang);
+        JsonElement result = solrClient.getFirst(query);
+        if (result == null) {
+            return null;
+        }
+        return V1PropertyMapper.mapProperty(result, lang);
 
     }
 
