@@ -1650,14 +1650,8 @@
         "url": "https://creativecommons.org/licenses/by/4.0/"
       },
       "mailing_list": "https://mailman.mcmaster.ca/mailman/listinfo/card-l",
-      "ontology_purl": "http://purl.obolibrary.org/obo/aro.owl",
+      "ontology_purl": "file:///mnt/nfs/local_ontologies/aro.owl",
       "preferredPrefix": "ARO",
-      "products": [
-        {
-          "id": "aro.owl",
-          "ontology_purl": "file:///mnt/nfs/local_ontologies/aro.owl"
-        }
-      ],
       "publications": [
         {
           "id": "https://www.ncbi.nlm.nih.gov/pubmed/31665441",
