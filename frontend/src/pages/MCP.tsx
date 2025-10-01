@@ -13,7 +13,7 @@ export default function MCP() {
       <main className="container mx-auto px-4 my-8">
           <div className="text-2xl font-bold my-6">MCP Server</div>
           <p className="mb-4">
-            OLS provides a hosted <a href="https://modelcontextprotocol.io/docs/getting-started/intro">Model Context Protocol (MCP)</a> server which can be used with LLMs to provide access to ontology terms and hierarchies.
+            OLS provides a hosted <a href="https://modelcontextprotocol.io/docs/getting-started/intro">Model Context Protocol (MCP)</a> server which enables LLMs to access ontology terms and hierarchies.
             </p>
             <p className="mb-4">
             The MCP server for this instance of OLS is available at:
