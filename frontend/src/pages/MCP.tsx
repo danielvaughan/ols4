@@ -25,7 +25,7 @@ export default function MCP() {
   <button
     type="button"
     onClick={() =>
-      navigator.clipboard.writeText(`${process.env.REACT_APP_APIURL}api/mcp/sse`)
+      navigator.clipboard.writeText(`${process.env.REACT_APP_APIURL}api/mcp`)
     }
     className="ml-2 text-gray-500 hover:text-gray-700 transition"
   >
@@ -36,6 +36,9 @@ export default function MCP() {
 
                 </li>
             </ul>
+            <p className="mb-4">
+            Please note that the type of this endpoint is <b>Streamable HTTP</b> and not the legacy SSE type.
+            </p>
       </main>
     </Fragment>
   );
