@@ -32,7 +32,7 @@ RUN curl https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.9.
 # It is important that the versions match!
 #
 RUN mkdir /opt/neo4j && \
-    curl https://ftp.ebi.ac.uk/pub/databases/spot/mirror/eo4j-community-2025.03.0-unix.tar.gz | tar -xz --strip-components=1 -C /opt/neo4j
+    curl https://ftp.ebi.ac.uk/pub/databases/spot/mirror/neo4j-community-2025.03.0-unix.tar.gz | tar -xz --strip-components=1 -C /opt/neo4j
 
 RUN mkdir /opt/solr && \
     curl https://ftp.ebi.ac.uk/pub/databases/spot/mirror/solr-9.8.1.tgz | tar -xz --strip-components=1 -C /opt/solr
