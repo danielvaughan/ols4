@@ -1,0 +1,14 @@
+name: "CodeQL Configuration"
+
+paths:
+  - frontend/src
+
+paths-ignore:
+  - frontend/node_modules
+  - frontend/build
+  - '**/test/**'
+  - '**/tests/**'
+  - '**/*.test.ts'
+  - '**/*.test.tsx'
+  - '**/*.spec.ts'
+  - '**/*.spec.tsx'
