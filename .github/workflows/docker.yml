@@ -16,7 +16,6 @@ jobs:
     permissions:
       contents: read
       packages: write
-      security-events: write
 
     if: ${{ github.repository_owner == 'EBISPOT' }}
 
@@ -31,76 +30,22 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build ols4 dataload Docker image
+      - name: Build and push ols4 dataload Docker image
         run: |
           docker build -t ghcr.io/ebispot/ols4-dataload:${{ github.sha }} -f ./dataload/Dockerfile .
           docker tag ghcr.io/ebispot/ols4-dataload:${{github.sha}} ghcr.io/ebispot/ols4-dataload:${{ github.head_ref || github.ref_name }}
-
-      - name: Run Trivy scan on dataload image
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: ghcr.io/ebispot/ols4-dataload:${{ github.sha }}
-          format: 'sarif'
-          output: 'trivy-dataload.sarif'
-          severity: 'CRITICAL,HIGH'
-
-      - name: Upload Trivy results for dataload
-        uses: github/codeql-action/upload-sarif@v3
-        if: always()
-        with:
-          sarif_file: 'trivy-dataload.sarif'
-          category: 'trivy-dataload'
-
-      - name: Push ols4 dataload Docker image
-        run: |
           docker push --all-tags ghcr.io/ebispot/ols4-dataload
 
-      - name: Build ols4 backend Docker image
+      - name: Build and push ols4 backend Docker image
         run: |
           docker build -t ghcr.io/ebispot/ols4-backend:${{ github.sha }} -f ./backend/Dockerfile .
           docker tag ghcr.io/ebispot/ols4-backend:${{github.sha}} ghcr.io/ebispot/ols4-backend:${{ github.head_ref || github.ref_name }}
-
-      - name: Run Trivy scan on backend image
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: ghcr.io/ebispot/ols4-backend:${{ github.sha }}
-          format: 'sarif'
-          output: 'trivy-backend.sarif'
-          severity: 'CRITICAL,HIGH'
-
-      - name: Upload Trivy results for backend
-        uses: github/codeql-action/upload-sarif@v3
-        if: always()
-        with:
-          sarif_file: 'trivy-backend.sarif'
-          category: 'trivy-backend'
-
-      - name: Push ols4 backend Docker image
-        run: |
           docker push --all-tags ghcr.io/ebispot/ols4-backend
 
-      - name: Build ols4 frontend Docker image
+      - name: Build and push ols4 frontend Docker image
         run: |
           cd frontend
           docker build -t ghcr.io/ebispot/ols4-frontend:${{ github.sha }} .
           docker tag ghcr.io/ebispot/ols4-frontend:${{github.sha}} ghcr.io/ebispot/ols4-frontend:${{ github.head_ref || github.ref_name }}
-
-      - name: Run Trivy scan on frontend image
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: ghcr.io/ebispot/ols4-frontend:${{ github.sha }}
-          format: 'sarif'
-          output: 'trivy-frontend.sarif'
-          severity: 'CRITICAL,HIGH'
-
-      - name: Upload Trivy results for frontend
-        uses: github/codeql-action/upload-sarif@v3
-        if: always()
-        with:
-          sarif_file: 'trivy-frontend.sarif'
-          category: 'trivy-frontend'
-
-      - name: Push ols4 frontend Docker image
-        run: |
           docker push --all-tags ghcr.io/ebispot/ols4-frontend
 

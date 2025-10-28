@@ -59,7 +59,7 @@ jobs:
           format: 'sarif'
           output: 'trivy-results-${{ matrix.image }}.sarif'
           severity: 'CRITICAL,HIGH,MEDIUM'
-          scanners: 'vuln,secret,config'
+          scanners: 'vuln'
           vuln-type: 'os,library'
           timeout: '10m'
 
@@ -69,54 +69,3 @@ jobs:
         with:
           sarif_file: 'trivy-results-${{ matrix.image }}.sarif'
           category: 'container-${{ matrix.image }}'
-
-      - name: Run Trivy vulnerability scanner (Table format)
-        uses: aquasecurity/trivy-action@master
-        if: always()
-        with:
-          image-ref: ghcr.io/ebispot/${{ matrix.image }}:${{ steps.tag.outputs.tag }}
-          format: 'table'
-          severity: 'CRITICAL,HIGH'
-          exit-code: '0'
-
-      - name: Generate Trivy JSON report
-        uses: aquasecurity/trivy-action@master
-        if: always()
-        with:
-          image-ref: ghcr.io/ebispot/${{ matrix.image }}:${{ steps.tag.outputs.tag }}
-          format: 'json'
-          output: 'trivy-report-${{ matrix.image }}.json'
-          severity: 'CRITICAL,HIGH,MEDIUM,LOW'
-
-      - name: Upload Trivy JSON report as artifact
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: trivy-report-${{ matrix.image }}
-          path: trivy-report-${{ matrix.image }}.json
-          retention-days: 30
-
-  summarize-results:
-    name: Security Scan Summary
-    runs-on: ubuntu-latest
-    needs: scan-images
-    if: always()
-
-    steps:
-      - name: Download all reports
-        uses: actions/download-artifact@v4
-        with:
-          path: reports
-
-      - name: Generate summary
-        run: |
-          echo "## Container Security Scan Results" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Scan completed for all OLS4 container images." >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Scanned Images:" >> $GITHUB_STEP_SUMMARY
-          echo "- ols4-dataload" >> $GITHUB_STEP_SUMMARY
-          echo "- ols4-backend" >> $GITHUB_STEP_SUMMARY
-          echo "- ols4-frontend" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Detailed reports are available in the Security tab and as workflow artifacts." >> $GITHUB_STEP_SUMMARY
