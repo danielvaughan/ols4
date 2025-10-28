@@ -77,6 +77,8 @@ jobs:
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
+        env:
+          TMPDIR: ${{ runner.temp }}
         with:
           image-ref: ghcr.io/ebispot/${{ matrix.image }}:${{ steps.tag.outputs.tag }}
           format: 'sarif'
