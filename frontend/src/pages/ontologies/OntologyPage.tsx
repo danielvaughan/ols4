@@ -352,12 +352,11 @@ export default function OntologyPage() {
                     {ontology.getSourceFileTimestamp() && (
                       <div>
                         <span className="font-bold">Last loaded: </span>
-                        <a
+                        <p
                           id="lastLoaded"
-                          href={ontology.getSourceFileTimestamp()}
                         >
                           {ontology.getSourceFileTimestamp()}
-                        </a>
+                        </p>
                       </div>
                     )}
                     <OntologyAnnotationsSection ontology={ontology} />
