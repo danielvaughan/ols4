@@ -43,6 +43,7 @@ jobs:
        (github.event_name == 'workflow_dispatch'))
 
     strategy:
+      max-parallel: 1  # Run scans sequentially to prevent disk space issues
       matrix:
         image:
           - ols4-dataload
@@ -52,6 +53,18 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Free up disk space before scan
+        run: |
+          echo "Disk space before cleanup:"
+          df -h
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+          docker system prune -af --volumes
+          echo "Disk space after cleanup:"
+          df -h
 
       - name: Log in to the Container registry
         uses: docker/login-action@v3
@@ -94,3 +107,13 @@ jobs:
         with:
           sarif_file: 'trivy-results-${{ matrix.image }}.sarif'
           category: 'container-${{ matrix.image }}'
+
+      - name: Cleanup after scan
+        if: always()
+        run: |
+          echo "Cleaning up to free disk space..."
+          docker rmi ghcr.io/ebispot/${{ matrix.image }}:${{ steps.tag.outputs.tag }} || true
+          docker system prune -af --volumes
+          rm -rf ${{ runner.temp }}/*
+          echo "Disk space after cleanup:"
+          df -h
