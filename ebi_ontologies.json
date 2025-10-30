@@ -1661,6 +1661,34 @@
       "repository": "https://github.com/arpcard/aro",
       "title": "Antibiotic Resistance Ontology",
       "tracker": "https://github.com/arpcard/aro/issues"
+    },
+    {
+      "id": "gscmixs",
+      "creator": [
+        "The Genomic Standards Consortium."
+      ],
+      "is_foundary": false,
+      "preferredPrefix": "gscmixs",
+      "title": "Minimum Information about any (x) Sequence (MIxS) standard",
+      "uri": "https://w3id.org/mixs",
+      "description": "An OWL representation of the Minimum Information for any (x) Standard (MIxS), managed by the Genomic Standards Consortium. This file is released by the Genomic Standards Consortium (GSC; https://www.gensc.org/) for use by anyone handling data or information about biological sequences.",
+      "homepage": "https://w3id.org/mixs",
+      "mailing_list": "gensc-cig@googlegroups.com",
+      "label_property": [
+        "owl:DatatypeProperty",
+        "rdfs:label",
+        "dcterms:title",
+        "schema1:keywords"
+      ],
+      "definition_property": [
+        "skos:definition"
+      ],
+      "base_uri": [
+        "MIXS:"
+      ],
+      "reasoner": "OWL2",
+      "oboSlims": false,
+      "ontology_purl": "https://w3id.org/mixs/mixs.owl.ttl"
     }
   ]
 }
