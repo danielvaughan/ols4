@@ -5,7 +5,7 @@ metadata:
   labels:
     app: {{ .Release.Name }}-backend
 spec:
-  replicas: 2
+  replicas: 3
   selector:
     matchLabels:
       app: {{ .Release.Name }}-backend
@@ -43,10 +43,10 @@ spec:
             timeoutSeconds: 10
           resources:
             requests:
-              memory: 15Gi
+              memory: 10Gi
               cpu: 0.5
             limits:
-              memory: 30Gi
+              memory: 60Gi
               cpu: 2
           env:
             - name: OLS_SOLR_HOST
