@@ -19,6 +19,7 @@ import LinkedEntities from "../../../model/LinkedEntities";
 import Reified from "../../../model/Reified";
 import {
   getClassInstances,
+  getRelatedFrom,
   getEntityWithType,
   getOntology,
 } from "../ontologiesSlice";
@@ -70,6 +71,9 @@ export default function EntityPage({
   const loading = useAppSelector((state) => state.ontologies.loadingEntity);
   const classInstances = useAppSelector(
     (state) => state.ontologies.classInstances
+  );
+  const relatedFrom = useAppSelector(
+    (state) => state.ontologies.relatedFrom
   );
   const errorMessage = useAppSelector((state) => state.ontologies.errorMessage);
 
@@ -136,6 +140,18 @@ export default function EntityPage({
     if (entity && entityType === "classes") {
       dispatch(
         getClassInstances({
+          ontologyId: entity.getOntologyId(),
+          classIri: entity.getIri(),
+          searchParams,
+        })
+      );
+    }
+  }, [dispatch, entityType, entity, searchParams]);
+
+  useEffect(() => {
+    if (entity && entityType === "classes") {
+      dispatch(
+        getRelatedFrom({
           ontologyId: entity.getOntologyId(),
           classIri: entity.getIri(),
           searchParams,
@@ -492,6 +508,7 @@ export default function EntityPage({
                     />
                     <EntityRelatedFromSection
                       entity={entity}
+                      relatedFrom={relatedFrom}
                       linkedEntities={linkedEntities}
                     />
                     <ClassInstancesSection

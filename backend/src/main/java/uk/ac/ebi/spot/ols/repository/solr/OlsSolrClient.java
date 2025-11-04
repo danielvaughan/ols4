@@ -119,9 +119,9 @@ public class OlsSolrClient {
             query.setRows(pageable.getPageSize() > maxRows ? maxRows : pageable.getPageSize());
         }
 
-        logger.debug("solr rows: {} ", query.getRows());
-        logger.debug("solr query: {} ", query.toQueryString());
-        logger.debug("solr query urldecoded: {}",URLDecoder.decode(query.toQueryString()));
+        logger.info("solr rows: {} ", query.getRows());
+        logger.info("solr query: {} ", query.toQueryString());
+        logger.info("solr query urldecoded: {}",URLDecoder.decode(query.toQueryString()));
         logger.debug("solr host: {}", host);
 
         org.apache.solr.client.solrj.SolrClient mySolrClient = new HttpSolrClient.Builder(host + "/solr/ols4_entities").build();
@@ -129,7 +129,7 @@ public class OlsSolrClient {
         QueryResponse qr = null;
         try {
             qr = mySolrClient.query(query);
-            logger.debug("solr query had {} result(s).", qr.getResults().getNumFound());
+            logger.info("solr query had {} result(s).", qr.getResults().getNumFound());
         } catch (SolrServerException e) {
             throw new RuntimeException(e);
         } catch (IOException e) {
