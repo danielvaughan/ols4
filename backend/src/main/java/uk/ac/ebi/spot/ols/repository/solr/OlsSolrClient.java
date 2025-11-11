@@ -125,9 +125,9 @@ public class OlsSolrClient {
         logger.debug("SOLR QUERY START - Memory before: {}MB / {}MB ({}% used)",
                 memBefore / 1024 / 1024, maxMem / 1024 / 1024, (memBefore * 100) / maxMem);
 
-        logger.info("solr rows: {} ", query.getRows());
+        logger.debug("solr rows: {} ", query.getRows());
         logger.info("solr query: {} ", query.toQueryString());
-        logger.info("solr query urldecoded: {}",URLDecoder.decode(query.toQueryString()));
+        logger.debug("solr query urldecoded: {}",URLDecoder.decode(query.toQueryString()));
         logger.debug("solr host: {}", host);
 
         org.apache.solr.client.solrj.SolrClient mySolrClient = new HttpSolrClient.Builder(host + "/solr/ols4_entities").build();
@@ -151,7 +151,7 @@ public class OlsSolrClient {
             long memAfter = runtime.totalMemory() - runtime.freeMemory();
             long memDelta = memAfter - memBefore;
 
-            logger.info("SOLR QUERY COMPLETE - Results: {}, ResponseSize: {}MB, Duration: {}ms, MemoryDelta: {}MB, MemoryAfter: {}MB / {}MB ({}% used)",
+            logger.debug("SOLR QUERY COMPLETE - Results: {}, ResponseSize: {}MB, Duration: {}ms, MemoryDelta: {}MB, MemoryAfter: {}MB / {}MB ({}% used)",
                     qr.getResults().getNumFound(),
                     responseSize / 1024 / 1024,
                     duration,
