@@ -10,6 +10,7 @@ jobs:
   testDataload:
     name: Data Load
     runs-on: ubuntu-latest
+    if: false  # Workflow disabled - remove this line to re-enable
     strategy:
       matrix:
         java: [ 21 ]

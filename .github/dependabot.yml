@@ -1,0 +1,147 @@
+version: 2
+updates:
+  # Maven dependencies for backend
+  - package-ecosystem: "maven"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "04:00"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "EBISPOT/ols4-maintainers"
+    labels:
+      - "dependencies"
+      - "security"
+      - "backend"
+    commit-message:
+      prefix: "build(deps)"
+      include: "scope"
+    groups:
+      spring-boot:
+        patterns:
+          - "org.springframework.boot:*"
+      testing:
+        patterns:
+          - "junit:*"
+          - "org.mockito:*"
+          - "org.hamcrest:*"
+
+  # Maven dependencies for dataload
+  - package-ecosystem: "maven"
+    directory: "/dataload"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "04:00"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "EBISPOT/ols4-maintainers"
+    labels:
+      - "dependencies"
+      - "security"
+      - "dataload"
+    commit-message:
+      prefix: "build(deps)"
+      include: "scope"
+
+  # npm dependencies for frontend
+  - package-ecosystem: "npm"
+    directory: "/frontend"
+    schedule:
+      interval: "weekly"
+      day: "tuesday"
+      time: "04:00"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "EBISPOT/ols4-maintainers"
+    labels:
+      - "dependencies"
+      - "security"
+      - "frontend"
+    commit-message:
+      prefix: "build(deps)"
+      include: "scope"
+    groups:
+      react:
+        patterns:
+          - "react*"
+          - "@types/react*"
+      mui:
+        patterns:
+          - "@mui/*"
+          - "@emotion/*"
+      testing:
+        patterns:
+          - "@testing-library/*"
+          - "jest*"
+
+  # Docker base images
+  - package-ecosystem: "docker"
+    directory: "/backend"
+    schedule:
+      interval: "weekly"
+      day: "wednesday"
+      time: "04:00"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "EBISPOT/ols4-maintainers"
+    labels:
+      - "dependencies"
+      - "security"
+      - "docker"
+      - "backend"
+    commit-message:
+      prefix: "build(docker)"
+
+  - package-ecosystem: "docker"
+    directory: "/frontend"
+    schedule:
+      interval: "weekly"
+      day: "wednesday"
+      time: "04:00"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "EBISPOT/ols4-maintainers"
+    labels:
+      - "dependencies"
+      - "security"
+      - "docker"
+      - "frontend"
+    commit-message:
+      prefix: "build(docker)"
+
+  - package-ecosystem: "docker"
+    directory: "/dataload"
+    schedule:
+      interval: "weekly"
+      day: "wednesday"
+      time: "04:00"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "EBISPOT/ols4-maintainers"
+    labels:
+      - "dependencies"
+      - "security"
+      - "docker"
+      - "dataload"
+    commit-message:
+      prefix: "build(docker)"
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "thursday"
+      time: "04:00"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "EBISPOT/ols4-maintainers"
+    labels:
+      - "dependencies"
+      - "security"
+      - "github-actions"
+    commit-message:
+      prefix: "ci"
+      include: "scope"
