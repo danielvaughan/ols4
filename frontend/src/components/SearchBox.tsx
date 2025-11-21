@@ -281,8 +281,8 @@ export default function SearchBox({
                       {jumpToEntry.getName() || jumpToEntry.getOntologyId()}
                     </div>
                     <div className="truncate flex-initial ml-2 text-right">
-                      <span className="bg-orange-default px-3 py-1 rounded-lg text-sm text-white uppercase">
-                        ONTOLOGY
+                      <span className="bg-link-default px-3 py-1 rounded-lg text-sm text-white uppercase">
+                        {jumpToEntry.getOntologyId()}
                       </span>
                     </div>
                   </div>
