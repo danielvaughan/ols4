@@ -42,7 +42,12 @@ public class EntityRepository {
         OlsSolrQuery query = new OlsSolrQuery();
         query.setSearchText(search);
         query.setExactMatch(exactMatch);
-        query.addFilter("type", List.of("entity"), SearchType.WHOLE_FIELD);
+
+        // Only add the default type=entity filter if the user hasn't specified a type filter
+        if (properties == null || !properties.containsKey("type")) {
+            query.addFilter("type", List.of("entity"), SearchType.WHOLE_FIELD);
+        }
+
         SearchFieldsParser.addSearchFieldsToQuery(query, searchFields);
         SearchFieldsParser.addBoostFieldsToQuery(query, boostFields);
         SearchFieldsParser.addFacetFieldsToQuery(query, facetFields);
@@ -63,7 +68,11 @@ public class EntityRepository {
         query.setSearchText(search);
         query.setExactMatch(exactMatch);
 
-        query.addFilter("type", List.of("entity"), SearchType.WHOLE_FIELD);
+        // Only add the default type=entity filter if the user hasn't specified a type filter
+        if (properties == null || !properties.containsKey("type")) {
+            query.addFilter("type", List.of("entity"), SearchType.WHOLE_FIELD);
+        }
+
         query.addFilter("ontologyId", List.of(ontologyId), SearchType.CASE_INSENSITIVE_TOKENS);
         SearchFieldsParser.addSearchFieldsToQuery(query, searchFields);
         SearchFieldsParser.addBoostFieldsToQuery(query, boostFields);
