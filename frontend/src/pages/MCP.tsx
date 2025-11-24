@@ -25,7 +25,7 @@ export default function MCP() {
   <button
     type="button"
     onClick={() =>
-      navigator.clipboard.writeText(`${process.env.REACT_APP_APIURL}api/mcp`)
+      navigator.clipboard.writeText(mcpUrl)
     }
     className="ml-2 text-gray-500 hover:text-gray-700 transition"
   >
