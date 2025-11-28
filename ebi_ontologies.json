@@ -1,6 +1,10 @@
 {
   "ontologies": [
     {
+      "id": "fma",
+      "ontology_purl": "http://purl.org/sig/ont/fma.owl"
+    },
+    {
       "id": "gold",
       "ontology_purl": "https://raw.githubusercontent.com/cmungall/gold-ontology/refs/heads/main/gold.owl"
     },
