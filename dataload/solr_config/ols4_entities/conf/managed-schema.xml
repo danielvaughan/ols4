@@ -317,12 +317,14 @@
     <fieldType name="ols4textWhitespaceEdge" class="solr.TextField">
         <analyzer type="index">
             <filter class="solr.LowerCaseFilterFactory"/>
+            <filter class="solr.ASCIIFoldingFilterFactory"/>
             <tokenizer class="solr.WhitespaceTokenizerFactory"/>
             <filter class="solr.RemoveDuplicatesTokenFilterFactory"/>
             <filter class="solr.EdgeNGramFilterFactory" minGramSize="1" maxGramSize="35" />
         </analyzer>
         <analyzer type="query">
             <filter class="solr.LowerCaseFilterFactory"/>
+            <filter class="solr.ASCIIFoldingFilterFactory"/>
             <tokenizer class="solr.WhitespaceTokenizerFactory"/>
             <filter class="solr.RemoveDuplicatesTokenFilterFactory"/>
         </analyzer>
@@ -331,23 +333,27 @@
         <analyzer type="index">
             <tokenizer class="solr.PatternTokenizerFactory" pattern="______" />
             <filter class="solr.LowerCaseFilterFactory"/>
+            <filter class="solr.ASCIIFoldingFilterFactory"/>
             <filter class="solr.RemoveDuplicatesTokenFilterFactory"/>
             <filter class="solr.EdgeNGramFilterFactory" minGramSize="1" maxGramSize="35" />
         </analyzer>
         <analyzer type="query">
             <tokenizer class="solr.PatternTokenizerFactory" pattern="_______" />
             <filter class="solr.LowerCaseFilterFactory"/>
+            <filter class="solr.ASCIIFoldingFilterFactory"/>
             <filter class="solr.RemoveDuplicatesTokenFilterFactory"/>
         </analyzer>
     </fieldType>
     <fieldType name="ols4textWhitespace" class="solr.TextField">
         <analyzer type="index">
             <filter class="solr.LowerCaseFilterFactory"/>
+            <filter class="solr.ASCIIFoldingFilterFactory"/>
             <tokenizer class="solr.WhitespaceTokenizerFactory"/>
             <filter class="solr.RemoveDuplicatesTokenFilterFactory"/>
         </analyzer>
         <analyzer type="query">
             <filter class="solr.LowerCaseFilterFactory"/>
+            <filter class="solr.ASCIIFoldingFilterFactory"/>
             <tokenizer class="solr.WhitespaceTokenizerFactory"/>
             <filter class="solr.RemoveDuplicatesTokenFilterFactory"/>
             <!-- filter class="solr.EdgeNGramFilterFactory" minGramSize="1" maxGramSize="35" side="front" /-->
@@ -359,6 +365,7 @@
         <analyzer>
             <tokenizer class="solr.KeywordTokenizerFactory"/>
             <filter class="solr.LowerCaseFilterFactory" />
+            <filter class="solr.ASCIIFoldingFilterFactory"/>
         </analyzer>
     </fieldType>
 
