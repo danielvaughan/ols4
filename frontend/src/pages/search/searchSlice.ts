@@ -19,7 +19,7 @@ const initialState: SearchState = {
 export const getSearchResults = createAsyncThunk(
   "search_results",
   async (
-    { page, rowsPerPage, search, ontologyId, type, searchParams }: any,
+    { page, rowsPerPage, search, ontologyId, excludeOntologyId, type, searchParams }: any,
     { rejectWithValue }
   ) => {
     try {
@@ -29,6 +29,7 @@ export const getSearchResults = createAsyncThunk(
         page,
         facetFields: "ontologyId type",
         ontologyId: ontologyId ? ontologyId.join(',') : null,
+        excludeOntologyId: excludeOntologyId ? excludeOntologyId.join(',') : null,
         type: type ? type.join(',') : null,
         // lang: "all",
 
