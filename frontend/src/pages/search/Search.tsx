@@ -251,42 +251,39 @@ export default function Search() {
                     </div>
                   ) : null}
                 </div>
-                <fieldset>
+                <fieldset className="max-h-80 overflow-y-auto border border-neutral-300 rounded-md p-2">
                   {ontologyFacetFiltered &&
                   Object.keys(ontologyFacetFiltered).length > 0
                     ? Object.keys(ontologyFacetFiltered)
+                        .filter((key) => ontologyFacetFiltered[key] > 0)
                         .sort((a, b) => {
-                          const ac = a ? a.toString() : "";
-                          const bc = b ? b.toString() : "";
-                          return ac.localeCompare(bc);
+                          return ontologyFacetFiltered[b] - ontologyFacetFiltered[a];
                         })
                         .map((key) => {
-                          if (ontologyFacetFiltered[key] > 0) {
-                            const isDisabled = ontologyFacetExcluded.length > 0;
-                            return (
-                              <label
-                                key={key}
-                                htmlFor={key}
-                                className={`block p-1 w-fit ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
-                              >
-                                <input
-                                  type="checkbox"
-                                  id={key}
-                                  className="invisible hidden peer"
-                                  checked={ontologyFacetSelected.includes(key)}
-                                  disabled={isDisabled}
-                                  onChange={(e) => {
-                                    handleOntologyFacet(e.target.checked, key);
-                                    setOntologyFacetQuery("");
-                                  }}
-                                />
-                                <span className="input-checkbox mr-4" />
-                                <span className="uppercase mr-4">
-                                  {key} &#40;{ontologyFacetFiltered[key]}&#41;
-                                </span>
-                              </label>
-                            );
-                          } else return null;
+                          const isDisabled = ontologyFacetExcluded.length > 0;
+                          return (
+                            <label
+                              key={key}
+                              htmlFor={key}
+                              className={`block p-1 w-fit ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            >
+                              <input
+                                type="checkbox"
+                                id={key}
+                                className="invisible hidden peer"
+                                checked={ontologyFacetSelected.includes(key)}
+                                disabled={isDisabled}
+                                onChange={(e) => {
+                                  handleOntologyFacet(e.target.checked, key);
+                                  setOntologyFacetQuery("");
+                                }}
+                              />
+                              <span className="input-checkbox mr-4" />
+                              <span className="uppercase mr-4">
+                                {key} &#40;{ontologyFacetFiltered[key]}&#41;
+                              </span>
+                            </label>
+                          );
                         })
                     : null}
                 </fieldset>
@@ -332,42 +329,39 @@ export default function Search() {
                     </div>
                   ) : null}
                 </div>
-                <fieldset>
+                <fieldset className="max-h-80 overflow-y-auto border border-neutral-300 rounded-md p-2">
                   {ontologyExcludedFacetFiltered &&
                   Object.keys(ontologyExcludedFacetFiltered).length > 0
                     ? Object.keys(ontologyExcludedFacetFiltered)
+                        .filter((key) => ontologyExcludedFacetFiltered[key] > 0)
                         .sort((a, b) => {
-                          const ac = a ? a.toString() : "";
-                          const bc = b ? b.toString() : "";
-                          return ac.localeCompare(bc);
+                          return ontologyExcludedFacetFiltered[b] - ontologyExcludedFacetFiltered[a];
                         })
                         .map((key) => {
-                          if (ontologyExcludedFacetFiltered[key] > 0) {
-                            const isDisabled = ontologyFacetSelected.length > 0;
-                            return (
-                              <label
-                                key={key}
-                                htmlFor={`excluded-${key}`}
-                                className={`block p-1 w-fit ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
-                              >
-                                <input
-                                  type="checkbox"
-                                  id={`excluded-${key}`}
-                                  className="invisible hidden peer"
-                                  checked={ontologyFacetExcluded.includes(key)}
-                                  disabled={isDisabled}
-                                  onChange={(e) => {
-                                    handleOntologyExcludedFacet(e.target.checked, key);
-                                    setOntologyExcludedFacetQuery("");
-                                  }}
-                                />
-                                <span className="input-checkbox mr-4" />
-                                <span className="uppercase mr-4">
-                                  {key} &#40;{ontologyExcludedFacetFiltered[key]}&#41;
-                                </span>
-                              </label>
-                            );
-                          } else return null;
+                          const isDisabled = ontologyFacetSelected.length > 0;
+                          return (
+                            <label
+                              key={key}
+                              htmlFor={`excluded-${key}`}
+                              className={`block p-1 w-fit ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            >
+                              <input
+                                type="checkbox"
+                                id={`excluded-${key}`}
+                                className="invisible hidden peer"
+                                checked={ontologyFacetExcluded.includes(key)}
+                                disabled={isDisabled}
+                                onChange={(e) => {
+                                  handleOntologyExcludedFacet(e.target.checked, key);
+                                  setOntologyExcludedFacetQuery("");
+                                }}
+                              />
+                              <span className="input-checkbox mr-4" />
+                              <span className="uppercase mr-4">
+                                {key} &#40;{ontologyExcludedFacetFiltered[key]}&#41;
+                              </span>
+                            </label>
+                          );
                         })
                     : null}
                 </fieldset>
