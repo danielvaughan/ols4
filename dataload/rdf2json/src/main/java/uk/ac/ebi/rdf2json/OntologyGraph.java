@@ -77,6 +77,25 @@ public class OntologyGraph implements StreamRDF {
             url = url.substring(0, url.length() - 3);
         }
 
+        // Peek at the response to detect error XML messages
+        // Buffer first 1KB to check if it's an error response
+        if (!is.markSupported()) {
+            is = new java.io.BufferedInputStream(is);
+        }
+        is.mark(1024);
+        byte[] buffer = new byte[1024];
+        int bytesRead = is.read(buffer);
+        is.reset();
+
+        if (bytesRead > 0) {
+            String contentPreview = new String(buffer, 0, bytesRead, StandardCharsets.UTF_8).trim();
+
+            // Detect error XML patterns
+            if (contentPreview.startsWith("<Error>") || contentPreview.startsWith("<?xml") && contentPreview.contains("<Error>")) {
+                throw new IOException("Received error XML response instead of valid ontology for URL: " + url);
+            }
+        }
+
         Lang lang = null;
         if(contentType != null) {
 
@@ -155,7 +174,46 @@ public class OntologyGraph implements StreamRDF {
         request.addHeader("Accept", "application/rdf+xml, text/turtle, text/n3");
 
         HttpResponse response = client.execute(request);
-        return response.getEntity();
+
+        // Validate HTTP status code
+        int statusCode = response.getStatusLine().getStatusCode();
+        if (statusCode < 200 || statusCode >= 300) {
+            throw new IOException("HTTP request failed with status code: " + statusCode + " for URL: " + url);
+        }
+
+        HttpEntity entity = response.getEntity();
+        if (entity == null) {
+            throw new IOException("HTTP response contains no content for URL: " + url);
+        }
+
+        // Peek at the response to detect error XML messages
+        // Buffer first 1KB to check if it's an error response
+        InputStream is = entity.getContent();
+        if (!is.markSupported()) {
+            is = new java.io.BufferedInputStream(is);
+        }
+
+        byte[] buffer = new byte[1024];
+        is.mark(1024);
+        int bytesRead = is.read(buffer);
+        is.reset();
+
+        if (bytesRead > 0) {
+            String contentPreview = new String(buffer, 0, bytesRead, StandardCharsets.UTF_8).trim();
+
+            // Detect error XML patterns
+            if (contentPreview.startsWith("<Error>") || contentPreview.startsWith("<?xml") && contentPreview.contains("<Error>")) {
+                throw new IOException("Received error XML response instead of valid ontology for URL: " + url);
+            }
+        }
+
+        // Return a new entity wrapping the buffered input stream
+        Header contentTypeHeader = entity.getContentType();
+        org.apache.http.entity.ContentType contentType = null;
+        if (contentTypeHeader != null) {
+            contentType = org.apache.http.entity.ContentType.parse(contentTypeHeader.getValue());
+        }
+        return new org.apache.http.entity.InputStreamEntity(is, entity.getContentLength(), contentType);
     }
 
     private String urlToFilename(String url) {
