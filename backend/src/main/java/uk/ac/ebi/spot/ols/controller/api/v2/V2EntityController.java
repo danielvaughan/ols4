@@ -73,6 +73,10 @@ public class V2EntityController {
             @RequestParam(value = "includeObsoleteEntities", required = false, defaultValue = "false")
             @Parameter(name = "includeObsoleteEntities",
                     description = "A boolean parameter to specify if obsolete entities should be included or not. Default value is false.") boolean includeObsoleteEntities,
+            @RequestParam(value = "excludeOntologyId", required = false)
+            @Parameter(name = "excludeOntologyId",
+                    description = "Exclude entities from specific ontologies. Provide a comma-separated list of ontology IDs.",
+                    example = "ncit,snomed") Collection<String> excludeOntologyIds,
             @RequestParam
             @Parameter(name="searchProperties",
                     description = "Specify any other search field here which are not specified by searchFields or boostFields.",
@@ -88,7 +92,7 @@ public class V2EntityController {
 
         return new ResponseEntity<>(
                 new V2PagedAndFacetedResponse<V2Entity>(
-                    entityRepository.find(pageable, lang, search, searchFields, boostFields, facetFields, exactMatch, DynamicQueryHelper.filterProperties(properties), outputOpts) .map(V2Entity::new)
+                    entityRepository.find(pageable, lang, search, searchFields, boostFields, facetFields, exactMatch, excludeOntologyIds, DynamicQueryHelper.filterProperties(properties), outputOpts) .map(V2Entity::new)
                         ),
                     HttpStatus.OK);
     }

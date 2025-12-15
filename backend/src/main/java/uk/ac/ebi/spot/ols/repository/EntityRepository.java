@@ -35,7 +35,7 @@ public class EntityRepository {
 
 
     public OlsFacetedResultsPage<JsonElement> find(
-            Pageable pageable, String lang, String search, String searchFields, String boostFields, String facetFields, boolean exactMatch, Map<String, Collection<String>> properties, JsonTransformOptions outputOpts) throws IOException {
+            Pageable pageable, String lang, String search, String searchFields, String boostFields, String facetFields, boolean exactMatch, Collection<String> excludeOntologyIds, Map<String, Collection<String>> properties, JsonTransformOptions outputOpts) throws IOException {
 
         Validation.validateLang(lang);
 
@@ -48,6 +48,11 @@ public class EntityRepository {
             query.addFilter("type", List.of("entity"), SearchType.WHOLE_FIELD);
         }
 
+        // Add exclude filter for ontologies if provided
+        if (excludeOntologyIds != null && !excludeOntologyIds.isEmpty()) {
+            query.addExcludeFilter("ontologyId", excludeOntologyIds, SearchType.CASE_INSENSITIVE_TOKENS);
+        }
+
         SearchFieldsParser.addSearchFieldsToQuery(query, searchFields);
         SearchFieldsParser.addBoostFieldsToQuery(query, boostFields);
         SearchFieldsParser.addFacetFieldsToQuery(query, facetFields);
@@ -57,6 +62,15 @@ public class EntityRepository {
                 .map(e -> JsonTransformer.transformJson(e, lang, outputOpts))
                 ;
     }
+
+    public OlsFacetedResultsPage<JsonElement> find(
+            Pageable pageable, String lang, String search, String searchFields, String boostFields, String facetFields,
+            boolean exactMatch, Map<String, Collection<String>> properties,
+            JsonTransformOptions outputOpts) throws IOException {
+
+        return find(pageable, lang, search, searchFields, boostFields, facetFields, exactMatch, null, properties, outputOpts);
+
+        }
 
     public OlsFacetedResultsPage<JsonElement> findByOntologyId(
             String ontologyId, Pageable pageable, String lang, String search, String searchFields, String boostFields, String facetFields, boolean exactMatch, Map<String,Collection<String>> properties, JsonTransformOptions outputOpts) throws IOException {

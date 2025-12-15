@@ -15,6 +15,7 @@ public class OlsSolrQuery {
 	List<BoostField> boostFields = new ArrayList<>();
 	List<String> facetFields = new ArrayList<>();
 	List<Filter> filters = new ArrayList<>();
+	List<ExcludeFilter> excludeFilters = new ArrayList<>();
 
 	public OlsSolrQuery() {
 	}
@@ -46,6 +47,10 @@ public class OlsSolrQuery {
 
 	public void addFilter(String propertyName, Collection<String> propertyValues, SearchType searchType) {
 		this.filters.add(new Filter(propertyName, propertyValues, searchType));
+	}
+
+	public void addExcludeFilter(String propertyName, Collection<String> propertyValues, SearchType searchType) {
+		this.excludeFilters.add(new ExcludeFilter(propertyName, propertyValues, searchType));
 	}
 
 	public SolrQuery constructQuery() {
@@ -124,6 +129,33 @@ public class OlsSolrQuery {
 			query.addFilterQuery(fq.toString());
 		}
 
+		for(ExcludeFilter ef : excludeFilters) {
+
+			StringBuilder fq = new StringBuilder();
+
+			if(facetFields.contains(ef.propertyName)) {
+				fq.append("{!tag=olsfacet}");
+			}
+
+			fq.append("-");
+			fq.append( ClientUtils.escapeQueryChars(getSolrPropertyName(ef.propertyName, ef.searchType)) );
+			fq.append(":(");
+
+			int n = 0;
+
+			for(String value : ef.propertyValues) {
+				if(n ++ > 0) {
+					fq.append(" OR ");
+				}
+				fq.append("\"");
+				fq.append(ClientUtils.escapeQueryChars(getSolrPropertyValue(value, exactMatch ? SearchType.WHOLE_FIELD : ef.searchType)));
+				fq.append("\"");
+			}
+			fq.append(")");
+
+			query.addFilterQuery(fq.toString());
+		}
+
 		if(facetFields.size() > 0) {
 			for(String facetField : facetFields) {
 				query.addFacetField("{!ex=olsfacet}" + facetField);
@@ -140,6 +172,19 @@ public class OlsSolrQuery {
 		SearchType searchType;
 
 		public Filter(String propertyName, Collection<String> propertyValues, SearchType searchType) {
+			this.propertyName = propertyName;
+			this.propertyValues = propertyValues;
+			this.searchType = searchType;
+		}
+	}
+
+	private class ExcludeFilter {
+
+		String propertyName;
+		Collection<String> propertyValues; // all values to exclude ("OR")
+		SearchType searchType;
+
+		public ExcludeFilter(String propertyName, Collection<String> propertyValues, SearchType searchType) {
 			this.propertyName = propertyName;
 			this.propertyValues = propertyValues;
 			this.searchType = searchType;

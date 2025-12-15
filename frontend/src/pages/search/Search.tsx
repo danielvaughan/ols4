@@ -30,11 +30,15 @@ export default function Search() {
   const [page, setPage] = useState<number>(0);
   const [rowsPerPage, setRowsPerPage] = useState<number>(10);
   const [ontologyFacetQuery, setOntologyFacetQuery] = useState<string>("");
+  const [ontologyExcludedFacetQuery, setOntologyExcludedFacetQuery] = useState<string>("");
   const [hideFilters, setHideFilters] = useState<boolean>(true);
 
   const ontologyFacets =
     facets && Object.keys(facets).length > 0 ? facets["ontologyId"] : {};
   const [ontologyFacetSelected, setOntologyFacetSelected] = useState<string[]>(
+    []
+  );
+  const [ontologyFacetExcluded, setOntologyFacetExcluded] = useState<string[]>(
     []
   );
   const handleOntologyFacet = useCallback(
@@ -51,6 +55,21 @@ export default function Search() {
       });
     },
     [ontologyFacetSelected, setOntologyFacetSelected]
+  );
+  const handleOntologyExcludedFacet = useCallback(
+    (checked, key) => {
+      let excluded: string[] = ontologyFacetExcluded;
+      if (checked) {
+        excluded = [...excluded, key];
+      } else {
+        excluded = excluded.filter((facet) => facet !== key);
+      }
+      setOntologyFacetExcluded((prev) => {
+        if (excluded !== prev) setPage(0);
+        return excluded;
+      });
+    },
+    [ontologyFacetExcluded, setOntologyFacetExcluded]
   );
   const typeFacets =
     facets && Object.keys(facets).length > 0 ? facets["type"] : {};
@@ -74,8 +93,12 @@ export default function Search() {
   const [ontologyFacetFiltered, setOntologyFacetFiltered] = useState<object>(
     {}
   );
+  const [ontologyExcludedFacetFiltered, setOntologyExcludedFacetFiltered] = useState<object>(
+    {}
+  );
   useEffect(() => {
     setOntologyFacetFiltered(ontologyFacets);
+    setOntologyExcludedFacetFiltered(ontologyFacets);
   }, [ontologyFacets]);
 
   const [isShortFormCopied, setIsShortFormCopied] = useState(false);
@@ -100,6 +123,7 @@ export default function Search() {
         rowsPerPage,
         search,
         ontologyId: ontologyFacetSelected,
+        excludeOntologyId: ontologyFacetExcluded,
         type: typeFacetSelected,
         searchParams,
       })
@@ -110,6 +134,7 @@ export default function Search() {
     page,
     rowsPerPage,
     ontologyFacetSelected,
+    ontologyFacetExcluded,
     typeFacetSelected,
     searchParams,
   ]);
@@ -226,40 +251,117 @@ export default function Search() {
                     </div>
                   ) : null}
                 </div>
-                <fieldset>
+                <fieldset className="max-h-80 overflow-y-auto border border-neutral-300 rounded-md p-2">
                   {ontologyFacetFiltered &&
                   Object.keys(ontologyFacetFiltered).length > 0
                     ? Object.keys(ontologyFacetFiltered)
+                        .filter((key) => ontologyFacetFiltered[key] > 0)
                         .sort((a, b) => {
-                          const ac = a ? a.toString() : "";
-                          const bc = b ? b.toString() : "";
-                          return ac.localeCompare(bc);
+                          return ontologyFacetFiltered[b] - ontologyFacetFiltered[a];
                         })
                         .map((key) => {
-                          if (ontologyFacetFiltered[key] > 0) {
-                            return (
-                              <label
-                                key={key}
-                                htmlFor={key}
-                                className="block p-1 w-fit"
-                              >
-                                <input
-                                  type="checkbox"
-                                  id={key}
-                                  className="invisible hidden peer"
-                                  checked={ontologyFacetSelected.includes(key)}
-                                  onChange={(e) => {
-                                    handleOntologyFacet(e.target.checked, key);
-                                    setOntologyFacetQuery("");
-                                  }}
-                                />
-                                <span className="input-checkbox mr-4" />
-                                <span className="uppercase mr-4">
-                                  {key} &#40;{ontologyFacetFiltered[key]}&#41;
-                                </span>
-                              </label>
-                            );
-                          } else return null;
+                          const isDisabled = ontologyFacetExcluded.length > 0;
+                          return (
+                            <label
+                              key={key}
+                              htmlFor={key}
+                              className={`block p-1 w-fit ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            >
+                              <input
+                                type="checkbox"
+                                id={key}
+                                className="invisible hidden peer"
+                                checked={ontologyFacetSelected.includes(key)}
+                                disabled={isDisabled}
+                                onChange={(e) => {
+                                  handleOntologyFacet(e.target.checked, key);
+                                  setOntologyFacetQuery("");
+                                }}
+                              />
+                              <span className="input-checkbox mr-4" />
+                              <span className="uppercase mr-4">
+                                {key} &#40;{ontologyFacetFiltered[key]}&#41;
+                              </span>
+                            </label>
+                          );
+                        })
+                    : null}
+                </fieldset>
+                <div className="font-semibold text-lg mb-2 mt-4">NOT IN Ontology</div>
+                <div className="relative grow">
+                  <input
+                    id="facet-search-ontology-excluded"
+                    type="text"
+                    autoComplete="off"
+                    placeholder="Search id..."
+                    className="input-default text-sm mb-3 pl-3"
+                    value={ontologyExcludedFacetQuery}
+                    onChange={(event) => {
+                      if (event.target.value) {
+                        setOntologyExcludedFacetFiltered(
+                          Object.fromEntries(
+                            Object.entries(ontologyFacets).filter((key) =>
+                              key
+                                .toString()
+                                .toLowerCase()
+                                .includes(event.target.value.toLowerCase())
+                            )
+                          )
+                        );
+                        setOntologyExcludedFacetQuery(event.target.value);
+                      } else {
+                        setOntologyExcludedFacetFiltered(ontologyFacets);
+                        setOntologyExcludedFacetQuery("");
+                      }
+                    }}
+                  />
+                  {ontologyExcludedFacetQuery ? (
+                    <div className="absolute right-1.5 top-1.5 z-10">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setOntologyExcludedFacetFiltered(ontologyFacets);
+                          setOntologyExcludedFacetQuery("");
+                        }}
+                      >
+                        <Close />
+                      </button>
+                    </div>
+                  ) : null}
+                </div>
+                <fieldset className="max-h-80 overflow-y-auto border border-neutral-300 rounded-md p-2">
+                  {ontologyExcludedFacetFiltered &&
+                  Object.keys(ontologyExcludedFacetFiltered).length > 0
+                    ? Object.keys(ontologyExcludedFacetFiltered)
+                        .filter((key) => ontologyExcludedFacetFiltered[key] > 0)
+                        .sort((a, b) => {
+                          return ontologyExcludedFacetFiltered[b] - ontologyExcludedFacetFiltered[a];
+                        })
+                        .map((key) => {
+                          const isDisabled = ontologyFacetSelected.length > 0;
+                          return (
+                            <label
+                              key={key}
+                              htmlFor={`excluded-${key}`}
+                              className={`block p-1 w-fit ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            >
+                              <input
+                                type="checkbox"
+                                id={`excluded-${key}`}
+                                className="invisible hidden peer"
+                                checked={ontologyFacetExcluded.includes(key)}
+                                disabled={isDisabled}
+                                onChange={(e) => {
+                                  handleOntologyExcludedFacet(e.target.checked, key);
+                                  setOntologyExcludedFacetQuery("");
+                                }}
+                              />
+                              <span className="input-checkbox mr-4" />
+                              <span className="uppercase mr-4">
+                                {key} &#40;{ontologyExcludedFacetFiltered[key]}&#41;
+                              </span>
+                            </label>
+                          );
                         })
                     : null}
                 </fieldset>
