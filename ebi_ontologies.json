@@ -1757,6 +1757,96 @@
       "base_uri": [
         "https://www.genenames.org/data/genegroup/#!/group/"
       ]
+    },
+    {
+      "id": "aero",
+      "ontology_purl": "http://purl.obolibrary.org/obo/aero.owl",
+      "is_obsolete": false,
+      "is_deprecated": true
+    },
+    {
+      "id": "bcgo",
+      "ontology_purl": "http://purl.obolibrary.org/obo/bcgo.owl",
+      "is_obsolete": false,
+      "is_deprecated": true
+    },
+    {
+      "id": "bila",
+      "ontology_purl": "http://purl.obolibrary.org/obo/bila.owl",
+      "is_obsolete": false,
+      "is_deprecated": true
+    },
+    {
+      "id": "caro",
+      "ontology_purl": "http://purl.obolibrary.org/obo/caro.owl",
+      "is_obsolete": false,
+      "is_deprecated": true
+    },
+    {
+      "id": "emap",
+      "ontology_purl": "http://purl.obolibrary.org/obo/emap.owl",
+      "is_obsolete": false,
+      "is_deprecated": true
+    },
+    {
+      "id": "eo",
+      "ontology_purl": "http://purl.obolibrary.org/obo/eo.owl",
+      "is_obsolete": false,
+      "is_deprecated": true
+    },
+    {
+      "id": "epo",
+      "ontology_purl": "http://purl.obolibrary.org/obo/epo.owl",
+      "is_obsolete": false,
+      "is_deprecated": true
+    },
+    {
+      "id": "ero",
+      "ontology_purl": "http://purl.obolibrary.org/obo/ero.owl",
+      "is_obsolete": false,
+      "is_deprecated": true
+    },
+    {
+      "id": "fbsp",
+      "ontology_purl": "http://purl.obolibrary.org/obo/fbsp.owl",
+      "is_obsolete": false,
+      "is_deprecated": true
+    },
+    {
+      "id": "ogi",
+      "ontology_purl": "http://purl.obolibrary.org/obo/ogi.owl",
+      "is_obsolete": false,
+      "is_deprecated": true
+    },
+    {
+      "id": "omiabis",
+      "ontology_purl": "http://purl.obolibrary.org/obo/omiabis.owl",
+      "is_obsolete": false,
+      "is_deprecated": true
+    },
+    {
+      "id": "sep",
+      "ontology_purl": "http://purl.obolibrary.org/obo/sep.owl",
+      "is_obsolete": false,
+      "is_deprecated": true
+    },
+    {
+      "id": "tao",
+      "ontology_purl": "http://purl.obolibrary.org/obo/tao.owl",
+      "is_obsolete": false,
+      "is_deprecated": true
+    },
+    {
+      "id": "vhog",
+      "ontology_purl": "http://purl.obolibrary.org/obo/vhog.owl",
+      "is_obsolete": false,
+      "is_deprecated": true
+    },
+    {
+      "id": "vsao",
+      "ontology_purl": "http://purl.obolibrary.org/obo/vsao.owl",
+      "is_obsolete": false,
+      "is_deprecated": true
     }
   ]
 }

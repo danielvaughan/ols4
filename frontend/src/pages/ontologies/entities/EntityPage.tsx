@@ -178,10 +178,19 @@ export default function EntityPage({
         </Helmet>
       <main className="container mx-auto px-4">
         <FallbackWarning ontology={ontology} />
+        {ontology && ontology.isDeprecated() && (
+            <Banner type="error">
+              <div>
+                <p className="font-bold">This ontology is deprecated</p>
+                <p className="text-sm">This ontology is no longer actively maintained and may not receive future
+                  updates.</p>
+              </div>
+            </Banner>
+        )}
         {ontology && entity ? (
-          <div className="my-8">
-            <div className="flex flex-wrap justify-between items-center gap-y-2 px-1 mb-4">
-              <div className="flex flex-wrap items-center gap-y-2">
+            <div className="my-8">
+              <div className="flex flex-wrap justify-between items-center gap-y-2 px-1 mb-4">
+                <div className="flex flex-wrap items-center gap-y-2">
                 <Link className="link-default" to={"/ontologies"}>
                   Ontologies
                 </Link>
