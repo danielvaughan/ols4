@@ -462,9 +462,19 @@ public class OntologyGraph implements StreamRDF {
                 if (configKey.equals("preferred_root_term"))
                     continue;
 
+                // is_deprecated is handled separately below to follow the is_fallback pattern
+                if (configKey.equals("is_deprecated"))
+                    continue;
+
                 // everything else from the config is stored as a normal property
                 writer.name(configKey);
                 writeGenericValue(writer, configVal);
+            }
+
+            // Add is_deprecated as top-level field if present in config and true
+            if(config.containsKey("is_deprecated") && Boolean.TRUE.equals(config.get("is_deprecated"))) {
+                writer.name("is_deprecated");
+                writer.value(true);
             }
 
             writeProperties(writer, ontologyNode.properties, Set.of("ontology"));
