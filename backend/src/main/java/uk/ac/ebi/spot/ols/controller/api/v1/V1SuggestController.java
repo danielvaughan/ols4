@@ -53,7 +53,8 @@ public class V1SuggestController {
 
         // Escape special characters but don't force lowercase or add quotes
         // The field analyzers (edge_label, whitespace_edge_label) already apply LowerCaseFilterFactory
-        String escapedQuery = ClientUtils.escapeQueryChars(query);
+        String escapedQuery = query.toLowerCase();
+        escapedQuery = ClientUtils.escapeQueryChars(escapedQuery);
 
         solrQuery.setQuery(escapedQuery);
         solrQuery.set("defType", "edismax");
