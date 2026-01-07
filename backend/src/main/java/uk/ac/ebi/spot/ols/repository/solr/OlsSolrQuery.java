@@ -64,7 +64,7 @@ public class OlsSolrQuery {
 			if(exactMatch) {
 				query.setQuery("\"" + searchText + "\"");
 			} else {
-				query.setQuery(searchText);
+				query.setQuery(searchText.toLowerCase());
 			}
 
 			StringBuilder qf = new StringBuilder();
