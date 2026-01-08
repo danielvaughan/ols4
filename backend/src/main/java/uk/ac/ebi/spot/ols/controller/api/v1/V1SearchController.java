@@ -143,7 +143,7 @@ public class V1SearchController {
                 solrQuery.set("defType", "edismax");
                 solrQuery.setQuery(query);
 
-                String[] fields = {LABEL.getText()+"^5", SYNONYM.getText()+"^3", DEFINITION.getText(), "short_form^2", "obo_id^2", "iri", "annotations_trimmed"};
+                String[] fields = {LABEL.getText()+"_s^5", SYNONYM.getText()+"_s^3", DEFINITION.getText(), "short_form_s^2", "obo_id_s^2", "iri_s", "annotations_trimmed"};
 
                 solrQuery.set("qf", String.join(" ", SolrFieldMapper.mapFieldsList(List.of(fields))));
 
@@ -259,7 +259,7 @@ public class V1SearchController {
 		 */
         solrQuery.add("wt", format);
 
-        logger.debug("search: ()", solrQuery.toQueryString());
+        logger.debug("V1 SEARCH QUERY: {}", solrQuery.toQueryString());
 
         QueryResponse qr = solrClient.dispatchSearch(solrQuery, "ols4_entities");
 
