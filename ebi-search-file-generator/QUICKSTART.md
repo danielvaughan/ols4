@@ -93,6 +93,10 @@ The script expects JSON with this structure:
 }
 ```
 
-## No Dependencies Required!
+## Dependencies Required!
 
-The JSON converter is pure Python - no external libraries needed!
+You'll need to install ijson (its to stream large json files) if not already in your environment:
+
+```bash
+pip install ijson
+```
