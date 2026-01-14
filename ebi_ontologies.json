@@ -1759,6 +1759,37 @@
       ]
     },
     {
+      "id": "prefer",
+      "creator": [
+        "Txell Amigo",
+        "Shawn Zheng Kai Tan",
+        "Alberto Santos"
+      ],
+      "is_foundary": false,
+      "preferredPrefix": "PREFER",
+      "title": "Precision Fermentation Ontology",
+      "uri": "http://purl.obolibrary.org/obo/prefer.owl",
+      "description": "An ontology for PREcision FERmentation.",
+      "homepage": "https://github.com/Multiomics-Analytics-Group/prefer_ontology",
+      "mailing_list": "txellmgsol@gmail.com",
+      "label_property": [
+        "rdfs:label"
+      ],
+      "definition_property": [
+        "iao:0000115"
+      ],
+      "synonym_property": [
+        "http://www.geneontology.org/formats/oboInOwl#hasExactSynonym",
+        "http://www.geneontology.org/formats/oboInOwl#hasBroadSynonym",
+        "http://www.geneontology.org/formats/oboInOwl#hasNarrowSynonym",
+        "http://www.geneontology.org/formats/oboInOwl#hasRelatedSynonym"
+      ],
+      "base_uri": "http://purl.obolibrary.org/obo/PREFER_",
+      "reasoner": "EL",
+      "oboSlims": false,
+      "ontology_purl": "https://github.com/Multiomics-Analytics-Group/prefer_ontology/releases/latest/download/prefer.owl"
+    },
+    {
       "id": "aero",
       "ontology_purl": "http://purl.obolibrary.org/obo/aero.owl",
       "is_obsolete": false,
