@@ -309,7 +309,7 @@ public class JSON2SSSOM {
 
                 JsonObject linkedEntity = linkedEntityElem.getAsJsonObject();
 
-                CurieMap.CurieMapping objCurie = curieMap.mapEntity(linkedEntity);
+                CurieMap.CurieMapping objCurie = curieMap.mapEntity(linkedEntity, value);
 
                 if(objCurie == null) {
                     return;
@@ -358,6 +358,9 @@ public class JSON2SSSOM {
         }
     }
 
+    private static boolean isNotOWLAxiom(){
+        return true;
+    }
 
 
 
