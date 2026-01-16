@@ -173,7 +173,14 @@ public class CurieMap {
         String curie = JsonHelper.getFirstStringValue(entityOrLinkedEntity.get("curie"));
 
         if(!curie.contains(":")) {
-            System.out.println("curie provided by OLS " + curie + " does not look like a curie, in entity/linkedEntity: " + gson.toJson(entityOrLinkedEntity));
+            if (curie.length() > 100) {
+                curie = curie.substring(0, 100);
+                System.out.println("Curie provided by OLS " + curie + 
+                    " does not look like a curie, in entity/linkedEntity: " + gson.toJson(entityOrLinkedEntity) + 
+                    " . Curie truncated to 100 characters.");
+            } else {
+                System.out.println("Curie provided by OLS " + curie + 
+                    " does not look like a curie, in entity/linkedEntity: " + gson.toJson(entityOrLinkedEntity));
             // TODO ???
             return null;
         }
