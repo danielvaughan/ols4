@@ -180,7 +180,9 @@ public class CurieMap {
                     " . Curie truncated to 100 characters.");
             } else {
                 System.out.println("Curie provided by OLS " + curie + 
+
                     " does not look like a curie, in entity/linkedEntity: " + gson.toJson(entityOrLinkedEntity));
+            }
             // TODO ???
             return null;
         }
