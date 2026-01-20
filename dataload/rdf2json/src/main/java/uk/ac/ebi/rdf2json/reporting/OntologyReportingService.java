@@ -188,6 +188,13 @@ public class OntologyReportingService {
                 continue;
             }
 
+            // Skip notifications for deprecated ontologies
+            if (contact.isDeprecated()) {
+                logger.info("Skipping notification for deprecated ontology: {}", issue.getOntologyId());
+                olsDevIssues.add(issue);
+                continue;
+            }
+
             // Try GitHub issue creation first
             if (contact.getRepository() != null) {
                 try {
@@ -538,6 +545,12 @@ public class OntologyReportingService {
                             contact.setHomepage((String) ontologyConfig.get("homepage"));
                             contact.setRepository((String) ontologyConfig.get("repository"));
                             contact.setTracker((String) ontologyConfig.get("tracker"));
+
+                            // Parse is_deprecated flag
+                            Object isDeprecatedObj = ontologyConfig.get("is_deprecated");
+                            if (isDeprecatedObj instanceof Boolean) {
+                                contact.setDeprecated((Boolean) isDeprecatedObj);
+                            }
 
                             if (contact.hasContactMethod()) {
                                 contacts.put(ontologyId, contact);
