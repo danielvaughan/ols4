@@ -1772,9 +1772,7 @@
       "description": "An ontology for PREcision FERmentation.",
       "homepage": "https://github.com/Multiomics-Analytics-Group/prefer_ontology",
       "mailing_list": "txellmgsol@gmail.com",
-      "label_property": [
-        "rdfs:label"
-      ],
+      "label_property": "rdfs:label",
       "definition_property": [
         "iao:0000115"
       ],
