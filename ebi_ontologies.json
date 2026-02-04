@@ -145,9 +145,7 @@
       "hierarchical_property": [
         "http://purl.org/ccf/ccf_part_of"
       ],
-      "label_property": [
-        "http://purl.org/ccf/ccf_pref_label"
-      ],
+      "label_property": "http://purl.org/ccf/ccf_pref_label",
       "mailing_list": "infoccf@iu.edu"
     },
     {
