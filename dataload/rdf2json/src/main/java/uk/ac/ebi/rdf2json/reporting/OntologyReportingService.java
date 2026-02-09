@@ -40,14 +40,16 @@ public class OntologyReportingService {
 
     private final Map<String, OntologyLoadStatus> loadStatuses = new HashMap<>();
     private final Map<String, ContactInfo> contacts = new HashMap<>();
-    private final String configFilePath;
+    private final List<String> configFilePaths;
 
-    public OntologyReportingService(String configFilePath) {
-        this.configFilePath = configFilePath;
-        try {
-            this.contacts.putAll(parseConfigForContacts(configFilePath));
-        } catch (IOException e) {
-            logger.error("Failed to parse config file for contacts: {}", e.getMessage());
+    public OntologyReportingService(List<String> configFilePaths) {
+        this.configFilePaths = configFilePaths;
+        for (String configFilePath : configFilePaths) {
+            try {
+                parseConfigForContacts(configFilePath);
+            } catch (IOException e) {
+                logger.error("Failed to parse config file for contacts: {}", e.getMessage());
+            }
         }
     }
 
@@ -506,8 +508,7 @@ public class OntologyReportingService {
         Transport.send(message);
     }
 
-    private Map<String, ContactInfo> parseConfigForContacts(String configPath) throws IOException {
-        Map<String, ContactInfo> contacts = new HashMap<>();
+    private void parseConfigForContacts(String configPath) throws IOException {
         Gson gson = new Gson();
 
         logger.info("Parsing contact information from: {}", configPath);
@@ -552,16 +553,16 @@ public class OntologyReportingService {
                                 contact.setDeprecated((Boolean) isDeprecatedObj);
                             }
 
-                            // Check if we already have a contact for this ontology (for override scenarios)
-                            ContactInfo existingContact = contacts.get(ontologyId);
+                            // Check if we already have a contact for this ontology (from this or a previous config file)
+                            ContactInfo existingContact = this.contacts.get(ontologyId);
                             if (existingContact != null) {
-                                // If a duplicate ontology entry exists, update the is_deprecated flag
+                                // Update the is_deprecated flag from this config
                                 if (isDeprecatedObj instanceof Boolean) {
                                     existingContact.setDeprecated((Boolean) isDeprecatedObj);
                                 }
                             } else if (contact.hasContactMethod()) {
                                 // Only add new contact if it has contact methods
-                                contacts.put(ontologyId, contact);
+                                this.contacts.put(ontologyId, contact);
                             }
                         }
                     }
@@ -575,8 +576,7 @@ public class OntologyReportingService {
             reader.endObject();
         }
 
-        logger.info("Parsed contact information for {} ontologies", contacts.size());
-        return contacts;
+        logger.info("Parsed contact information for {} ontologies", this.contacts.size());
     }
 
     private Reader getConfigReader(String configPath) throws IOException {
