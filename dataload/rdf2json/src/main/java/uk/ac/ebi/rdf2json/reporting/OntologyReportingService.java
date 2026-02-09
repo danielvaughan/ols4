@@ -552,7 +552,15 @@ public class OntologyReportingService {
                                 contact.setDeprecated((Boolean) isDeprecatedObj);
                             }
 
-                            if (contact.hasContactMethod()) {
+                            // Check if we already have a contact for this ontology (for override scenarios)
+                            ContactInfo existingContact = contacts.get(ontologyId);
+                            if (existingContact != null) {
+                                // If a duplicate ontology entry exists, update the is_deprecated flag
+                                if (isDeprecatedObj instanceof Boolean) {
+                                    existingContact.setDeprecated((Boolean) isDeprecatedObj);
+                                }
+                            } else if (contact.hasContactMethod()) {
+                                // Only add new contact if it has contact methods
                                 contacts.put(ontologyId, contact);
                             }
                         }
