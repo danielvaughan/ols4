@@ -89,8 +89,8 @@ public class RDF2JSON {
         logger.debug("Configs: {}", configFilePaths);
         logger.debug("Output: {}", outputFilePath);
 
-        // Initialize reporting service with the first config file (or merged config logic can be added)
-        OntologyReportingService reportingService = new OntologyReportingService(configFilePaths.get(0));
+        // Initialize reporting service with all config files so is_deprecated flags are properly merged
+        OntologyReportingService reportingService = new OntologyReportingService(configFilePaths);
 
         Gson gson = new Gson();
 
