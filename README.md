@@ -7,7 +7,7 @@ See also:
 * The public OLS instance at EMBL-EBI: <b>[https://www.ebi.ac.uk/ols4/](https://www.ebi.ac.uk/ols4/)</a></b>
 * [<i>OLS4: a new Ontology Lookup Service for a growing interdisciplinary knowledge ecosystem</i>](https://academic.oup.com/bioinformatics/article/41/5/btaf279/8125017)
 * [REST API docs](https://www.ebi.ac.uk/ols4/api-docs)
-* MCP endpoint: `https://wwwdev.ebi.ac.uk/ols4/api/mcp/sse`
+* MCP endpoint (Streamable HTTP): `https://www.ebi.ac.uk/ols4/api/mcp`
 
 If you use OLS in your work, please cite [our recent publication in <i>Bioinformatics</i>](https://academic.oup.com/bioinformatics/article/41/5/btaf279/8125017).
 
