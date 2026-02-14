@@ -1,0 +1,11 @@
+{
+  "result": {
+    "content": [
+      {
+        "text": "Embedding service returned HTTP 404 for URL: http://wwwdev.ebi.ac.uk/spot/embed. Response body: {\"error\":\"Model not found or failed to load: mock\"}\n",
+        "type": "text"
+      }
+    ],
+    "isError": true
+  }
+}
