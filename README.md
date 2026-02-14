@@ -113,7 +113,7 @@ but with a `-testcases` suffix. I.e., if your branch is called "fix-xyz", the ne
 
 First, build an up to date Docker image for the dataload:
 
-    docker build -t ols4-dataload:local -f ./dataload/Dockerfile .
+    docker build -t ols4-dataload:local -f ./dataload/Dockerfile . --no-cache
 
 Remove the old `testcases_expected_output` contents from your local working tree:
 
