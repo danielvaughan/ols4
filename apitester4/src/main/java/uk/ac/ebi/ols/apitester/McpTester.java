@@ -242,7 +242,7 @@ public class McpTester {
 
         JsonElement result = callToolAsJson(client, "getSimilarClasses",
                 Map.of("classIri", "http://purl.obolibrary.org/obo/DUO_0000001",
-                       "model", modelName, "pageSize", 10));
+                       "model", modelName, "pageSize", 1));
         write(outDir + "/mcp/getSimilarClasses.json", result);
         if (result == null) { System.out.println("getSimilarClasses returned null"); return false; }
         System.out.println("getSimilarClasses: SUCCESS");
