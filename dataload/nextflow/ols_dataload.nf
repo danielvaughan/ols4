@@ -39,6 +39,11 @@ workflow {
     linker_manifest = linker__create_manifest(ontology_jsons_by_id.map { it[1] }.collect())
     linked_ontologies_by_id = linker__link_ontologies(linker_manifest, ontology_jsons_by_id)
 
+    // Build text tagger database from linked ontology JSONs
+    all_linked_jsons = linked_ontologies_by_id.map { it[1] }.collect()
+    terms_tsv = ols_to_tsv(all_linked_jsons)
+    text_tagger_db = build_text_tagger_db(terms_tsv)
+
     // Run embeddings pipeline if enabled
     if (params.enable_embeddings) {
         embeddings(terms_tsv)
@@ -55,11 +60,6 @@ workflow {
 
     neo_csvs = json2neo(linker_manifest, linked_ontologies_by_id, embedding_parquets)
     solr_jsonls = json2solr(linked_ontologies_by_id)
-
-    // Build text tagger database from linked ontology JSONs
-    all_linked_jsons = linked_ontologies_by_id.map { it[1] }.collect()
-    terms_tsv = ols_to_tsv(all_linked_jsons)
-    text_tagger_db = build_text_tagger_db(terms_tsv)
 
     neo = create_neo(neo_csvs.collect(), embedding_parquets)
     solr = create_solr(solr_jsonls.collect(), linker_manifest)
