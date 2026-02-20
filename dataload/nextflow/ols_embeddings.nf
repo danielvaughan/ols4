@@ -94,9 +94,14 @@ workflow embeddings {
     pca_inputs = join_embeddings.out.combine(Channel.from(params.embeddings_pca_components, 16))
     pca(pca_inputs)
 
-    visualize_embeddings(pca.out.pca_parquets.filter { it[0].endsWith('_pca16') })
+    // Average embeddings per term for full-dimension and PCA parquets
+    avg_embeddings(join_embeddings.out.concat( pca.out.pca_parquets ))
 
-    models_and_parquets = join_embeddings.out.concat( pca.out.pca_parquets )
+    // Visualise using averaged pca16 embeddings (one point per term)
+    visualize_embeddings(avg_embeddings.out.filter { it[0].endsWith('_pca16_avg') })
+
+    // Use averaged embeddings for semsim (one embedding per term), excluding pca16
+    models_and_parquets = avg_embeddings.out.filter { !it[0].endsWith('_pca16_avg') }
     run_semsim(models_and_parquets.combine(Channel.from(pairs)), config.semsim_thresholds)
 
     emit:
@@ -104,6 +109,8 @@ workflow embeddings {
     pca_parquets = pca.out.pca_parquets
     // Emit the PCA JSON model files (for loading in the backend)
     pca_jsons = pca.out.pca_jsons
+    // Emit averaged parquet files
+    avg_parquets = avg_embeddings.out
 }
 
 
@@ -385,6 +392,29 @@ process pca {
     """
 }
 
+process avg_embeddings {
+
+    container params.embed_image
+    cache "lenient"
+    memory '1500 GB'
+    time '4h'
+    cpus "32"
+
+    publishDir "${params.out}/embeddings", overwrite: true
+
+    input:
+    tuple val(model), path(parquet)
+
+    output:
+    tuple val("${model}_avg"), path("${model.split('/')[1]}_avg.parquet")
+
+    script:
+    def model_short = model.split('/')[1]
+    """
+    python3 /opt/ols_embed/avg_embeddings.py ${parquet} ${model_short}_avg.parquet
+    """
+}
+
 process visualize_embeddings {
 
     container params.embed_image
@@ -427,11 +457,12 @@ process run_semsim {
     val(semsim_thresholds)
 
     output:
-    path("${ont_a}_${ont_b}__${model.split('/')[1]}__${semsim_thresholds[model]}.tsv.gz")
+    path("${ont_a}_${ont_b}__${model.split('/')[1]}__${semsim_thresholds[model.replaceAll('_avg\$', '')]}.tsv.gz")
 
     script:
+    def threshold = semsim_thresholds[model.replaceAll('_avg\$', '')]
     """
-    ols_semsim --parquet ${parquet} --a ${ont_a} --b ${ont_b} --threshold ${semsim_thresholds[model]} \\
-        | pigz --best > ${ont_a}_${ont_b}__${model.split('/')[1]}__${semsim_thresholds[model]}.tsv.gz
+    ols_semsim --parquet ${parquet} --a ${ont_a} --b ${ont_b} --threshold ${threshold} \\
+        | pigz --best > ${ont_a}_${ont_b}__${model.split('/')[1]}__${threshold}.tsv.gz
     """
 }

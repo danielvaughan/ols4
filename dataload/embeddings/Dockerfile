@@ -36,6 +36,7 @@ RUN cp /opt/target/release/ols_semsim /usr/local/bin/
 COPY ols_embed/embed2.py /opt/ols_embed/
 COPY ols_embed/embed_openai.py /opt/ols_embed/
 COPY ols_embed/pca.py /opt/ols_embed/
+COPY ols_embed/avg_embeddings.py /opt/ols_embed/
 COPY ols_embed/server.py /opt/ols_embed/
 COPY ols_embed/visualize_embeddings.py /opt/ols_embed/
 
