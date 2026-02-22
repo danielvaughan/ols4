@@ -304,7 +304,7 @@ process join_embeddings {
       terms AS (
         SELECT
           pk, ontology_id, entity_type, iri, label, hash, text_to_embed
-        FROM read_csv_auto('${terms_tsv}', delim='\\t', header=true)
+        FROM read_csv_auto('${terms_tsv}', delim='\\t', quote='', header=true)
       ),
       new_emb AS (
         ${has_new_pq ? """
