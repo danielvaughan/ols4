@@ -101,7 +101,7 @@ def main():
          pk_sorted[1:] != pk_sorted[:-1]],
         rechunk=True
     )
-    group_starts = boundary_mask.arg_true().to_numpy()  # int64 indices
+    group_starts = boundary_mask.arg_true().to_numpy().astype(np.int64)  # ensure int64 indices
     n_groups = len(group_starts)
 
     # Group sizes (vectorized)
