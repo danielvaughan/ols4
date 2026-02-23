@@ -165,7 +165,8 @@ def main():
 
     # Create output dataframe with 2D coordinates and metadata (no embeddings)
     print(f"Writing output parquet to {args.output_parquet}...")
-    output_df = df.drop("embedding", "text_to_embed").with_columns(
+    cols_to_drop = [c for c in ("embedding", "text_to_embed") if c in df.columns]
+    output_df = df.drop(cols_to_drop).with_columns(
         [
             pl.Series("x", coords_2d[:, 0]),
             pl.Series("y", coords_2d[:, 1]),

@@ -39,6 +39,7 @@ COPY ols_embed/pca.py /opt/ols_embed/
 COPY ols_embed/avg_embeddings.py /opt/ols_embed/
 COPY ols_embed/server.py /opt/ols_embed/
 COPY ols_embed/visualize_embeddings.py /opt/ols_embed/
+COPY ols_embed/convert_umap_to_web.py /opt/ols_embed/
 
 WORKDIR /opt/ols_embed
 ENV MODELS_DIR="/data/models"

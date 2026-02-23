@@ -430,15 +430,19 @@ process visualize_embeddings {
     tuple val(model), path(parquet)
 
     output:
-    path("${model.split('/')[1]}_umap.parquet")
-    path("${model.split('/')[1]}_umap.png")
+    path("${model.split('/')[1].replaceAll('_avg$', '')}_umap.parquet")
+    path("${model.split('/')[1].replaceAll('_avg$', '')}_umap.png")
+    path("${model.split('/')[1].replaceAll('_avg$', '')}_umap_web/")
 
     script:
-    def model_short = model.split('/')[1]
+    def model_short = model.split('/')[1].replaceAll('_avg$', '')
     """
     python3 /opt/ols_embed/visualize_embeddings.py ${parquet} \\
         --output-parquet ${model_short}_umap.parquet \\
         --output-plot ${model_short}_umap.png
+
+    python3 /opt/ols_embed/convert_umap_to_web.py ${model_short}_umap.parquet \\
+        --output-dir ${model_short}_umap_web
     """
 }
 
