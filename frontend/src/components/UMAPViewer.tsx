@@ -233,7 +233,10 @@ function createUMAPViewer(containerSelector: string | HTMLElement, options: UMAP
     const n = META.count;
     const headerSize = 4 + metaLen;
     const coordsD = new Int8Array(buffer, headerSize, n * 2);
-    const oD = new Int16Array(buffer, headerSize + n * 2, n);
+    const int16Offset = headerSize + n * 2;
+    const oD = int16Offset % 2 === 0
+      ? new Int16Array(buffer, int16Offset, n)
+      : new Int16Array(buffer.slice(int16Offset, int16Offset + n * 2));
 
     xCoords = new Float32Array(n);
     yCoords = new Float32Array(n);
