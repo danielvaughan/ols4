@@ -135,6 +135,20 @@ Now you can inspect any changes to the files in `testcases_expected_output` and 
 
 First follow the instructions above for testing the mock dataload. Then build up to date Docker images for remainder of the OLS stack:
 
+For backend use following docker command:
+
+    docker build -t ols4-backend:local -f ./backend/Dockerfile . --no-cache
+
+For frontend use following docker command:
+
+    docker build -t ols4-frontend:local -f ./frontend/Dockerfile ./frontend --no-cache
+
+For apitester use following docker command:
+
+    docker build -t ols4-apitester4:local -f ./apitester4/Dockerfile ./apitester4 --no-cache
+
+and then run the API tests with the new images:
+
     export OLS4_BACKEND_IMAGE=ols4-backend:local
     export OLS4_FRONTEND_IMAGE=ols4-frontend:local  
     export OLS4_APITESTER_IMAGE=ols4-apitester4:local
