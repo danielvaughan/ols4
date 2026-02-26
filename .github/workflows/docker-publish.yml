@@ -2,7 +2,9 @@ name: Publish Docker Images
 
 on:
   push:
-    branches: [dev, stable, nextflow3]
+    branches: [dev, stable]
+  pull_request:
+    branches: [ "dev" ]
 
 env:
   REGISTRY: ghcr.io
@@ -72,7 +74,7 @@ jobs:
           build-args: ${{ matrix.build-args }}
           tags: |
             ghcr.io/ebispot/ols4-${{ matrix.component }}:${{ github.sha }}
-            ghcr.io/ebispot/ols4-${{ matrix.component }}:${{ github.ref_name }}
+            ghcr.io/ebispot/ols4-${{ matrix.component }}:${{ github.head_ref || github.ref_name }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max

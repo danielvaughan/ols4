@@ -1,0 +1,80 @@
+[
+  {
+    "_links": {
+      "graph": {
+        "href": "<base>/api/ontologies/edam/terms/http%253A%252F%252Fedamontology.org%252Fdata_1390/graph"
+      },
+      "self": {
+        "href": "<base>/api/ontologies/edam/terms/http%253A%252F%252Fedamontology.org%252Fdata_1390?lang=en"
+      }
+    },
+    "annotation": {},
+    "description": [],
+    "has_children": false,
+    "iri": "http://edamontology.org/data_1390",
+    "is_defining_ontology": true,
+    "is_obsolete": false,
+    "is_preferred_root": false,
+    "is_root": true,
+    "label": "EDAM_data_1390",
+    "lang": "en",
+    "obo_id": "EDAM_data:1390",
+    "ontology_iri": "http://edamontology.org",
+    "ontology_name": "edam",
+    "ontology_prefix": "EDAM",
+    "short_form": "EDAM_data_1390",
+    "synonyms": []
+  },
+  {
+    "_links": {
+      "graph": {
+        "href": "<base>/api/ontologies/edam/terms/http%253A%252F%252Fedamontology.org%252Fformat_2329/graph"
+      },
+      "self": {
+        "href": "<base>/api/ontologies/edam/terms/http%253A%252F%252Fedamontology.org%252Fformat_2329?lang=en"
+      }
+    },
+    "annotation": {},
+    "description": [],
+    "has_children": false,
+    "iri": "http://edamontology.org/format_2329",
+    "is_defining_ontology": true,
+    "is_obsolete": false,
+    "is_preferred_root": false,
+    "is_root": true,
+    "label": "EDAM_format_2329",
+    "lang": "en",
+    "obo_id": "EDAM_format:2329",
+    "ontology_iri": "http://edamontology.org",
+    "ontology_name": "edam",
+    "ontology_prefix": "EDAM",
+    "short_form": "EDAM_format_2329",
+    "synonyms": []
+  },
+  {
+    "_links": {
+      "graph": {
+        "href": "<base>/api/ontologies/edam/terms/http%253A%252F%252Fedamontology.org%252Ftopic_2839/graph"
+      },
+      "self": {
+        "href": "<base>/api/ontologies/edam/terms/http%253A%252F%252Fedamontology.org%252Ftopic_2839?lang=en"
+      }
+    },
+    "annotation": {},
+    "description": [],
+    "has_children": false,
+    "iri": "http://edamontology.org/topic_2839",
+    "is_defining_ontology": true,
+    "is_obsolete": false,
+    "is_preferred_root": false,
+    "is_root": true,
+    "label": "EDAM_topic_2839",
+    "lang": "en",
+    "obo_id": "EDAM_topic:2839",
+    "ontology_iri": "http://edamontology.org",
+    "ontology_name": "edam",
+    "ontology_prefix": "EDAM",
+    "short_form": "EDAM_topic_2839",
+    "synonyms": []
+  }
+]

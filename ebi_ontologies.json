@@ -547,6 +547,7 @@
         "http://edamontology.org/identifier_"
       ],
       "oboSlims": false,
+      "shortFormExtractionPattern": "^http://edamontology\\.org/((data|topic|operation|format|identifier)_.+)$",
       "ontology_purl": "https://raw.githubusercontent.com/edamontology/edamontology/master/releases/EDAM.owl"
     },
     {
