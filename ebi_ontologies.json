@@ -486,7 +486,7 @@
       "preferredPrefix": "ORDO",
       "description": "The Orphanet Rare Disease ontology (ORDO) is jointly developed by Orphanet and the EBI to provide a structured vocabulary for rare diseases capturing relationships between diseases, genes and other relevant features which will form a useful resource for the computational analysis of rare diseases. It derived from the Orphanet database (www.orpha.net ) , a multilingual database dedicated to rare diseases populated from literature and validated by international experts. It integrates a nosology (classification of rare diseases), relationships (gene-disease relations, epiemological data) and connections with other terminologies (MeSH, UMLS, MedDRA),databases (OMIM, UniProtKB, HGNC, ensembl, Reactome, IUPHAR, Geantlas) or classifications (ICD10).",
       "title": "Orphanet Rare Disease Ontology",
-      "uri": "http://www.orpha.net/ontology/orphanet.owl",
+      "uri": "https://www.orphadata.com/data/ontologies/ordo/last_version/ordo_orphanet.owl",
       "definition_property": [
         "http://www.ebi.ac.uk/efo/definition"
       ],
