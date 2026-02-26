@@ -182,6 +182,108 @@
   },
   {
     "baseUri": [
+      "http://edamontology.org/data_",
+      "http://edamontology.org/format_",
+      "http://edamontology.org/identifier_",
+      "http://edamontology.org/topic_"
+    ],
+    "definition_property": [
+      "http://www.geneontology.org/formats/oboInOwl#hasDefinition"
+    ],
+    "description": "EDAM is a simple ontology of well established, familiar concepts that are prevalent within bioinformatics, including types of data and data identifiers, data formats, operations and topics. EDAM provides a set of terms with synonyms and definitions - organised into an intuitive hierarchy for convenient use.",
+    "homepage": "http://edamontology.org",
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": "http://www.w3.org/2002/07/owl#Ontology",
+    "http://www.w3.org/2002/07/owl#versionIRI": "http://edamontology.org/1.25-20251112T1620Z-unstable(1.26)",
+    "imported": false,
+    "iri": "http://edamontology.org",
+    "isObsolete": false,
+    "language": [
+      "en"
+    ],
+    "linkedEntities": {
+      "http://www.geneontology.org/formats/oboInOwl#hasDefinition": {
+        "curie": "OIO:hasDefinition",
+        "definedBy": [
+          "oio"
+        ],
+        "hasLocalDefinition": false,
+        "label": [
+          "has_definition"
+        ],
+        "numAppearsIn": 1.0,
+        "type": [
+          "annotationProperty",
+          "entity",
+          "property"
+        ]
+      },
+      "http://www.geneontology.org/formats/oboInOwl#hasExactSynonym": {
+        "curie": "OIO:hasExactSynonym",
+        "definedBy": [
+          "oio"
+        ],
+        "hasLocalDefinition": false,
+        "label": [
+          "has_exact_synonym"
+        ],
+        "numAppearsIn": 4.0,
+        "type": [
+          "annotationProperty",
+          "entity",
+          "property"
+        ]
+      },
+      "http://www.geneontology.org/formats/oboInOwl#hasNarrowSynonym": {
+        "curie": "OIO:hasNarrowSynonym",
+        "definedBy": [
+          "oio"
+        ],
+        "hasLocalDefinition": false,
+        "label": [
+          "has_narrow_synonym"
+        ],
+        "numAppearsIn": 3.0,
+        "type": [
+          "annotationProperty",
+          "entity",
+          "property"
+        ]
+      }
+    },
+    "linksTo": [
+      "http://www.geneontology.org/formats/oboInOwl#hasDefinition",
+      "http://www.geneontology.org/formats/oboInOwl#hasExactSynonym",
+      "http://www.geneontology.org/formats/oboInOwl#hasNarrowSynonym"
+    ],
+    "loaded": "<loaded>",
+    "mailingList": "edam@elixir-dk.org",
+    "numDescendants": 0.0,
+    "numHierarchicalDescendants": 0.0,
+    "numberOfClasses": "3",
+    "numberOfEntities": "3",
+    "numberOfIndividuals": "0",
+    "numberOfProperties": "0",
+    "oboSlims": false,
+    "ontologyId": "edam",
+    "ontologyPurl": "./testcases/shortform-curie/edam.owl",
+    "preferredPrefix": "EDAM",
+    "searchableAnnotationValues": [
+      false
+    ],
+    "shortFormExtractionPattern": "^http://edamontology\\.org/((data|topic|operation|format|identifier)_.+)$",
+    "sourceFileTimestamp": "<sourceFileTimestamp>",
+    "synonym_property": [
+      "http://www.geneontology.org/formats/oboInOwl#hasExactSynonym",
+      "http://www.geneontology.org/formats/oboInOwl#hasNarrowSynonym"
+    ],
+    "title": "Ontology of bioinformatics topics, operations, identifiers, and formats",
+    "type": [
+      "ontology"
+    ],
+    "uri": "http://edamontology.org"
+  },
+  {
+    "baseUri": [
       "http://www.ebi.ac.uk/testcases/inter-ontology/a#"
     ],
     "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": "http://www.w3.org/2002/07/owl#Ontology",
@@ -838,34 +940,6 @@
     "ontologyId": "owl2primer-anonymous-inverse-object-property",
     "ontologyPurl": "./testcases/owl2-primer/anonymous-inverse-object-property.rdf",
     "preferredPrefix": "owl2primer-anonymous-inverse-object-property",
-    "searchableAnnotationValues": [
-      false
-    ],
-    "sourceFileTimestamp": "<sourceFileTimestamp>",
-    "type": [
-      "ontology"
-    ]
-  },
-  {
-    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": "http://www.w3.org/2002/07/owl#Ontology",
-    "http://www.w3.org/2002/07/owl#versionIRI": "http://www.ebi.ac.uk/testcases/owl2primer/v0.0.1/asymmetric-object-property.rdf",
-    "imported": false,
-    "iri": "http://www.ebi.ac.uk/testcases/owl2primer/asymmetric-object-property.rdf",
-    "isObsolete": false,
-    "language": [
-      "en"
-    ],
-    "linkedEntities": {},
-    "loaded": "<loaded>",
-    "numDescendants": 0.0,
-    "numHierarchicalDescendants": 0.0,
-    "numberOfClasses": "0",
-    "numberOfEntities": "1",
-    "numberOfIndividuals": "0",
-    "numberOfProperties": "1",
-    "ontologyId": "owl2primer-asymmetric-object-property",
-    "ontologyPurl": "./testcases/owl2-primer/asymmetric-object-property.rdf",
-    "preferredPrefix": "owl2primer-asymmetric-object-property",
     "searchableAnnotationValues": [
       false
     ],

@@ -150,6 +150,73 @@
   {
     "_links": {
       "individuals": {
+        "href": "<base>/api/ontologies/edam/individuals"
+      },
+      "properties": {
+        "href": "<base>/api/ontologies/edam/properties"
+      },
+      "self": {
+        "href": "<base>/api/ontologies/edam?lang=en"
+      },
+      "terms": {
+        "href": "<base>/api/ontologies/edam/terms"
+      }
+    },
+    "baseUris": [
+      "http://edamontology.org/data_",
+      "http://edamontology.org/format_",
+      "http://edamontology.org/identifier_",
+      "http://edamontology.org/topic_"
+    ],
+    "config": {
+      "allowDownload": false,
+      "baseUris": [
+        "http://edamontology.org/data_",
+        "http://edamontology.org/format_",
+        "http://edamontology.org/identifier_",
+        "http://edamontology.org/topic_"
+      ],
+      "creators": [],
+      "definitionProperties": [
+        "http://www.geneontology.org/formats/oboInOwl#hasDefinition"
+      ],
+      "description": "EDAM is a simple ontology of well established, familiar concepts that are prevalent within bioinformatics, including types of data and data identifiers, data formats, operations and topics. EDAM provides a set of terms with synonyms and definitions - organised into an intuitive hierarchy for convenient use.",
+      "fileLocation": "./testcases/shortform-curie/edam.owl",
+      "hiddenProperties": [],
+      "hierarchicalProperties": [],
+      "homepage": "http://edamontology.org",
+      "id": "edam",
+      "isSkos": false,
+      "labelProperty": "http://www.w3.org/2000/01/rdf-schema#label",
+      "mailingList": "edam@elixir-dk.org",
+      "namespace": "edam",
+      "oboSlims": false,
+      "preferredPrefix": "EDAM",
+      "preferredRootTerms": [],
+      "synonymProperties": [
+        "http://www.geneontology.org/formats/oboInOwl#hasExactSynonym",
+        "http://www.geneontology.org/formats/oboInOwl#hasNarrowSynonym"
+      ],
+      "title": "Ontology of bioinformatics topics, operations, identifiers, and formats",
+      "versionIri": "http://edamontology.org/1.25-20251112T1620Z-unstable(1.26)"
+    },
+    "lang": "en",
+    "languages": [
+      "en"
+    ],
+    "loadAttempts": 0,
+    "loaded": "<loaded>",
+    "message": "",
+    "numberOfIndividuals": 0,
+    "numberOfProperties": 0,
+    "numberOfTerms": 3,
+    "ontologyId": "edam",
+    "status": "LOADED",
+    "updated": "<updated>"
+  },
+  {
+    "_links": {
+      "individuals": {
         "href": "<base>/api/ontologies/efo-hierarchical-properties/individuals"
       },
       "properties": {
