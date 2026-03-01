@@ -100,6 +100,7 @@ process rdf2json {
     time "4h"
     errorStrategy 'retry'
     maxRetries 5
+    publishDir "${params.out}/ontology_jsons", overwrite: true
     
     input:
     path(config_path)
@@ -155,6 +156,7 @@ process linker__link_ontologies {
     time "4h"
     errorStrategy 'retry'
     maxRetries 5
+    publishDir "${params.out}/ontology_jsons_linked", overwrite: true
 
     input:
     path("linker_manifest.json")
