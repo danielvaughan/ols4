@@ -20,10 +20,15 @@ import uk.ac.ebi.spot.ols.repository.helpers.DynamicFilterParser;
 import uk.ac.ebi.spot.ols.repository.helpers.SearchFieldsParser;
 
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.ArrayList;
 
 import java.io.IOException;
 import java.util.Map;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 import static uk.ac.ebi.ols.shared.DefinedFields.*;
 
@@ -59,6 +64,52 @@ public class OntologyRepository {
         return solrClient.searchSolrPaginated(query, pageable)
                 .map(e -> JsonTransformer.transformJson(e, lang, outputOpts))
                 ;
+    }
+
+    public Map<String, List<V2Entity>> getGroupedByField(
+            String fieldName, String lang, JsonTransformOptions outputOpts) throws IOException {
+
+        Validation.validateLang(lang);
+
+        OlsSolrQuery query = new OlsSolrQuery();
+        query.addFilter("type", List.of("ontology"), SearchType.WHOLE_FIELD);
+        query.addFacetField(fieldName);
+
+        // Fetch all ontologies
+        OlsFacetedResultsPage<JsonElement> page = solrClient.searchSolrPaginated(
+                query, org.springframework.data.domain.PageRequest.of(0, 1000));
+
+        // Group ontologies by the field values
+        Map<String, List<V2Entity>> grouped = new LinkedHashMap<>();
+
+        // First, populate keys from facet counts to get proper ordering
+        Map<String, Long> facetCounts = page.facetFieldToCounts.get(fieldName);
+        if (facetCounts != null) {
+            for (String key : facetCounts.keySet()) {
+                grouped.put(key, new ArrayList<>());
+            }
+        }
+
+        for (JsonElement element : page.getContent()) {
+            JsonElement transformed = JsonTransformer.transformJson(element, lang, outputOpts);
+            JsonObject obj = transformed.getAsJsonObject();
+
+            if (obj.has(fieldName)) {
+                JsonArray values;
+                if (obj.get(fieldName).isJsonArray()) {
+                    values = obj.getAsJsonArray(fieldName);
+                } else {
+                    values = new JsonArray();
+                    values.add(obj.get(fieldName));
+                }
+                for (int i = 0; i < values.size(); i++) {
+                    String value = values.get(i).getAsString();
+                    grouped.computeIfAbsent(value, k -> new ArrayList<>()).add(new V2Entity(transformed));
+                }
+            }
+        }
+
+        return grouped;
     }
 
     public V2Entity getById(String ontologyId, String lang,

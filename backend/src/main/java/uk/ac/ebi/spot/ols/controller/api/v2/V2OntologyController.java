@@ -89,6 +89,26 @@ public class V2OntologyController {
                 HttpStatus.OK);
     }
 
+    @RequestMapping(path = "/by-tag", produces = {MediaType.APPLICATION_JSON_VALUE }, method = RequestMethod.GET)
+    public HttpEntity<Map<String, List<V2Entity>>> getOntologiesByTag(
+            @RequestParam(value = "lang", required = false, defaultValue = "en") String lang,
+            JsonTransformOptions outputOpts
+    ) throws IOException {
+        return new ResponseEntity<>(
+                ontologyRepository.getGroupedByField("tags", lang, outputOpts),
+                HttpStatus.OK);
+    }
+
+    @RequestMapping(path = "/by-domain", produces = {MediaType.APPLICATION_JSON_VALUE }, method = RequestMethod.GET)
+    public HttpEntity<Map<String, List<V2Entity>>> getOntologiesByDomain(
+            @RequestParam(value = "lang", required = false, defaultValue = "en") String lang,
+            JsonTransformOptions outputOpts
+    ) throws IOException {
+        return new ResponseEntity<>(
+                ontologyRepository.getGroupedByField("domain", lang, outputOpts),
+                HttpStatus.OK);
+    }
+
     @RequestMapping(path = "/{onto}", produces = {MediaType.APPLICATION_JSON_VALUE }, method = RequestMethod.GET)
     public HttpEntity<V2Entity> getOntology(
             @PathVariable("onto")

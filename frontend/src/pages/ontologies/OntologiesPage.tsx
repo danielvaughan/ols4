@@ -1,4 +1,4 @@
-import {useEffect, useMemo} from "react";
+import {useEffect, useMemo, useState} from "react";
 import {useNavigate} from "react-router-dom";
 import urlJoin from "url-join";
 import {useAppDispatch, useAppSelector} from "../../app/hooks";
@@ -18,6 +18,48 @@ export default function OntologiesPage() {
     const loading = useAppSelector((state) => state.ontologies.loadingOntologies);
 
     const navigate = useNavigate();
+
+    // Collect unique tags and domains for filter dropdowns
+    const allTags = useMemo(() => {
+        const tagSet = new Set<string>();
+        ontologies.forEach((o) => o.getTags().forEach((t) => tagSet.add(t)));
+        return Array.from(tagSet).sort();
+    }, [ontologies]);
+
+    const allDomains = useMemo(() => {
+        const domainSet = new Set<string>();
+        ontologies.forEach((o) => {
+            const d = o.getDomain();
+            if (d) domainSet.add(d);
+        });
+        return Array.from(domainSet).sort();
+    }, [ontologies]);
+
+    const [selectedTags, setSelectedTags] = useState<string[]>([]);
+    const [selectedDomains, setSelectedDomains] = useState<string[]>([]);
+
+    const VIRTUAL_DOMAIN_OBO_FOUNDRY = "obo foundry";
+
+    const filteredOntologies = useMemo(() => {
+        return ontologies.filter((o) => {
+            if (selectedTags.length > 0) {
+                const oTags = o.getTags();
+                if (!selectedTags.some((t) => oTags.includes(t))) return false;
+            }
+            if (selectedDomains.length > 0) {
+                if (selectedDomains.includes(VIRTUAL_DOMAIN_OBO_FOUNDRY)) {
+                    // OBO Foundry virtual domain: must be foundry OR match other selected domains
+                    const otherDomains = selectedDomains.filter((d) => d !== VIRTUAL_DOMAIN_OBO_FOUNDRY);
+                    const matchesFoundry = o.isFoundry();
+                    const matchesOther = otherDomains.length > 0 && otherDomains.includes(o.getDomain());
+                    if (!matchesFoundry && !matchesOther) return false;
+                } else {
+                    if (!selectedDomains.includes(o.getDomain())) return false;
+                }
+            }
+            return true;
+        });
+    }, [ontologies, selectedTags, selectedDomains]);
 
     const columns = useMemo<MRT_ColumnDef<Ontology>[]>(
         () => [
@@ -139,7 +181,7 @@ export default function OntologiesPage() {
 
     const table = useMaterialReactTable({
         columns,
-        data: ontologies,
+        data: filteredOntologies,
         initialState: {
             showColumnFilters: true,
             sorting: [
@@ -206,6 +248,54 @@ export default function OntologiesPage() {
         <div>
             <Header section="ontologies"/>
             <main className="container mx-auto my-8">
+                {ontologies.length > 0 && <div className="flex flex-wrap gap-1.5 mb-4 items-center">
+                    {[VIRTUAL_DOMAIN_OBO_FOUNDRY, ...allDomains].map((domain) => (
+                        <button
+                            key={domain}
+                            onClick={() => {
+                                setSelectedDomains((prev) =>
+                                    prev.includes(domain)
+                                        ? prev.filter((d) => d !== domain)
+                                        : [...prev, domain]
+                                );
+                            }}
+                            className={`text-xs px-2.5 py-1 rounded-full border-2 font-semibold ${
+                                selectedDomains.includes(domain)
+                                    ? "bg-link-default text-white border-link-default"
+                                    : "bg-white text-gray-800 border-gray-400 hover:bg-gray-100"
+                            }`}
+                        >
+                            {domain.toLowerCase()}
+                        </button>
+                    ))}
+                    {allTags.map((tag) => (
+                        <button
+                            key={tag}
+                            onClick={() => {
+                                setSelectedTags((prev) =>
+                                    prev.includes(tag)
+                                        ? prev.filter((t) => t !== tag)
+                                        : [...prev, tag]
+                                );
+                            }}
+                            className={`text-xs px-2.5 py-1 rounded-full border ${
+                                selectedTags.includes(tag)
+                                    ? "bg-link-default text-white border-link-default"
+                                    : "bg-white text-gray-600 border-gray-300 hover:bg-gray-100"
+                            }`}
+                        >
+                            {tag.toLowerCase()}
+                        </button>
+                    ))}
+                    {(selectedTags.length > 0 || selectedDomains.length > 0) && (
+                        <button
+                            onClick={() => { setSelectedTags([]); setSelectedDomains([]); }}
+                            className="text-xs text-link-default hover:underline ml-1"
+                        >
+                            Clear ({filteredOntologies.length}/{ontologies.length})
+                        </button>
+                    )}
+                </div>}
                 {
                     <MaterialReactTable table={table}/>
                 }
