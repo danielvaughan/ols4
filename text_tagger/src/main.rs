@@ -116,7 +116,13 @@ fn run_build(output_path: &str, min_len: usize) {
     let idx_label = col("label");
     let idx_iri = col("iri");
 
-    let min_cols = [idx_ontology_id, idx_label, idx_iri]
+    // Use text_to_embed as the match key if available, otherwise fall back to label
+    let idx_match_key = headers
+        .iter()
+        .position(|h| *h == "text_to_embed")
+        .unwrap_or(idx_label);
+
+    let min_cols = [idx_ontology_id, idx_label, idx_iri, idx_match_key]
         .into_iter()
         .max()
         .unwrap()
@@ -149,13 +155,14 @@ fn run_build(output_path: &str, min_len: usize) {
         let ontology_id = fields[idx_ontology_id];
         let label = fields[idx_label];
         let iri = fields[idx_iri];
+        let match_key = fields[idx_match_key];
 
-        if label.is_empty() || iri.is_empty() {
+        if match_key.is_empty() || iri.is_empty() {
             skipped += 1;
             continue;
         }
 
-        if label.len() < min_len {
+        if match_key.len() < min_len {
             skipped += 1;
             continue;
         }
@@ -165,8 +172,8 @@ fn run_build(output_path: &str, min_len: usize) {
             label, RECORD_SEP, iri, RECORD_SEP, ontology_id
         );
 
-        // Index by the label/synonym text
-        builder.add_entry(label, &value);
+        // Index by the synonym/label text (text_to_embed if available)
+        builder.add_entry(match_key, &value);
 
         if row_num % 500_000 == 0 {
             eprintln!("  processed {} rows …", row_num - 1);
