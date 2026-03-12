@@ -120,4 +120,15 @@ export default class Ontology extends Thing {
   isDeprecated(): boolean {
     return this.properties["is_deprecated"] === true;
   }
+  getTags(): string[] {
+    return asArray(this.properties["tags"]);
+  }
+  getDomain(): string {
+    const domain = this.properties["domain"];
+    if (Array.isArray(domain)) return domain[0] || "";
+    return domain || "";
+  }
+  isFoundry(): boolean {
+    return !!this.properties["in_foundry_order"];
+  }
 }
