@@ -62,4 +62,4 @@ spec:
       volumes:
         - name: embeddings
           persistentVolumeClaim:
-            claimName: {{ include "ols4.fullname" . }}-embeddings
+            claimName: {{ .Release.Name }}-embeddings
