@@ -32,7 +32,8 @@ process fetch_configs {
     time "10m"
 
     output:
-    path("*.json")
+    path("obo.json"), emit: obo
+    path("ebi.json"), emit: ebi
 
     script:
     """
@@ -48,10 +49,12 @@ process fetch_configs {
 workflow {
 
     // Fetch configs: use local paths when provided (CI/local), otherwise fetch from NFS (prod)
+    // When fetching, obo must be collected before ebi so that EBI overrides (e.g. is_obsolete: false)
+    // win in merge_configs — concat preserves emission order explicitly
     if (params.config_files) {
         config_files = Channel.fromPath(params.config_files.tokenize(',')).collect()
     } else {
-        config_files = fetch_configs().collect()
+        config_files = fetch_configs.out.obo.concat(fetch_configs.out.ebi).collect()
     }
 
     merged_config_file = merge_configs(config_files)
