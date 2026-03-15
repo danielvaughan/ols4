@@ -54,6 +54,7 @@ workflow {
     if (params.config_files) {
         config_files = Channel.fromPath(params.config_files.tokenize(',')).collect()
     } else {
+        fetch_configs()
         config_files = fetch_configs.out.obo.concat(fetch_configs.out.ebi).collect()
     }
 
