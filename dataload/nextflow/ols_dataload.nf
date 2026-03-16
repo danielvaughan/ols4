@@ -32,7 +32,8 @@ process fetch_configs {
     time "10m"
 
     output:
-    path("*.json")
+    path("obo.json"), emit: obo
+    path("ebi.json"), emit: ebi
 
     script:
     """
@@ -48,10 +49,13 @@ process fetch_configs {
 workflow {
 
     // Fetch configs: use local paths when provided (CI/local), otherwise fetch from NFS (prod)
+    // When fetching, obo must be collected before ebi so that EBI overrides (e.g. is_obsolete: false)
+    // win in merge_configs — concat preserves emission order explicitly
     if (params.config_files) {
         config_files = Channel.fromPath(params.config_files.tokenize(',')).collect()
     } else {
-        config_files = fetch_configs().collect()
+        fetch_configs()
+        config_files = fetch_configs.out.obo.concat(fetch_configs.out.ebi).collect()
     }
 
     merged_config_file = merge_configs(config_files)
@@ -562,17 +566,17 @@ process check_neo4j_data_exists {
 
     STATUS=0
 
-    if [ -e "\$DB_PATH" ]; then
-        echo "✓ Neo4j database exists at: \$DB_PATH"       | tee -a neo4j_check.log
+    if [ -d "\$DB_PATH" ] && [ -n "\$(ls -A "\$DB_PATH" 2>/dev/null)" ]; then
+        echo "✓ Neo4j database exists and has files at: \$DB_PATH" | tee -a neo4j_check.log
     else
-        echo "✗ ERROR: Neo4j database does not exist at: \$DB_PATH" | tee -a neo4j_check.log
+        echo "✗ ERROR: Neo4j database is missing or empty at: \$DB_PATH" | tee -a neo4j_check.log
         STATUS=1
     fi
 
-    if [ -e "\$TX_PATH" ]; then
-        echo "✓ Neo4j transaction data exists at: \$TX_PATH" | tee -a neo4j_check.log
+    if [ -d "\$TX_PATH" ] && [ -n "\$(ls -A "\$TX_PATH" 2>/dev/null)" ]; then
+        echo "✓ Neo4j transaction logs exist at: \$TX_PATH" | tee -a neo4j_check.log
     else
-        echo "✗ ERROR: Neo4j transaction data does not exist at: \$TX_PATH" | tee -a neo4j_check.log
+        echo "✗ ERROR: Neo4j transaction logs are missing or empty at: \$TX_PATH" | tee -a neo4j_check.log
         STATUS=1
     fi
 
