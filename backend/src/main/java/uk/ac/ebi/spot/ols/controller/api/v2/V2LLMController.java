@@ -2,6 +2,7 @@ package uk.ac.ebi.spot.ols.controller.api.v2;
 
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springdoc.core.annotations.ParameterObject;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -83,9 +84,7 @@ public class V2LLMController {
     public HttpEntity<V2PagedResponse<V2Entity>> searchClassesByVector(
                 @RequestBody List<Double> vector,
                 @PageableDefault(size = 20, page = 0)
-                @Parameter(name = "pageable",
-                        description = "Specify the size of the result you want to get in the output",
-                        example = "{\"page\": 0,\"size\": 20}") Pageable pageable,
+                @ParameterObject Pageable pageable,
                 @RequestParam(value = "lang", required = false, defaultValue = "en") String lang,
                 @RequestParam(value = "model", required = true) 
                 @Parameter(name = "model",
@@ -95,7 +94,7 @@ public class V2LLMController {
                 @Parameter(name = "ontologyId",
                         description = "Optional ontology ID to filter results. If specified only returns classes defined in this ontology (not imported classes).",
                         example = "efo") String ontologyId,
-                JsonTransformOptions outputOpts
+                @ParameterObject JsonTransformOptions outputOpts
         ) throws ResourceNotFoundException, IOException {
 
                 // Convert List<Double> to float[]
@@ -120,9 +119,7 @@ public class V2LLMController {
                         example = "efo") String ontologyId,
                 @RequestBody List<Double> vector,
                 @PageableDefault(size = 20, page = 0)
-                @Parameter(name = "pageable",
-                        description = "Specify the size of the result you want to get in the output",
-                        example = "{\"page\": 0,\"size\": 20}") Pageable pageable,
+                @ParameterObject Pageable pageable,
                 @RequestParam(value = "lang", required = false, defaultValue = "en") String lang,
                 @RequestParam(value = "model", required = true) 
                 @Parameter(name = "model",
@@ -132,7 +129,7 @@ public class V2LLMController {
                 @Parameter(name = "isDefiningOntology",
                         description = "If true, only return classes defined in this ontology. If false (default), include imported classes too.",
                         example = "false") boolean isDefiningOntology,
-                JsonTransformOptions outputOpts
+                @ParameterObject JsonTransformOptions outputOpts
         ) throws ResourceNotFoundException, IOException {
 
                 // Convert List<Double> to float[]
@@ -156,9 +153,7 @@ public class V2LLMController {
                         description = "The text query to search for using semantic similarity",
                         example = "heart disease") String query,
                 @PageableDefault(size = 20, page = 0)
-                @Parameter(name = "pageable",
-                        description = "Specify the size of the result you want to get in the output",
-                        example = "{\"page\": 0,\"size\": 20}") Pageable pageable,
+                @ParameterObject Pageable pageable,
                 @RequestParam(value = "lang", required = false, defaultValue = "en") String lang,
                 @RequestParam(value = "model", required = true) 
                 @Parameter(name = "model",
@@ -168,7 +163,7 @@ public class V2LLMController {
                 @Parameter(name = "ontologyId",
                         description = "Optional ontology ID to filter results. If specified only returns entities defined in this ontology (not imported).",
                         example = "efo") String ontologyId,
-                JsonTransformOptions outputOpts
+                @ParameterObject JsonTransformOptions outputOpts
         ) throws ResourceNotFoundException, IOException {
 
                 // Embed the query text using the embedding service
@@ -203,9 +198,7 @@ public class V2LLMController {
                         description = "The text query to search for using semantic similarity",
                         example = "heart disease") String query,
                 @PageableDefault(size = 20, page = 0)
-                @Parameter(name = "pageable",
-                        description = "Specify the size of the result you want to get in the output",
-                        example = "{\"page\": 0,\"size\": 20}") Pageable pageable,
+                @ParameterObject Pageable pageable,
                 @RequestParam(value = "lang", required = false, defaultValue = "en") String lang,
                 @RequestParam(value = "model", required = true) 
                 @Parameter(name = "model",
@@ -215,7 +208,7 @@ public class V2LLMController {
                 @Parameter(name = "ontologyId",
                         description = "Optional ontology ID to filter results. If specified only returns classes defined in this ontology (not imported classes).",
                         example = "efo") String ontologyId,
-                JsonTransformOptions outputOpts
+                @ParameterObject JsonTransformOptions outputOpts
         ) throws ResourceNotFoundException, IOException {
 
                 // Embed the query text using the embedding service
@@ -240,9 +233,7 @@ public class V2LLMController {
                         description = "The text query to search for using semantic similarity",
                         example = "heart disease") String query,
                 @PageableDefault(size = 20, page = 0)
-                @Parameter(name = "pageable",
-                        description = "Specify the size of the result you want to get in the output",
-                        example = "{\"page\": 0,\"size\": 20}") Pageable pageable,
+                @ParameterObject Pageable pageable,
                 @RequestParam(value = "lang", required = false, defaultValue = "en") String lang,
                 @RequestParam(value = "model", required = true) 
                 @Parameter(name = "model",
@@ -252,7 +243,7 @@ public class V2LLMController {
                 @Parameter(name = "isDefiningOntology",
                         description = "If true, only return classes defined in this ontology. If false (default), include imported classes too.",
                         example = "false") boolean isDefiningOntology,
-                JsonTransformOptions outputOpts
+                @ParameterObject JsonTransformOptions outputOpts
         ) throws ResourceNotFoundException, IOException {
 
                 // Embed the query text using the embedding service
@@ -269,9 +260,7 @@ public class V2LLMController {
     @RequestMapping(path = "/classes/{class}/llm_similar", produces = {MediaType.APPLICATION_JSON_VALUE }, method = RequestMethod.GET)
     public HttpEntity<V2PagedResponse<V2Entity>> getSimilarClasses(
             @PageableDefault(size = 20, page = 0)
-            @Parameter(name = "pageable",
-                    description = "Specify the size of the result you want to get in the output",
-                    example = "{\"page\": 0,\"size\": 20}") Pageable pageable,
+            @ParameterObject Pageable pageable,
             @PathVariable("class")
             @Parameter(name = "class",
                     description = "The IRI of the class, this value must be double URL encoded",
@@ -281,7 +270,7 @@ public class V2LLMController {
         @Parameter(name = "model",
                 description = "The embedding model name to use. Defaults to text-embedding-3-small.",
                 example = "text-embedding-3-small") String model,
-        JsonTransformOptions outputOpts
+        @ParameterObject JsonTransformOptions outputOpts
     ) throws ResourceNotFoundException, IOException {
 
         iri = UriUtils.decode(iri, "UTF-8");
@@ -346,9 +335,7 @@ public class V2LLMController {
                         description = "The text query to search for using semantic similarity",
                         example = "part of") String query,
                 @PageableDefault(size = 20, page = 0)
-                @Parameter(name = "pageable",
-                        description = "Specify the size of the result you want to get in the output",
-                        example = "{\"page\": 0,\"size\": 20}") Pageable pageable,
+                @ParameterObject Pageable pageable,
                 @RequestParam(value = "lang", required = false, defaultValue = "en") String lang,
                 @RequestParam(value = "model", required = true) 
                 @Parameter(name = "model",
@@ -358,7 +345,7 @@ public class V2LLMController {
                 @Parameter(name = "ontologyId",
                         description = "Optional ontology ID to filter results. If specified only returns properties defined in this ontology.",
                         example = "efo") String ontologyId,
-                JsonTransformOptions outputOpts
+                @ParameterObject JsonTransformOptions outputOpts
         ) throws ResourceNotFoundException, IOException {
 
                 // Embed the query text using the embedding service
@@ -393,9 +380,7 @@ public class V2LLMController {
                         description = "The text query to search for using semantic similarity",
                         example = "human") String query,
                 @PageableDefault(size = 20, page = 0)
-                @Parameter(name = "pageable",
-                        description = "Specify the size of the result you want to get in the output",
-                        example = "{\"page\": 0,\"size\": 20}") Pageable pageable,
+                @ParameterObject Pageable pageable,
                 @RequestParam(value = "lang", required = false, defaultValue = "en") String lang,
                 @RequestParam(value = "model", required = true) 
                 @Parameter(name = "model",
@@ -405,7 +390,7 @@ public class V2LLMController {
                 @Parameter(name = "ontologyId",
                         description = "Optional ontology ID to filter results. If specified only returns individuals defined in this ontology.",
                         example = "efo") String ontologyId,
-                JsonTransformOptions outputOpts
+                @ParameterObject JsonTransformOptions outputOpts
         ) throws ResourceNotFoundException, IOException {
 
                 // Embed the query text using the embedding service
@@ -436,9 +421,7 @@ public class V2LLMController {
     @RequestMapping(path = "/properties/{property}/llm_similar", produces = {MediaType.APPLICATION_JSON_VALUE }, method = RequestMethod.GET)
     public HttpEntity<V2PagedResponse<V2Entity>> getSimilarProperties(
             @PageableDefault(size = 20, page = 0)
-            @Parameter(name = "pageable",
-                    description = "Specify the size of the result you want to get in the output",
-                    example = "{\"page\": 0,\"size\": 20}") Pageable pageable,
+            @ParameterObject Pageable pageable,
             @PathVariable("property")
             @Parameter(name = "property",
                     description = "The IRI of the property, this value must be double URL encoded",
@@ -448,7 +431,7 @@ public class V2LLMController {
             @Parameter(name = "model",
                     description = "The embedding model name to use. Defaults to text-embedding-3-small.",
                     example = "text-embedding-3-small") String model,
-            JsonTransformOptions outputOpts
+            @ParameterObject JsonTransformOptions outputOpts
     ) throws ResourceNotFoundException {
 
         iri = UriUtils.decode(iri, "UTF-8");
