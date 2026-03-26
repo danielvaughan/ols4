@@ -1,5 +1,6 @@
 package uk.ac.ebi.spot.ols.controller.api.v2;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springdoc.core.annotations.ParameterObject;
@@ -38,6 +39,10 @@ public class V2EntityController {
     @Autowired
     EntityRepository entityRepository;
 
+    @Operation(description = "Search and filter entities across all ontologies. " +
+            "In addition to the named parameters listed, any indexed field can be used as a filter by passing it as a query parameter. " +
+            "Values are case-insensitive and comma-separated values are treated as OR logic. " +
+            "For example: ?type=class&ontologyId=uberon&hierarchicalAncestor=http://purl.obolibrary.org/obo/UBERON_0001062")
     @RequestMapping(path = "/entities", produces = {MediaType.APPLICATION_JSON_VALUE}, method = RequestMethod.GET)
     public HttpEntity<V2PagedAndFacetedResponse<V2Entity>> getEntities(
             @PageableDefault(size = 20, page = 0)
@@ -96,6 +101,10 @@ public class V2EntityController {
                     HttpStatus.OK);
     }
 
+    @Operation(description = "Search and filter entities within a specific ontology. " +
+            "In addition to the named parameters listed, any indexed field can be used as a filter by passing it as a query parameter. " +
+            "Values are case-insensitive and comma-separated values are treated as OR logic. " +
+            "For example: ?type=class&hierarchicalAncestor=http://purl.obolibrary.org/obo/UBERON_0001062")
     @RequestMapping(path = "/ontologies/{onto}/entities", produces = {MediaType.APPLICATION_JSON_VALUE}, method = RequestMethod.GET)
     public HttpEntity<V2PagedAndFacetedResponse<V2Entity>> getTerms(
             @PageableDefault(size = 20, page = 0)
