@@ -137,6 +137,26 @@ public class Ols4ApiTester {
 		JsonElement tagFilteredResult = post(url + "/api/v2/tag_text?ontologyId=duo", "{\"text\": \"This is a test of data use modifiers\"}");
 		write(outDir + "/v2/tag_text_filtered.json", tagFilteredResult);
 
+		// Test curation sources endpoint
+		JsonElement curationSources = get(url + "/api/v2/curation_sources");
+		write(outDir + "/v2/curation_sources.json", curationSources);
+
+		// Test tagging with curated text
+		JsonElement tagCuratedResult = post(url + "/api/v2/tag_text", "{\"text\": \"genomic data sharing for clinical trial data with restricted access dataset\"}");
+		write(outDir + "/v2/tag_text_curated.json", tagCuratedResult);
+
+		// Test source filtering
+		JsonElement tagSourceFiltered = post(url + "/api/v2/tag_text?source=test-curations", "{\"text\": \"genomic data sharing for clinical trial data\"}");
+		write(outDir + "/v2/tag_text_source_filtered.json", tagSourceFiltered);
+
+		// Test includeObsoleteEntities=true (should include obsolete entity with is_obsolete flag)
+		JsonElement tagWithObsolete = post(url + "/api/v2/tag_text?includeObsoleteEntities=true", "{\"text\": \"testing the obsolete xmpl entity label\"}");
+		write(outDir + "/v2/tag_text_with_obsolete.json", tagWithObsolete);
+
+		// Test includeObsoleteEntities=false (default; should exclude obsolete entity)
+		JsonElement tagNoObsolete = post(url + "/api/v2/tag_text?includeObsoleteEntities=false", "{\"text\": \"testing the obsolete xmpl entity label\"}");
+		write(outDir + "/v2/tag_text_no_obsolete.json", tagNoObsolete);
+
 		return true;
 	}
 

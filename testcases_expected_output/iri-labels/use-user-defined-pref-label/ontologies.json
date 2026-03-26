@@ -35,13 +35,13 @@
         "type": [
           "literal"
         ],
-        "value": "3"
+        "value": "4"
       },
       "numberOfEntities": {
         "type": [
           "literal"
         ],
-        "value": "5"
+        "value": "6"
       },
       "numberOfIndividuals": {
         "type": [
@@ -59,8 +59,8 @@
         false,
         {"type":["literal"],"value":"0"},
         {"type":["literal"],"value":"2"},
-        {"type":["literal"],"value":"3"},
-        {"type":["literal"],"value":"5"}
+        {"type":["literal"],"value":"4"},
+        {"type":["literal"],"value":"6"}
       ],
       "classes": [
         {
@@ -107,8 +107,8 @@
           "label": [
             {"type":["literal"],"datatype":"http://www.w3.org/1999/02/22-rdf-syntax-ns#langString","value":"parent class pref label","lang":"en"}
           ],
-          "numDescendants": 2,
-          "numHierarchicalDescendants": 2,
+          "numDescendants": 3,
+          "numHierarchicalDescendants": 3,
           "ontologyId": {
             "type": [
               "literal"
@@ -350,6 +350,96 @@
               "literal"
             ],
             "value": "http://exmpl.org/xmpl/Synonym"
+          }
+        },
+        {
+          "iri": "http://exmpl.org/xmpl/XMPL000004",
+          "type": [
+            "class",
+            "entity"
+          ],
+          "curie": {
+            "type": [
+              "literal"
+            ],
+            "value": "XMPL:XMPL000004"
+          },
+          "directAncestor": [
+            "http://exmpl.org/xmpl/XMPL000001"
+          ],
+          "directParent": [
+            "http://exmpl.org/xmpl/XMPL000001"
+          ],
+          "hasDirectChildren": false,
+          "hasDirectParents": true,
+          "hasHierarchicalChildren": false,
+          "hasHierarchicalParents": true,
+          "hierarchicalAncestor": [
+            "http://exmpl.org/xmpl/XMPL000001"
+          ],
+          "hierarchicalParent": [
+            "http://exmpl.org/xmpl/XMPL000001"
+          ],
+          "hierarchicalProperty": {
+            "type": [
+              "literal"
+            ],
+            "value": "http://www.w3.org/2000/01/rdf-schema#subClassOf"
+          },
+          "http://exmpl.org/xmpl/Preferred_name": {
+            "type": [
+              "literal"
+            ],
+            "datatype": "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString",
+            "value": "obsolete xmpl entity",
+            "lang": "en"
+          },
+          "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": "http://www.w3.org/2002/07/owl#Class",
+          "http://www.w3.org/2000/01/rdf-schema#label": {
+            "type": [
+              "literal"
+            ],
+            "datatype": "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString",
+            "value": "XMPL000004",
+            "lang": "en"
+          },
+          "http://www.w3.org/2000/01/rdf-schema#subClassOf": "http://exmpl.org/xmpl/XMPL000001",
+          "http://www.w3.org/2002/07/owl#deprecated": true,
+          "imported": false,
+          "isObsolete": true,
+          "isPreferredRoot": false,
+          "label": [
+            {"type":["literal"],"datatype":"http://www.w3.org/1999/02/22-rdf-syntax-ns#langString","value":"obsolete xmpl entity","lang":"en"}
+          ],
+          "numDescendants": 0,
+          "numHierarchicalDescendants": 0,
+          "ontologyId": {
+            "type": [
+              "literal"
+            ],
+            "value": "xmpl"
+          },
+          "ontologyIri": {
+            "type": [
+              "literal"
+            ],
+            "value": "http://exmpl.org/xmpl/xmpl.owl"
+          },
+          "ontologyPreferredPrefix": {
+            "type": [
+              "literal"
+            ],
+            "value": "XMPL"
+          },
+          "searchableAnnotationValues": [
+            false,
+            {"type":["literal"],"datatype":"http://www.w3.org/1999/02/22-rdf-syntax-ns#langString","value":"obsolete xmpl entity","lang":"en"}
+          ],
+          "shortForm": {
+            "type": [
+              "literal"
+            ],
+            "value": "XMPL_XMPL000004"
           }
         }
       ],

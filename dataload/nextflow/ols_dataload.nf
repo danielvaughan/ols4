@@ -19,10 +19,13 @@ params.embeddings_path = "$OLS_EMBEDDINGS_PATH"
 params.max_rows_per_file = "100000"
 params.dataload_args = System.getenv('OLS4_DATALOAD_ARGS') ?: ''
 params.enable_embeddings = false
+params.enable_curations = false
+params.curations_repo_url = 'https://github.com/mapping-commons/ebi-text-mappings/archive/refs/heads/main.tar.gz'
+params.curations_local_path = ''   // If set, use local SSSOM files instead of downloading (glob pattern)
 
 // Production-only features — disabled by default, enabled via nextflow_prod.config
-params.enable_ftp_copy          = false  // copy tarballs to FTP (requires datamover partition)
 params.enable_ontology_tarballs = false  // create ontology_jsons.tgz and ontology_jsons_linked.tgz
+params.publish_ontology_jsons = false  // publish pigz --best compressed ontology JSONs (linked and unlinked)
 params.copy_script     = ''     // path to copy_tarballs.sh on the NFS server
 
 
@@ -72,10 +75,25 @@ workflow {
     status_files = ontology_jsons_and_status.map { id, json, status -> status }.collect()
 
     linker_manifest = linker__create_manifest(ontology_jsons_by_id.map { it[1] }.collect())
-    linked_ontologies_by_id = linker__link_ontologies(linker_manifest, ontology_jsons_by_id)
+
+    // Download curated text-to-term mappings (SSSOM) if enabled
+    if (params.curations_local_path) {
+        sssom_files = Channel.fromPath(params.curations_local_path).collect()
+    } else if (params.enable_curations) {
+        sssom_files = download_curations()
+    } else {
+        sssom_files = Channel.empty().collect()
+    }
+
+    linked_ontologies_by_id = linker__link_ontologies(linker_manifest, ontology_jsons_by_id, sssom_files)
 
     // Build text tagger database from linked ontology JSONs
     all_linked_jsons = linked_ontologies_by_id.map { it[1] }.collect()
+    if (params.publish_ontology_jsons) {
+        all_unlinked_jsons = ontology_jsons_by_id.map { it[1] }.collect()
+        publish_ontology_jsons(all_unlinked_jsons)
+        publish_ontology_jsons_linked(all_linked_jsons)
+    }
     terms_tsv = extract_strings_from_terms(all_linked_jsons)
     text_tagger_db = build_text_tagger_db(terms_tsv)
 
@@ -125,17 +143,6 @@ workflow {
 
     // ── Neo4j data check ────────────────────────────────────────────────────
     check_neo4j_data_exists(neo.neo_dir)
-
-    // ── Copy to FTP (prod only — enabled via params.enable_ftp_copy) ───────
-    if (params.enable_ftp_copy) {
-        copy_tarballs_to_ftp(
-            neo.neo_tgz,
-            solr.solr_tgz,
-            sssom.sssom_tgz,
-            ontology_jsons_tgz,
-            ontology_jsons_linked_tgz
-        )
-    }
 }
 
 
@@ -171,7 +178,6 @@ process rdf2json {
 
     // Save each ontology JSON to last_run_dir after success, so it can be used as fallback next run
     publishDir params.last_run_dir, mode: 'copy', enabled: params.last_run_dir as boolean, saveAs: { fn -> fn.endsWith('.status.json') ? null : fn }
-    publishDir "${params.out}/ontology_jsons", overwrite: true, saveAs: { fn -> fn.endsWith('.status.json') ? null : fn }
 
     input:
     path(config_path)
@@ -235,23 +241,42 @@ process linker__link_ontologies {
     time "4h"
     errorStrategy 'retry'
     maxRetries 5
-    publishDir "${params.out}/ontology_jsons_linked", overwrite: true
 
     input:
     path("linker_manifest.json")
     tuple val(ontology_id), path(ontology_json)
+    path(sssom_files)
 
     output:
     tuple val(ontology_id), path("${ontology_json.name.replace('.json', '_linked.json')}")
 
     script:
+    def sssom_list = (sssom_files instanceof List ? sssom_files : [sssom_files]).findAll { it.name != 'NO_FILE' }
+    def sssom_args = sssom_list ? sssom_list.collect { "--sssom ${it}" }.join(' ') : ''
     """
     #!/usr/bin/env bash
     set -Eeuo pipefail
     ols_link \
         --input ${ontology_json} \
         --manifest "linker_manifest.json" \
-        --output "${ontology_json.name.replace('.json', '_linked.json')}"
+        --output "${ontology_json.name.replace('.json', '_linked.json')}" \
+        ${sssom_args}
+    """
+}
+
+process download_curations {
+    cache "lenient"
+    memory { 4.GB }
+    time "30m"
+
+    output:
+    path("mappings/*.sssom.tsv")
+
+    script:
+    """
+    #!/usr/bin/env bash
+    set -Eeuo pipefail
+    curl -fsSL '${params.curations_repo_url}' | tar xz --strip-components=1 'ebi-text-mappings-main/mappings'
     """
 }
 
@@ -418,8 +443,8 @@ def basename(filename) {
 
 process extract_strings_from_terms {
     cache "lenient"
-    memory '8 GB'
-    time '1h'
+    memory '32 GB'
+    time '8h'
     cpus "4"
 
     input:
@@ -480,10 +505,54 @@ process create_ontology_jsons_tarball {
     """
 }
 
+process publish_ontology_jsons {
+    cache "lenient"
+    cpus 4
+    memory { 8.GB }
+    time "8h"
+    publishDir "${params.out}/ontology_jsons", overwrite: true
+
+    input:
+    path(jsons)
+
+    output:
+    path("*.gz")
+
+    script:
+    def json_list = (jsons instanceof List) ? jsons : [jsons]
+    """
+    #!/usr/bin/env bash
+    set -Eeuo pipefail
+    pigz --best --keep --force ${json_list.join(' ')}
+    """
+}
+
+process publish_ontology_jsons_linked {
+    cache "lenient"
+    cpus 4
+    memory { 8.GB }
+    time "8h"
+    publishDir "${params.out}/ontology_jsons_linked", overwrite: true
+
+    input:
+    path(linked_jsons)
+
+    output:
+    path("*.gz")
+
+    script:
+    def json_list = (linked_jsons instanceof List) ? linked_jsons : [linked_jsons]
+    """
+    #!/usr/bin/env bash
+    set -Eeuo pipefail
+    pigz --best --keep --force ${json_list.join(' ')}
+    """
+}
+
 process create_linked_jsons_tarball {
     cache "lenient"
     memory { 8.GB }
-    time "2h"
+    time "8h"
 
     publishDir "${params.out}", overwrite: true
 
@@ -573,8 +642,14 @@ process check_neo4j_data_exists {
         STATUS=1
     fi
 
-    if [ -d "\$TX_PATH" ] && [ -n "\$(ls -A "\$TX_PATH" 2>/dev/null)" ]; then
-        echo "✓ Neo4j transaction logs exist at: \$TX_PATH" | tee -a neo4j_check.log
+    if [ -e "\$TX_PATH" ]; then
+        TX_COUNT=\$(find "\$TX_PATH" -type f | wc -l)
+        if [ "\$TX_COUNT" -gt 0 ]; then
+            echo "✓ Neo4j transaction data exists at: \$TX_PATH (\$TX_COUNT files)" | tee -a neo4j_check.log
+        else
+            echo "✗ ERROR: Neo4j transaction directory exists but is empty: \$TX_PATH" | tee -a neo4j_check.log
+            STATUS=1
+        fi
     else
         echo "✗ ERROR: Neo4j transaction logs are missing or empty at: \$TX_PATH" | tee -a neo4j_check.log
         STATUS=1
@@ -591,40 +666,6 @@ process check_neo4j_data_exists {
     """
 }
 
-
-// Copies the final tarballs (Neo4j, Solr) to the FTP server.
-// Runs on the 'datamover' SLURM partition — equivalent to Jenkins '-p datamover'.
-// params.copy_script must point to copy_tarballs.sh on the NFS server.
-process copy_tarballs_to_ftp {
-    cache false
-    memory { 16.GB }
-    time "12h"
-
-    publishDir "${params.out}", overwrite: true
-
-    input:
-    path(neo_tgz)
-    path(solr_tgz)
-    path(sssom_tgz)
-    path(ontology_jsons_tgz)
-    path(ontology_jsons_linked_tgz)
-
-    output:
-    path("copy_report.log")
-
-    script:
-    """
-    #!/usr/bin/env bash
-    set -Eeuo pipefail
-    bash ${params.copy_script} \
-        ${neo_tgz} \
-        ${solr_tgz} \
-        ${sssom_tgz} \
-        ${ontology_jsons_tgz} \
-        ${ontology_jsons_linked_tgz} \
-        2>&1 | tee copy_report.log
-    """
-}
 
 // Persists PCA parquets to params.embeddings_path so the next incremental embeddings
 // run can reuse them as a base. Copies to out/ subdir first so Nextflow treats them

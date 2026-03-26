@@ -49,9 +49,9 @@ public class ShortFormAnnotator {
 			*/
 				String curie;
 
-				// If custom shortFormExtractionPattern is used, use simple CURIE rule: replace first underscore with colon
+				// If custom shortFormExtractionPattern is used, construct CURIE using prefix directly to handle prefixes containing underscores
 				if (shortFormPattern != null && !shortFormPattern.isEmpty() && shortForm.contains("_")) {
-					curie = shortForm.replaceFirst("_", ":");
+					curie = preferredPrefix + ":" + shortForm.substring(preferredPrefix.length() + 1);
 				} else {
 					// Default CURIE generation logic
 					// Pattern for: single underscore, prefix matches preferredPrefix
@@ -61,7 +61,7 @@ public class ShortFormAnnotator {
 					// Pattern for: multiple underscores, suffix is all digits
 					String multipleUnderscoresDigitsPattern = "^(.*)_(\\d+)$";
 					if (shortForm.matches(preferredPrefixPattern)) {
-						curie = shortForm.replaceFirst("_", ":");
+						curie = preferredPrefix + ":" + shortForm.substring(preferredPrefix.length() + 1);
 					} else if (shortForm.matches(singleUnderscoreDigitsPattern)) {
 						curie = shortForm.replaceFirst("_", ":");
 					} else if (shortForm.matches(multipleUnderscoresDigitsPattern)) {

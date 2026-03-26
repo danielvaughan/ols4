@@ -78,8 +78,8 @@
     "http://exmpl.org/xmpl/Synonym",
     "http://www.w3.org/2000/01/rdf-schema#label"
   ],
-  "numDescendants": 2.0,
-  "numHierarchicalDescendants": 2.0,
+  "numDescendants": 3.0,
+  "numHierarchicalDescendants": 3.0,
   "ontologyId": "xmpl",
   "ontologyIri": "http://exmpl.org/xmpl/xmpl.owl",
   "ontologyPreferredPrefix": "XMPL",

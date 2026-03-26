@@ -16,6 +16,18 @@ struct Entity {
     term_label: String,
     term_iri: String,
     ontology_id: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    string_type: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    source: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    subject_categories: Option<Vec<String>>,
+    #[serde(skip_serializing_if = "is_false")]
+    is_obsolete: bool,
+}
+
+fn is_false(v: &bool) -> bool {
+    !v
 }
 
 #[derive(Serialize)]
@@ -41,13 +53,26 @@ fn annotate_text(ac: &NerAc, text: &str, delimiters: Option<&[u8]>) -> Vec<Entit
                 .collect::<Vec<_>>()
                 .into_iter()
                 .map(move |record| {
-                    let mut parts = record.splitn(3, RECORD_SEP);
+                    let parts: Vec<&str> = record.splitn(7, RECORD_SEP).collect();
+                    let term_label = parts.first().unwrap_or(&"").to_string();
+                    let term_iri = parts.get(1).unwrap_or(&"").to_string();
+                    let ontology_id = parts.get(2).unwrap_or(&"").to_string();
+                    let string_type = parts.get(3).and_then(|s| if s.is_empty() { None } else { Some(s.to_string()) });
+                    let source = parts.get(4).and_then(|s| if s.is_empty() { None } else { Some(s.to_string()) });
+                    let subject_categories = parts.get(5).and_then(|s| if s.is_empty() { None } else {
+                        Some(s.split('|').map(|x| x.to_string()).collect())
+                    });
+                    let is_obsolete = parts.get(6).map_or(false, |s| *s == "true");
                     Entity {
                         start,
                         end,
-                        term_label: parts.next().unwrap_or("").to_string(),
-                        term_iri: parts.next().unwrap_or("").to_string(),
-                        ontology_id: parts.next().unwrap_or("").to_string(),
+                        term_label,
+                        term_iri,
+                        ontology_id,
+                        string_type,
+                        source,
+                        subject_categories,
+                        is_obsolete,
                     }
                 })
         })
@@ -122,6 +147,12 @@ fn run_build(output_path: &str, min_len: usize) {
         .position(|h| *h == "text_to_embed")
         .unwrap_or(idx_label);
 
+    // Optional curated metadata columns
+    let idx_string_type = headers.iter().position(|h| *h == "string_type");
+    let idx_curated_source = headers.iter().position(|h| *h == "curated_from_source");
+    let idx_curated_categories = headers.iter().position(|h| *h == "curated_from_subject_categories");
+    let idx_is_obsolete = headers.iter().position(|h| *h == "is_obsolete");
+
     let min_cols = [idx_ontology_id, idx_label, idx_iri, idx_match_key]
         .into_iter()
         .max()
@@ -167,10 +198,28 @@ fn run_build(output_path: &str, min_len: usize) {
             continue;
         }
 
-        let value = format!(
-            "{}{}{}{}{}",
-            label, RECORD_SEP, iri, RECORD_SEP, ontology_id
-        );
+        let value = {
+            let string_type = idx_string_type
+                .and_then(|i| fields.get(i))
+                .unwrap_or(&"");
+            let source = idx_curated_source
+                .and_then(|i| fields.get(i))
+                .unwrap_or(&"");
+            let categories = idx_curated_categories
+                .and_then(|i| fields.get(i))
+                .unwrap_or(&"");
+            let is_obsolete = idx_is_obsolete
+                .and_then(|i| fields.get(i))
+                .unwrap_or(&"");
+            format!(
+                "{}{}{}{}{}{}{}{}{}{}{}{}{}",
+                label, RECORD_SEP, iri, RECORD_SEP, ontology_id,
+                RECORD_SEP, string_type,
+                RECORD_SEP, source,
+                RECORD_SEP, categories,
+                RECORD_SEP, is_obsolete
+            )
+        };
 
         // Index by the synonym/label text (text_to_embed if available)
         builder.add_entry(match_key, &value);

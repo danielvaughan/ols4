@@ -8,6 +8,13 @@ export interface TaggedEntity {
   term_label: string;
   term_iri: string;
   ontology_id: string;
+  string_type?: string;
+  source?: string;
+  subject_categories?: string[];
+  /** When merged, all match types (e.g. ["LABEL", "CURATION"]) */
+  string_types?: string[];
+  /** When merged, all sources */
+  sources?: string[];
 }
 
 export interface TagTextResponse {
@@ -24,7 +31,8 @@ export async function tagText(
   text: string,
   ontologyIds?: string[],
   minLength: number = 6,
-  includeSubstrings: boolean = true
+  includeSubstrings: boolean = true,
+  sources?: string[]
 ): Promise<TagTextResponse> {
   const baseUrl = process.env.REACT_APP_APIURL || "http://localhost:8080/";
   let url = baseUrl + "api/v2/tag_text";
@@ -33,6 +41,16 @@ export async function tagText(
   if (ontologyIds && ontologyIds.length > 0) {
     for (const id of ontologyIds) {
       params.append("ontologyId", id);
+    }
+  }
+  if (sources !== undefined) {
+    if (sources.length === 0) {
+      // Explicitly no sources selected — send a sentinel to exclude all curations
+      params.append("source", "__NONE__");
+    } else {
+      for (const ds of sources) {
+        params.append("source", ds);
+      }
     }
   }
   // Sensible defaults: word-boundary delimiters so only whole tokens match
@@ -68,6 +86,20 @@ export async function tagTextAvailable(): Promise<boolean> {
     return data.available === true;
   } catch {
     return false;
+  }
+}
+
+/**
+ * Fetch the list of available curation source names from Solr faceting.
+ */
+export async function getCurationSources(): Promise<string[]> {
+  try {
+    const baseUrl = process.env.REACT_APP_APIURL || "http://localhost:8080/";
+    const res = await fetch(baseUrl + "api/v2/curation_sources");
+    if (!res.ok) return [];
+    return res.json();
+  } catch {
+    return [];
   }
 }
 
@@ -189,11 +221,26 @@ export function getOntologyColor(
  * duplicates when filtering is involved.
  */
 export function deduplicateEntities(entities: TaggedEntity[]): TaggedEntity[] {
-  const seen = new Set<string>();
-  return entities.filter((e) => {
+  const merged = new Map<string, TaggedEntity>();
+  for (const e of entities) {
     const key = `${e.start}:${e.end}:${e.term_iri}`;
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
+    const existing = merged.get(key);
+    if (existing) {
+      // Merge string_types and sources
+      const types = new Set(existing.string_types || [existing.string_type || "LABEL"]);
+      types.add(e.string_type || "LABEL");
+      existing.string_types = Array.from(types);
+
+      const sources = new Set(existing.sources || (existing.source ? [existing.source] : []));
+      if (e.source) sources.add(e.source);
+      existing.sources = Array.from(sources);
+    } else {
+      merged.set(key, {
+        ...e,
+        string_types: [e.string_type || "LABEL"],
+        sources: e.source ? [e.source] : [],
+      });
+    }
+  }
+  return Array.from(merged.values());
 }
