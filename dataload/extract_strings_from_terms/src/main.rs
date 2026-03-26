@@ -64,7 +64,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut total: u64 = 0;
     let mut embedded: u64 = 0;
 
-    writeln!(&mut writer, "pk\tontology_id\tentity_type\tiri\tlabel\thash\ttext_to_embed\tstring_type\tcurated_from_source\tcurated_from_subject_categories").unwrap();
+    writeln!(&mut writer, "pk\tontology_id\tentity_type\tiri\tlabel\thash\ttext_to_embed\tstring_type\tcurated_from_source\tcurated_from_subject_categories\tis_obsolete").unwrap();
 
     for input_file in &args.input_files {
         eprintln!("Processing file: {}", input_file);
@@ -167,6 +167,7 @@ fn process_entity(
     let mut labels:Vec<String> = Vec::new();
     let mut synonyms:Vec<String> = Vec::new();
     let mut is_defining_ontology = false;
+    let mut is_obsolete = false;
     let mut curated_from_entries: Vec<CuratedFromJson> = Vec::new();
 
     json.begin_object().unwrap();
@@ -181,6 +182,12 @@ fn process_entity(
         } else if key == "isDefiningOntology" {
             if json.peek().unwrap() == ValueType::Boolean {
                 is_defining_ontology = json.next_bool().unwrap();
+            } else {
+                json.skip_value().unwrap();
+            }
+        } else if key == "isObsolete" {
+            if json.peek().unwrap() == ValueType::Boolean {
+                is_obsolete = json.next_bool().unwrap();
             } else {
                 json.skip_value().unwrap();
             }
@@ -210,12 +217,15 @@ fn process_entity(
     let pk = format!("{}:{}:{}", ontology_id, entity_type, &iri_value);
     let mut written: u64 = 0;
 
+    let is_obsolete_str = if is_obsolete { "true" } else { "" };
+
     // Emit LABEL rows (for labels and synonyms)
     for text in &texts_to_embed {
         if let Some(row) = make_row(text, tokenizer) {
-            writeln!(writer, "{}\t{}\t{}\t{}\t{}\t{}\t{}\tLABEL\t\t",
+            writeln!(writer, "{}\t{}\t{}\t{}\t{}\t{}\t{}\tLABEL\t\t\t{}",
                 pk, ontology_id, entity_type, &iri_value, &label_str,
-                row.hash, row.document
+                row.hash, row.document,
+                is_obsolete_str
             ).unwrap();
             written += 1;
         }
@@ -224,11 +234,12 @@ fn process_entity(
     // Emit CURATION rows (for curated text-to-term mappings)
     for entry in &curated_from_entries {
         if let Some(row) = make_row(&entry.text, tokenizer) {
-            writeln!(writer, "{}\t{}\t{}\t{}\t{}\t{}\t{}\tCURATION\t{}\t{}",
+            writeln!(writer, "{}\t{}\t{}\t{}\t{}\t{}\t{}\tCURATION\t{}\t{}\t{}",
                 pk, ontology_id, entity_type, &iri_value, &label_str,
                 row.hash, row.document,
                 entry.source,
-                entry.subject_categories
+                entry.subject_categories,
+                is_obsolete_str
             ).unwrap();
             written += 1;
         }

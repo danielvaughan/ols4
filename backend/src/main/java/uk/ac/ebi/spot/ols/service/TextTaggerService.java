@@ -44,10 +44,11 @@ public class TextTaggerService {
         public final String stringType;
         public final String source;
         public final List<String> subjectCategories;
+        public final boolean isObsolete;
 
         public TaggedEntity(int start, int end, String termLabel, String termIri, String ontologyId,
                             String stringType, String source,
-                            List<String> subjectCategories) {
+                            List<String> subjectCategories, boolean isObsolete) {
             this.start = start;
             this.end = end;
             this.termLabel = termLabel;
@@ -56,6 +57,7 @@ public class TextTaggerService {
             this.stringType = stringType;
             this.source = source;
             this.subjectCategories = subjectCategories;
+            this.isObsolete = isObsolete;
         }
     }
 
@@ -251,6 +253,7 @@ public class TextTaggerService {
             String stringType = e.has("string_type") ? e.get("string_type").getAsString() : null;
             String source = e.has("source") ? e.get("source").getAsString() : null;
             List<String> subjectCategories = jsonArrayToStringList(e, "subject_categories");
+            boolean isObsolete = e.has("is_obsolete") && e.get("is_obsolete").getAsBoolean();
             results.add(new TaggedEntity(
                     e.get("start").getAsInt(),
                     e.get("end").getAsInt(),
@@ -259,7 +262,8 @@ public class TextTaggerService {
                     e.has("ontology_id") ? e.get("ontology_id").getAsString() : "",
                     stringType,
                     source,
-                    subjectCategories
+                    subjectCategories,
+                    isObsolete
             ));
         }
         return results;

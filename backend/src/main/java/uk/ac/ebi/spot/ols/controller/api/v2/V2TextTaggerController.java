@@ -41,7 +41,8 @@ public class V2TextTaggerController {
             @RequestParam(value = "source", required = false) List<String> sources,
             @RequestParam(value = "delimiters", required = false) String delimiters,
             @RequestParam(value = "minLength", required = false, defaultValue = "3") int minLength,
-            @RequestParam(value = "includeSubstrings", required = false, defaultValue = "true") boolean includeSubstrings
+            @RequestParam(value = "includeSubstrings", required = false, defaultValue = "true") boolean includeSubstrings,
+            @RequestParam(value = "includeObsoleteEntities", required = false, defaultValue = "false") boolean includeObsoleteEntities
     ) {
 
         if (!textTaggerService.isAvailable()) {
@@ -62,6 +63,10 @@ public class V2TextTaggerController {
 
         List<TaggedEntity> entities = textTaggerService.tagText(text, ontologyIds, sources, delimiters, minLength, includeSubstrings);
 
+        if (!includeObsoleteEntities) {
+            entities.removeIf(e -> e.isObsolete);
+        }
+
         List<Map<String, Object>> entityMaps = new ArrayList<>(entities.size());
         for (TaggedEntity e : entities) {
             Map<String, Object> m = new LinkedHashMap<>();
@@ -73,6 +78,7 @@ public class V2TextTaggerController {
             if (e.stringType != null) m.put("string_type", e.stringType);
             if (e.source != null) m.put("source", e.source);
             if (e.subjectCategories != null) m.put("subject_categories", e.subjectCategories);
+            if (e.isObsolete) m.put("is_obsolete", true);
             entityMaps.add(m);
         }
 

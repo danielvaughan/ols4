@@ -4,5 +4,6 @@
 {"ontologyId":"xmpl","id":"xmpl+class+http://exmpl.org/xmpl/XMPL000002","label":"label of the first children class"}
 {"ontologyId":"xmpl","id":"xmpl+class+http://exmpl.org/xmpl/XMPL000003","label":"2nd children class pref label"}
 {"ontologyId":"xmpl","id":"xmpl+class+http://exmpl.org/xmpl/XMPL000003","label":"label of the second children class"}
+{"ontologyId":"xmpl","id":"xmpl+class+http://exmpl.org/xmpl/XMPL000004","label":"obsolete xmpl entity"}
 {"ontologyId":"xmpl","id":"xmpl+property+http://exmpl.org/xmpl/Preferred_name","label":"XMPL_Preferred_name"}
 {"ontologyId":"xmpl","id":"xmpl+property+http://exmpl.org/xmpl/Synonym","label":"XMPL_Synonym"}

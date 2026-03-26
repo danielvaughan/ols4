@@ -95,6 +95,51 @@
   },
   {
     "_links": {
+      "ancestors": {
+        "href": "<base>/api/ontologies/xmpl/terms/http%253A%252F%252Fexmpl.org%252Fxmpl%252FXMPL000004/ancestors"
+      },
+      "graph": {
+        "href": "<base>/api/ontologies/xmpl/terms/http%253A%252F%252Fexmpl.org%252Fxmpl%252FXMPL000004/graph"
+      },
+      "hierarchicalAncestors": {
+        "href": "<base>/api/ontologies/xmpl/terms/http%253A%252F%252Fexmpl.org%252Fxmpl%252FXMPL000004/hierarchicalAncestors"
+      },
+      "hierarchicalParents": {
+        "href": "<base>/api/ontologies/xmpl/terms/http%253A%252F%252Fexmpl.org%252Fxmpl%252FXMPL000004/hierarchicalParents"
+      },
+      "jstree": {
+        "href": "<base>/api/ontologies/xmpl/terms/http%253A%252F%252Fexmpl.org%252Fxmpl%252FXMPL000004/jstree"
+      },
+      "parents": {
+        "href": "<base>/api/ontologies/xmpl/terms/http%253A%252F%252Fexmpl.org%252Fxmpl%252FXMPL000004/parents"
+      },
+      "self": {
+        "href": "<base>/api/ontologies/xmpl/terms/http%253A%252F%252Fexmpl.org%252Fxmpl%252FXMPL000004?lang=en"
+      }
+    },
+    "annotation": {
+      "XMPL_Preferred_name": [
+        "obsolete xmpl entity"
+      ]
+    },
+    "description": [],
+    "has_children": false,
+    "iri": "http://exmpl.org/xmpl/XMPL000004",
+    "is_defining_ontology": true,
+    "is_obsolete": true,
+    "is_preferred_root": false,
+    "is_root": false,
+    "label": "obsolete xmpl entity",
+    "lang": "en",
+    "obo_id": "XMPL:XMPL000004",
+    "ontology_iri": "http://exmpl.org/xmpl/xmpl.owl",
+    "ontology_name": "xmpl",
+    "ontology_prefix": "XMPL",
+    "short_form": "XMPL_XMPL000004",
+    "synonyms": []
+  },
+  {
+    "_links": {
       "children": {
         "href": "<base>/api/ontologies/xmpl/terms/http%253A%252F%252Fexmpl.org%252Fxmpl%252FXMPL000001/children"
       },

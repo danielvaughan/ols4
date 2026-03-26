@@ -423,6 +423,92 @@
           "isObsolete": false
         }
       }
+    },
+    "http://exmpl.org/xmpl/XMPL000004": {
+      "definitions": [
+        {
+          "ontologyId": "xmpl",
+          "entityTypes": [
+            "class",
+            "entity"
+          ],
+          "isDefiningOntology": true,
+          "label": [
+            {
+              "type": [
+                "literal"
+              ],
+              "datatype": "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString",
+              "value": "obsolete xmpl entity",
+              "lang": "en"
+            }
+          ],
+          "curie": {
+            "type": [
+              "literal"
+            ],
+            "value": "XMPL:XMPL000004"
+          },
+          "isObsolete": true
+        }
+      ],
+      "definingDefinitions": [
+        {
+          "ontologyId": "xmpl",
+          "entityTypes": [
+            "class",
+            "entity"
+          ],
+          "isDefiningOntology": true,
+          "label": [
+            {
+              "type": [
+                "literal"
+              ],
+              "datatype": "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString",
+              "value": "obsolete xmpl entity",
+              "lang": "en"
+            }
+          ],
+          "curie": {
+            "type": [
+              "literal"
+            ],
+            "value": "XMPL:XMPL000004"
+          },
+          "isObsolete": true
+        }
+      ],
+      "definingOntologyIds": [
+        "xmpl"
+      ],
+      "ontologyIdToDefinitions": {
+        "xmpl": {
+          "ontologyId": "xmpl",
+          "entityTypes": [
+            "class",
+            "entity"
+          ],
+          "isDefiningOntology": true,
+          "label": [
+            {
+              "type": [
+                "literal"
+              ],
+              "datatype": "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString",
+              "value": "obsolete xmpl entity",
+              "lang": "en"
+            }
+          ],
+          "curie": {
+            "type": [
+              "literal"
+            ],
+            "value": "XMPL:XMPL000004"
+          },
+          "isObsolete": true
+        }
+      }
     }
   },
   "ontologyIriToOntologyIds": {
@@ -489,6 +575,7 @@
       "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
       "http://www.w3.org/2000/01/rdf-schema#label",
       "http://www.w3.org/2000/01/rdf-schema#subClassOf",
+      "http://www.w3.org/2002/07/owl#deprecated",
       "imported",
       "iri",
       "isObsolete",
@@ -552,6 +639,9 @@
         "CLASS"
       ],
       "http://exmpl.org/xmpl/XMPL000003": [
+        "CLASS"
+      ],
+      "http://exmpl.org/xmpl/XMPL000004": [
         "CLASS"
       ],
       "http://exmpl.org/xmpl/xmpl.owl": [

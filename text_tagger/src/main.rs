@@ -22,6 +22,12 @@ struct Entity {
     source: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     subject_categories: Option<Vec<String>>,
+    #[serde(skip_serializing_if = "is_false")]
+    is_obsolete: bool,
+}
+
+fn is_false(v: &bool) -> bool {
+    !v
 }
 
 #[derive(Serialize)]
@@ -47,7 +53,7 @@ fn annotate_text(ac: &NerAc, text: &str, delimiters: Option<&[u8]>) -> Vec<Entit
                 .collect::<Vec<_>>()
                 .into_iter()
                 .map(move |record| {
-                    let parts: Vec<&str> = record.splitn(6, RECORD_SEP).collect();
+                    let parts: Vec<&str> = record.splitn(7, RECORD_SEP).collect();
                     let term_label = parts.first().unwrap_or(&"").to_string();
                     let term_iri = parts.get(1).unwrap_or(&"").to_string();
                     let ontology_id = parts.get(2).unwrap_or(&"").to_string();
@@ -56,6 +62,7 @@ fn annotate_text(ac: &NerAc, text: &str, delimiters: Option<&[u8]>) -> Vec<Entit
                     let subject_categories = parts.get(5).and_then(|s| if s.is_empty() { None } else {
                         Some(s.split('|').map(|x| x.to_string()).collect())
                     });
+                    let is_obsolete = parts.get(6).map_or(false, |s| *s == "true");
                     Entity {
                         start,
                         end,
@@ -65,6 +72,7 @@ fn annotate_text(ac: &NerAc, text: &str, delimiters: Option<&[u8]>) -> Vec<Entit
                         string_type,
                         source,
                         subject_categories,
+                        is_obsolete,
                     }
                 })
         })
@@ -143,6 +151,7 @@ fn run_build(output_path: &str, min_len: usize) {
     let idx_string_type = headers.iter().position(|h| *h == "string_type");
     let idx_curated_source = headers.iter().position(|h| *h == "curated_from_source");
     let idx_curated_categories = headers.iter().position(|h| *h == "curated_from_subject_categories");
+    let idx_is_obsolete = headers.iter().position(|h| *h == "is_obsolete");
 
     let min_cols = [idx_ontology_id, idx_label, idx_iri, idx_match_key]
         .into_iter()
@@ -199,12 +208,16 @@ fn run_build(output_path: &str, min_len: usize) {
             let categories = idx_curated_categories
                 .and_then(|i| fields.get(i))
                 .unwrap_or(&"");
+            let is_obsolete = idx_is_obsolete
+                .and_then(|i| fields.get(i))
+                .unwrap_or(&"");
             format!(
-                "{}{}{}{}{}{}{}{}{}{}{}",
+                "{}{}{}{}{}{}{}{}{}{}{}{}{}",
                 label, RECORD_SEP, iri, RECORD_SEP, ontology_id,
                 RECORD_SEP, string_type,
                 RECORD_SEP, source,
-                RECORD_SEP, categories
+                RECORD_SEP, categories,
+                RECORD_SEP, is_obsolete
             )
         };
 
