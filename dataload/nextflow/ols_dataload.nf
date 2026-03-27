@@ -237,7 +237,7 @@ process linker__create_manifest {
 
 process linker__link_ontologies {
     cache "lenient"
-    memory { 128.GB + 128.GB * (task.attempt-1) }
+    memory { 256.GB + 128.GB * (task.attempt-1) }
     time "4h"
     errorStrategy 'retry'
     maxRetries 5
