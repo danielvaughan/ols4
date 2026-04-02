@@ -173,7 +173,8 @@ public class V1SearchController {
             for(String ontologyId : ontologies)
                 Validation.validateOntologyId(ontologyId);
 
-            solrQuery.addFilterQuery("ontologyId: (" + String.join(" OR ", ontologies) + ")");
+            List<String> lowercasedOntologies = ontologies.stream().map(String::toLowerCase).collect(Collectors.toList());
+            solrQuery.addFilterQuery("ontologyId: (" + String.join(" OR ", lowercasedOntologies) + ")");
         }
 
         if (slims != null) {
