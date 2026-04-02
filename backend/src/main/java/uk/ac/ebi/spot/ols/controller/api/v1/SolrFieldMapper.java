@@ -31,6 +31,9 @@ public class SolrFieldMapper {
             } else if (legacyFieldName.endsWith("_e")) {
                 prefix = "edge_";
                 legacyFieldName = legacyFieldName.substring(0, legacyFieldName.length() - 2);
+            } else if (legacyFieldName.endsWith("_w")) {
+                prefix = "whitespace_";
+                legacyFieldName = legacyFieldName.substring(0, legacyFieldName.length() - 2);
             }
 
             if (legacyFieldName.equals("iri")) {

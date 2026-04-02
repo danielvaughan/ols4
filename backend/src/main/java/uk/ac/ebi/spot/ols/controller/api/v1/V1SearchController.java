@@ -142,8 +142,7 @@ public class V1SearchController {
                 solrQuery.set("defType", "edismax");
                 solrQuery.setQuery(query);
 
-                String[] fields = {LABEL.getText()+"_s^5", SYNONYM.getText()+"_s^3", DEFINITION.getText(), "short_form_s^2", "obo_id_s^2", "iri_s", "annotations_trimmed", "curatedFrom_s^0.5"};
-
+                String[] fields = {LABEL.getText()+"_w^5", SYNONYM.getText()+"_w^3", DEFINITION.getText()+"_w", "short_form_w^2", "obo_id_w^2", "iri_s", "annotations_trimmed_w", "curatedFrom_w^0.5"};
                 solrQuery.set("qf", String.join(" ", SolrFieldMapper.mapFieldsList(List.of(fields))));
 
                 solrQuery.set("bq",
@@ -174,7 +173,8 @@ public class V1SearchController {
             for(String ontologyId : ontologies)
                 Validation.validateOntologyId(ontologyId);
 
-            solrQuery.addFilterQuery("ontologyId: (" + String.join(" OR ", ontologies) + ")");
+            List<String> lowercasedOntologies = ontologies.stream().map(String::toLowerCase).collect(Collectors.toList());
+            solrQuery.addFilterQuery("ontologyId: (" + String.join(" OR ", lowercasedOntologies) + ")");
         }
 
         if (slims != null) {
