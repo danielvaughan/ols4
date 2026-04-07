@@ -255,5 +255,5 @@ echo -e "${GREEN}╠════════════════════
 echo -e "${GREEN}║  Start backend:                                  ║${NC}"
 echo -e "${GREEN}║    ./dev-testing/start-backend.sh                ║${NC}"
 echo -e "${GREEN}║  Start frontend:                                 ║${NC}"
-echo -e "${GREEN}║    cd frontend && npm run dev                    ║${NC}"
+echo -e "${GREEN}║    cd frontend && npm start                      ║${NC}"
 echo -e "${GREEN}╚══════════════════════════════════════════════════╝${NC}"
