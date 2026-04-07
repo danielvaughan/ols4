@@ -113,3 +113,66 @@ log "Running ols_json2solr (produces JSONL for Solr)..."
     --input    "$OUT/ontologies_linked.json" \
     --outDir   "$SOLR_DATA"
 log "json2solr done. JSONL count: $(find "$SOLR_DATA" -name '*.jsonl' | wc -l | tr -d ' ')"
+
+# ─── Step 8: Generate Solr config ─────────────────────────────────────────────
+log "Building Solr config (solr_config_builder)..."
+java -jar "$SOLR_CFG_BUILDER_JAR" \
+    --manifestPath           "$OUT/linker_manifest.json" \
+    --solrConfigTemplatePath "$SOLR_CFG_TEMPLATE" \
+    --outDir                 "$SOLR_HOME_DIR"
+
+# solr_config_builder produces the core conf dirs but not solr.xml.
+# Copy solr.xml from the local Solr install so Solr recognises the directory.
+SOLR_XML_SRC="$SOLR_HOME/server/solr/solr.xml"
+[ ! -f "$SOLR_XML_SRC" ] && err "solr.xml not found at $SOLR_XML_SRC — check your SOLR_HOME"
+cp "$SOLR_XML_SRC" "$SOLR_HOME_DIR/solr.xml"
+
+# Create core.properties for each core so Solr auto-discovers them.
+for core in ols4_entities ols4_autocomplete; do
+    mkdir -p "$SOLR_HOME_DIR/$core"
+    echo "name=$core" > "$SOLR_HOME_DIR/$core/core.properties"
+done
+log "Solr config built."
+
+# ─── Step 9: Stop any running Solr ────────────────────────────────────────────
+log "Stopping any running Solr..."
+"$SOLR_HOME/bin/solr" stop -all 2>/dev/null || true
+sleep 3
+
+# ─── Step 10: Start Solr pointing at generated config ─────────────────────────
+log "Starting Solr (port 8983, home: $SOLR_HOME_DIR)..."
+"$SOLR_HOME/bin/solr" start -s "$SOLR_HOME_DIR" -p 8983 -noprompt -force
+
+# Poll until Solr is ready (up to 60 seconds)
+log "Waiting for Solr to be ready..."
+for i in $(seq 1 30); do
+    if curl -sf "http://localhost:8983/solr/ols4_entities/admin/ping" &>/dev/null; then
+        log "Solr is ready."
+        break
+    fi
+    [ "$i" -eq 30 ] && err "Solr did not become ready within 60 seconds"
+    sleep 2
+done
+
+# ─── Step 11: Load JSONL data into Solr ───────────────────────────────────────
+log "Loading JSONL data into Solr..."
+while IFS= read -r -d '' jsonl_file; do
+    if [[ "$jsonl_file" == *autocomplete* ]]; then
+        core="ols4_autocomplete"
+    else
+        core="ols4_entities"
+    fi
+    log "  → $core : $(basename "$jsonl_file")"
+    curl -sf \
+        -X POST \
+        -H "Content-Type: application/json" \
+        --data-binary "@$jsonl_file" \
+        "http://localhost:8983/solr/$core/update/json/docs" \
+        > /dev/null
+done < <(find "$SOLR_DATA" -name '*.jsonl' -print0)
+
+# ─── Step 12: Commit Solr ─────────────────────────────────────────────────────
+log "Committing Solr..."
+curl -sf "http://localhost:8983/solr/ols4_entities/update?commit=true" > /dev/null
+curl -sf "http://localhost:8983/solr/ols4_autocomplete/update?commit=true" > /dev/null
+log "Solr loaded and committed."
