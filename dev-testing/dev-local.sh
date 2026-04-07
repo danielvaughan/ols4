@@ -199,6 +199,10 @@ while IFS= read -r -d '' f; do
     REL_ARGS+=("--relationships=$f")
 done < <(find "$NEO_CSVS" -name "*_edges.csv" -print0 2>/dev/null)
 
+# Clean stale transaction logs before import to prevent corruption on re-runs
+rm -rf "$NEO4J_HOME/data/databases/neo4j"
+rm -rf "$NEO4J_HOME/data/transactions/neo4j"
+
 "$NEO4J_HOME/bin/neo4j-admin" database import full neo4j \
     --overwrite-destination \
     --ignore-empty-strings=true \
@@ -215,18 +219,16 @@ log "Neo4j import complete."
 log "Starting Neo4j..."
 "$NEO4J_HOME/bin/neo4j" start
 
-# Poll bolt port until Neo4j is ready (up to 90 seconds)
+# Poll until Neo4j bolt is queryable (up to 90 seconds)
 log "Waiting for Neo4j to be ready on bolt://localhost:7687..."
-for i in $(seq 1 45); do
-    if nc -z localhost 7687 2>/dev/null; then
+for i in $(seq 1 90); do
+    if "$NEO4J_HOME/bin/cypher-shell" -a neo4j://127.0.0.1:7687 --non-interactive "RETURN 1;" > /dev/null 2>&1; then
         log "Neo4j is ready."
         break
     fi
-    [ "$i" -eq 45 ] && err "Neo4j did not become ready within 90 seconds"
-    sleep 2
+    [ "$i" -eq 90 ] && err "Neo4j did not become ready within 90 seconds"
+    sleep 1
 done
-# Give the Bolt protocol a few extra seconds to fully initialise
-sleep 5
 
 # ─── Step 16: Create Neo4j indexes ────────────────────────────────────────────
 log "Creating Neo4j indexes..."
