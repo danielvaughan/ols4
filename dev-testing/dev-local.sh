@@ -65,3 +65,51 @@ for bin in ols_create_manifest ols_link ols_json2neo ols_json2solr; do
     [ -f "$RUST_BINS/$bin" ] || err "Expected Rust binary not found after build: $RUST_BINS/$bin"
 done
 log "Rust build complete."
+
+# ─── Step 2: Clean and create output directories ───────────────────────────────
+log "Cleaning output directory: $OUT"
+rm -rf "$OUT"
+mkdir -p "$NEO_CSVS" "$SOLR_DATA" "$SOLR_HOME_DIR"
+
+# ─── Step 3: rdf2json ─────────────────────────────────────────────────────────
+log "Running rdf2json..."
+java ${JAVA_OPTS:-} \
+    -DentityExpansionLimit=0 -DtotalEntitySizeLimit=0 \
+    -Djdk.xml.totalEntitySizeLimit=0 -Djdk.xml.entityExpansionLimit=0 \
+    -jar "$RDF2JSON_JAR" \
+    --config "$CONFIG" \
+    --output "$OUT/ontologies.json"
+[ -f "$OUT/ontologies.json" ] || err "rdf2json produced no output"
+log "rdf2json done."
+
+# ─── Step 4: create_manifest ──────────────────────────────────────────────────
+log "Running ols_create_manifest..."
+"$OLS_CREATE_MANIFEST" \
+    --input "$OUT/ontologies.json" \
+    --output "$OUT/linker_manifest.json"
+[ -f "$OUT/linker_manifest.json" ] || err "create_manifest produced no output"
+log "create_manifest done."
+
+# ─── Step 5: link ─────────────────────────────────────────────────────────────
+log "Running ols_link..."
+"$OLS_LINK" \
+    --manifest "$OUT/linker_manifest.json" \
+    --input    "$OUT/ontologies.json" \
+    --output   "$OUT/ontologies_linked.json"
+[ -f "$OUT/ontologies_linked.json" ] || err "ols_link produced no output"
+log "link done."
+
+# ─── Step 6: json2neo ─────────────────────────────────────────────────────────
+log "Running ols_json2neo (produces CSVs for Neo4j)..."
+"$OLS_JSON2NEO" \
+    --manifest   "$OUT/linker_manifest.json" \
+    --input      "$OUT/ontologies_linked.json" \
+    --outDir     "$NEO_CSVS"
+log "json2neo done. CSV count: $(find "$NEO_CSVS" -name '*.csv' | wc -l | tr -d ' ')"
+
+# ─── Step 7: json2solr ────────────────────────────────────────────────────────
+log "Running ols_json2solr (produces JSONL for Solr)..."
+"$OLS_JSON2SOLR" \
+    --input    "$OUT/ontologies_linked.json" \
+    --outDir   "$SOLR_DATA"
+log "json2solr done. JSONL count: $(find "$SOLR_DATA" -name '*.jsonl' | wc -l | tr -d ' ')"
