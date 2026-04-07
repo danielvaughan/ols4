@@ -20,6 +20,7 @@ OUT=${2:-dev-local-out}
 [ -z "${NEO4J_HOME:-}" ] && err "NEO4J_HOME is not set (point it at your Neo4j install dir)"
 [ -z "${SOLR_HOME:-}" ]  && err "SOLR_HOME is not set (point it at your Solr install dir)"
 command -v java  &>/dev/null || err "java not found on PATH"
+command -v mvn   &>/dev/null || err "mvn not found on PATH (install Maven)"
 command -v cargo &>/dev/null || err "cargo not found on PATH (install Rust via rustup)"
 
 # ─── Derived paths ────────────────────────────────────────────────────────────
@@ -45,11 +46,14 @@ NEO_CSVS="$OUT/neo-csvs"
 SOLR_DATA="$OUT/solr-data"
 SOLR_HOME_DIR="$OUT/solr-home"
 
-# ─── JAR checks (skip Rust — built below) ─────────────────────────────────────
-[ ! -f "$RDF2JSON_JAR" ] && err "rdf2json JAR not found. Build it first:
-  cd $DATALOAD/rdf2json && mvn -B -ntp package -DskipTests"
-[ ! -f "$SOLR_CFG_BUILDER_JAR" ] && err "solr_config_builder JAR not found. Build it first:
-  cd $DATALOAD/solr_config_builder && mvn -B -ntp package -DskipTests"
+# ─── Build Maven JARs ─────────────────────────────────────────────────────────
+command -v mvn &>/dev/null || err "mvn not found on PATH (install Maven)"
+log "Building ols-shared (Maven)..."
+mvn -B -ntp install -f "$OLS4_HOME/ols-shared/pom.xml" -DskipTests
+log "Building rdf2json (Maven)..."
+mvn -B -ntp package -f "$DATALOAD/rdf2json/pom.xml" -DskipTests
+log "Building solr_config_builder (Maven)..."
+mvn -B -ntp package -f "$DATALOAD/solr_config_builder/pom.xml" -DskipTests
 
 log "Config : $CONFIG"
 log "Output : $OUT"
@@ -163,12 +167,14 @@ while IFS= read -r -d '' jsonl_file; do
         core="ols4_entities"
     fi
     log "  → $core : $(basename "$jsonl_file")"
-    curl -sf \
+    response=$(curl -s -w "\n%{http_code}" \
         -X POST \
         -H "Content-Type: application/json" \
         --data-binary "@$jsonl_file" \
-        "http://localhost:8983/solr/$core/update/json/docs" \
-        > /dev/null
+        "http://localhost:8983/solr/$core/update/json/docs")
+    http_code="${response##*$'\n'}"
+    body="${response%$'\n'*}"
+    [[ "$http_code" == "200" ]] || err "Solr rejected $core upload (HTTP $http_code): $body"
 done < <(find "$SOLR_DATA" -name '*.jsonl' -print0)
 
 # ─── Step 12: Commit Solr ─────────────────────────────────────────────────────
