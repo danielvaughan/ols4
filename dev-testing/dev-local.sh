@@ -55,3 +55,13 @@ log "Config : $CONFIG"
 log "Output : $OUT"
 log "Neo4j  : $NEO4J_HOME"
 log "Solr   : $SOLR_HOME"
+
+# ─── Step 1: Build Rust workspace ─────────────────────────────────────────────
+log "Building Rust workspace (cargo build --release)..."
+(cd "$DATALOAD" && cargo build --release)
+
+# Verify binaries exist after build
+for bin in ols_create_manifest ols_link ols_json2neo ols_json2solr; do
+    [ -f "$RUST_BINS/$bin" ] || err "Expected Rust binary not found after build: $RUST_BINS/$bin"
+done
+log "Rust build complete."
