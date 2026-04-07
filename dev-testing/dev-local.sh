@@ -176,3 +176,76 @@ log "Committing Solr..."
 curl -sf "http://localhost:8983/solr/ols4_entities/update?commit=true" > /dev/null
 curl -sf "http://localhost:8983/solr/ols4_autocomplete/update?commit=true" > /dev/null
 log "Solr loaded and committed."
+
+# ─── Step 13: Stop any running Neo4j ──────────────────────────────────────────
+log "Stopping any running Neo4j..."
+"$NEO4J_HOME/bin/neo4j" stop 2>/dev/null || true
+sleep 5
+
+# ─── Step 14: Import CSVs into Neo4j ──────────────────────────────────────────
+log "Importing CSVs into Neo4j..."
+
+# Build --nodes and --relationships args from CSV files in $NEO_CSVS
+NODE_ARGS=()
+REL_ARGS=()
+
+for pattern in "*_ontologies.csv" "*_classes.csv" "*_properties.csv" "*_individuals.csv" "*_embedding_nodes.csv"; do
+    while IFS= read -r -d '' f; do
+        NODE_ARGS+=("--nodes=$f")
+    done < <(find "$NEO_CSVS" -name "$pattern" -print0 2>/dev/null)
+done
+
+while IFS= read -r -d '' f; do
+    REL_ARGS+=("--relationships=$f")
+done < <(find "$NEO_CSVS" -name "*_edges.csv" -print0 2>/dev/null)
+
+"$NEO4J_HOME/bin/neo4j-admin" database import full neo4j \
+    --overwrite-destination \
+    --ignore-empty-strings=true \
+    --legacy-style-quoting=false \
+    --multiline-fields=true \
+    --array-delimiter="|" \
+    --threads=4 \
+    --read-buffer-size=134217728 \
+    "${NODE_ARGS[@]}" \
+    "${REL_ARGS[@]}"
+log "Neo4j import complete."
+
+# ─── Step 15: Start Neo4j ─────────────────────────────────────────────────────
+log "Starting Neo4j..."
+"$NEO4J_HOME/bin/neo4j" start
+
+# Poll bolt port until Neo4j is ready (up to 90 seconds)
+log "Waiting for Neo4j to be ready on bolt://localhost:7687..."
+for i in $(seq 1 45); do
+    if nc -z localhost 7687 2>/dev/null; then
+        log "Neo4j is ready."
+        break
+    fi
+    [ "$i" -eq 45 ] && err "Neo4j did not become ready within 90 seconds"
+    sleep 2
+done
+# Give the Bolt protocol a few extra seconds to fully initialise
+sleep 5
+
+# ─── Step 16: Create Neo4j indexes ────────────────────────────────────────────
+log "Creating Neo4j indexes..."
+# create_neo4j_indexes.py outputs Cypher; pipe to cypher-shell.
+# Pass no parquet files — skips vector indexes for basic local dev.
+python3 "$NEO4J_INDEXES_PY" | \
+    "$NEO4J_HOME/bin/cypher-shell" --non-interactive 2>&1 | grep -v "^$" || true
+log "Neo4j indexes created."
+
+# ─── Done ─────────────────────────────────────────────────────────────────────
+echo ""
+echo -e "${GREEN}╔══════════════════════════════════════════════════╗${NC}"
+echo -e "${GREEN}║  Local OLS4 stack is ready!                      ║${NC}"
+echo -e "${GREEN}╠══════════════════════════════════════════════════╣${NC}"
+echo -e "${GREEN}║  Solr  → http://localhost:8983                   ║${NC}"
+echo -e "${GREEN}║  Neo4j → bolt://localhost:7687                   ║${NC}"
+echo -e "${GREEN}╠══════════════════════════════════════════════════╣${NC}"
+echo -e "${GREEN}║  Start backend:                                  ║${NC}"
+echo -e "${GREEN}║    ./dev-testing/start-backend.sh                ║${NC}"
+echo -e "${GREEN}║  Start frontend:                                 ║${NC}"
+echo -e "${GREEN}║    cd frontend && npm run dev                    ║${NC}"
+echo -e "${GREEN}╚══════════════════════════════════════════════════╝${NC}"
