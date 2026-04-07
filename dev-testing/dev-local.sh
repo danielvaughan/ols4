@@ -233,7 +233,7 @@ log "Creating Neo4j indexes..."
 # create_neo4j_indexes.py outputs Cypher; pipe to cypher-shell.
 # Pass no parquet files — skips vector indexes for basic local dev.
 python3 "$NEO4J_INDEXES_PY" | \
-    "$NEO4J_HOME/bin/cypher-shell" --non-interactive 2>&1 | grep -v "^$" || true
+    "$NEO4J_HOME/bin/cypher-shell" --non-interactive 2>&1 | { grep -v "^$" || true; }
 log "Neo4j indexes created."
 
 # ─── Done ─────────────────────────────────────────────────────────────────────
