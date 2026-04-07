@@ -141,7 +141,7 @@ sleep 3
 
 # ─── Step 10: Start Solr pointing at generated config ─────────────────────────
 log "Starting Solr (port 8983, home: $SOLR_HOME_DIR)..."
-"$SOLR_HOME/bin/solr" start -s "$SOLR_HOME_DIR" -p 8983 -noprompt -force
+"$SOLR_HOME/bin/solr" start -s "$SOLR_HOME_DIR" -p 8983 -force
 
 # Poll until Solr is ready (up to 60 seconds)
 log "Waiting for Solr to be ready..."
