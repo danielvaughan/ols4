@@ -26,7 +26,7 @@ command -v cargo &>/dev/null || err "cargo not found on PATH (install Rust via r
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 OLS4_HOME=$(cd "$SCRIPT_DIR/.." && pwd)
 CONFIG=$(realpath "$CONFIG")
-OUT=$(realpath -m "$OUT")
+[[ "$OUT" = /* ]] || OUT="$PWD/$OUT"
 
 DATALOAD="$OLS4_HOME/dataload"
 RDF2JSON_JAR="$DATALOAD/rdf2json/target/rdf2json-1.0-SNAPSHOT.jar"
