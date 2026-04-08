@@ -144,7 +144,9 @@ log "Stopping any running Solr..."
 sleep 3
 
 # ─── Step 10: Start Solr pointing at generated config ─────────────────────────
-log "Starting Solr (port 8983, home: $SOLR_HOME_DIR)..."
+# Default heap of 512m is too small for full ontology loads; override with SOLR_HEAP env var.
+export SOLR_HEAP="${SOLR_HEAP:-2g}"
+log "Starting Solr (port 8983, home: $SOLR_HOME_DIR, heap: $SOLR_HEAP)..."
 "$SOLR_HOME/bin/solr" start -s "$SOLR_HOME_DIR" -p 8983 -force
 
 # Poll until Solr is ready (up to 60 seconds)
@@ -171,7 +173,8 @@ while IFS= read -r -d '' jsonl_file; do
         -X POST \
         -H "Content-Type: application/json" \
         --data-binary "@$jsonl_file" \
-        "http://localhost:8983/solr/$core/update/json/docs")
+        "http://localhost:8983/solr/$core/update/json/docs") \
+        || err "curl network error uploading $(basename "$jsonl_file") to $core — is Solr still running? (check $SOLR_HOME/server/logs/solr.log)"
     http_code="${response##*$'\n'}"
     body="${response%$'\n'*}"
     [[ "$http_code" == "200" ]] || err "Solr rejected $core upload (HTTP $http_code): $body"
@@ -179,8 +182,10 @@ done < <(find "$SOLR_DATA" -name '*.jsonl' -print0)
 
 # ─── Step 12: Commit Solr ─────────────────────────────────────────────────────
 log "Committing Solr..."
-curl -sf "http://localhost:8983/solr/ols4_entities/update?commit=true" > /dev/null
-curl -sf "http://localhost:8983/solr/ols4_autocomplete/update?commit=true" > /dev/null
+curl -sf "http://localhost:8983/solr/ols4_entities/update?commit=true" > /dev/null \
+    || err "Solr commit failed for ols4_entities"
+curl -sf "http://localhost:8983/solr/ols4_autocomplete/update?commit=true" > /dev/null \
+    || err "Solr commit failed for ols4_autocomplete"
 log "Solr loaded and committed."
 
 # ─── Step 13: Stop any running Neo4j ──────────────────────────────────────────
