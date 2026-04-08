@@ -217,8 +217,8 @@ rm -rf "$NEO4J_HOME/data/transactions/neo4j"
     --array-delimiter="|" \
     --threads=4 \
     --read-buffer-size=134217728 \
-    ${NODE_ARGS[@]+"${NODE_ARGS[@]}"} \
-    ${REL_ARGS[@]+"${REL_ARGS[@]}"}
+    "${NODE_ARGS[@]}" \
+    "${REL_ARGS[@]}"
 log "Neo4j import complete."
 
 # ─── Step 15: Start Neo4j ─────────────────────────────────────────────────────
