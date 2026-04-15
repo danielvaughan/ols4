@@ -27,6 +27,7 @@ import uk.ac.ebi.spot.ols.repository.v1.V1PropertyRepository;
 import uk.ac.ebi.spot.ols.service.Neo4jClient;
 
 import jakarta.servlet.http.HttpServletRequest;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 @Tag(name = "Ontology Property Controller", description = "NOTE: For IRI parameters, the value must be URL encoded. " +
@@ -34,6 +35,8 @@ import java.util.Arrays;
 @RestController
 @RequestMapping("/api/ontologies")
 public class V1OntologyPropertyController {
+
+    private static final String URI_DECODE_CHARSET = StandardCharsets.UTF_8.name();
 
     @Autowired
     private V1PropertyRepository propertyRepository;
@@ -132,7 +135,7 @@ public class V1OntologyPropertyController {
     ) throws ResourceNotFoundException {
         ontologyId = ontologyId.toLowerCase();
 
-        String decoded = UriUtils.decode(termId, "UTF-8");
+        String decoded = UriUtils.decode(termId, URI_DECODE_CHARSET);
         V1Property term = propertyRepository.findByOntologyAndIri(ontologyId, decoded, lang);
         if (term == null) throw new ResourceNotFoundException("No property with id " + decoded + " in " + ontologyId);
         return new ResponseEntity<>( termAssembler.toModel(term), HttpStatus.OK);
@@ -153,7 +156,7 @@ public class V1OntologyPropertyController {
             @Parameter(hidden = true) PagedResourcesAssembler assembler) {
         ontologyId = ontologyId.toLowerCase();
 
-        String decoded = UriUtils.decode(termId, "UTF-8");
+        String decoded = UriUtils.decode(termId, URI_DECODE_CHARSET);
         Page<V1Property> parents = propertyRepository.getParents(ontologyId, decoded, lang, pageable);
         return new ResponseEntity<>( assembler.toModel(parents, termAssembler), HttpStatus.OK);
     }
@@ -173,7 +176,7 @@ public class V1OntologyPropertyController {
             @Parameter(hidden = true) PagedResourcesAssembler assembler) {
         ontologyId = ontologyId.toLowerCase();
 
-        String decoded = UriUtils.decode(termId, "UTF-8");
+        String decoded = UriUtils.decode(termId, URI_DECODE_CHARSET);
         Page<V1Property> children = propertyRepository.getChildren(ontologyId, decoded, lang, pageable);
         return new ResponseEntity<>( assembler.toModel(children, termAssembler), HttpStatus.OK);
     }
@@ -193,7 +196,7 @@ public class V1OntologyPropertyController {
             @Parameter(hidden = true) PagedResourcesAssembler assembler) {
         ontologyId = ontologyId.toLowerCase();
 
-        String decoded = UriUtils.decode(termId, "UTF-8");
+        String decoded = UriUtils.decode(termId, URI_DECODE_CHARSET);
         Page<V1Property> descendants = propertyRepository.getDescendants(ontologyId, decoded, lang, pageable);
         return new ResponseEntity<>( assembler.toModel(descendants, termAssembler), HttpStatus.OK);
     }
@@ -213,7 +216,7 @@ public class V1OntologyPropertyController {
             @Parameter(hidden = true) PagedResourcesAssembler assembler) {
         ontologyId = ontologyId.toLowerCase();
 
-        String decoded = UriUtils.decode(termId, "UTF-8");
+        String decoded = UriUtils.decode(termId, URI_DECODE_CHARSET);
         Page<V1Property> ancestors = propertyRepository.getAncestors(ontologyId, decoded, lang, pageable);
         return new ResponseEntity<>( assembler.toModel(ancestors, termAssembler), HttpStatus.OK);
     }
@@ -238,7 +241,7 @@ public class V1OntologyPropertyController {
         ontologyId = ontologyId.toLowerCase();
 
         try {
-            String decoded = UriUtils.decode(termId, "UTF-8");
+            String decoded = UriUtils.decode(termId, URI_DECODE_CHARSET);
 
             Object object= jsTreeRepository.getJsTreeChildrenForProperty(decoded, jstreeId, ontologyId, lang);
             ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
@@ -268,7 +271,7 @@ public class V1OntologyPropertyController {
         ontologyId = ontologyId.toLowerCase();
 
         try {
-            String decoded = UriUtils.decode(termId, "UTF-8");
+            String decoded = UriUtils.decode(termId, URI_DECODE_CHARSET);
 
             Object object= jsTreeRepository.getJsTreeForProperty(decoded, ontologyId, lang);
             ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
