@@ -55,6 +55,7 @@ public class V1SearchController {
     private static final String EDISMAX_QUERY_PARSER = "edismax";
     private static final String JSON_PAYLOAD_FIELD = "_json";
     private static final String OBO_ID_FIELD = "obo_id";
+    private static final String BROAD_SYNONYMS_FIELD = "broad_synonyms";
     private static final String EXACT_SYNONYMS_FIELD = "exact_synonyms";
     private static final String NARROW_SYNONYMS_FIELD = "narrow_synonyms";
     private static final String RELATED_SYNONYMS_FIELD = "related_synonyms";
@@ -374,7 +375,7 @@ public class V1SearchController {
         fieldList.add(EXACT_SYNONYMS_FIELD);
         fieldList.add(RELATED_SYNONYMS_FIELD);
         fieldList.add(NARROW_SYNONYMS_FIELD);
-        fieldList.add("broad_synonyms");
+        fieldList.add(BROAD_SYNONYMS_FIELD);
     }
 
     private List<Object> buildDocs(QueryResponse qr, Collection<String> fieldList, String lang) {
@@ -480,11 +481,11 @@ public class V1SearchController {
                 outDoc.put(NARROW_SYNONYMS_FIELD, narrowSynonyms);
             }
         }
-        if (fieldList.contains("broad_synonyms")) {
+        if (fieldList.contains(BROAD_SYNONYMS_FIELD)) {
             List<String> broadSynonyms = JsonHelper.getStrings(json,
                     "http://www.geneontology.org/formats/oboInOwl#hasBroadSynonym");
             if (!broadSynonyms.isEmpty()) {
-                outDoc.put("broad_synonyms", broadSynonyms);
+                outDoc.put(BROAD_SYNONYMS_FIELD, broadSynonyms);
             }
         }
     }
