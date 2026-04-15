@@ -34,15 +34,8 @@ project:
       session_id: 019d915e-24a7-7ef1-81fe-9a282f24cc41
       type: Codex
       work_boundaries:
-        - ./backend/src/main/java/uk/ac/ebi/spot/ols/controller/api/v1/V1OntologyIndividualController.java
-        - ./backend/src/main/java/uk/ac/ebi/spot/ols/controller/api/v1/V1OntologyPropertyController.java
-        - ./backend/src/main/java/uk/ac/ebi/spot/ols/controller/api/v1/V1OntologyTermController.java
-        - ./backend/src/main/java/uk/ac/ebi/spot/ols/controller/api/v1/V1PropertyController.java
-        - ./backend/src/main/java/uk/ac/ebi/spot/ols/controller/api/v1/V1SelectController.java
-        - ./backend/src/main/java/uk/ac/ebi/spot/ols/controller/api/v1/V1TermController.java
-        - ./backend/src/main/java/uk/ac/ebi/spot/ols/controller/api/v2/V2ClassController.java
-        - ./backend/src/main/java/uk/ac/ebi/spot/ols/controller/api/v2/V2LLMController.java
-        - ./backend/src/main/java/uk/ac/ebi/spot/ols/controller/api/v2/V2PropertyController.java
+        - ./backend/src/main/java/uk/ac/ebi/spot/ols/controller/api/v1/
+        - ./backend/src/main/java/uk/ac/ebi/spot/ols/controller/api/v2/
         - ./.agents/skills/implementation-spec
         - ./.agents/skills/backlog-item
     - name: Heron
