@@ -154,6 +154,7 @@ public class V1IndividualController implements
     @ResponseStatus(value = HttpStatus.NOT_FOUND, reason = "EntityModel not found")
     @ExceptionHandler(ResourceNotFoundException.class)
     public void handleError(HttpServletRequest req, Exception exception) {
+        // Spring maps the handled exception to the configured 404 response.
     }
 
 }
