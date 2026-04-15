@@ -30,3 +30,4 @@ apitester4.log
 *.backup
 .agent-sdlc/runtime
 .agent-sdlc/logs
+.playwright-mcp
