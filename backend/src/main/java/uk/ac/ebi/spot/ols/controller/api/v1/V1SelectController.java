@@ -29,7 +29,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import static uk.ac.ebi.ols.shared.DefinedFields.*;
 
@@ -94,57 +93,110 @@ public class V1SelectController {
             @RequestParam(value = "lang", defaultValue = "en") String lang,
             HttpServletResponse response
     ) throws IOException, SolrServerException {
+        String normalizedQuery = normalizeQuery(query);
+        SolrQuery solrQuery = buildSelectQuery(
+                query,
+                normalizedQuery,
+                ontologies,
+                types,
+                slims,
+                isLocal,
+                childrenOf,
+                allChildrenOf,
+                queryObsoletes,
+                rows,
+                start
+        );
 
-        final SolrQuery solrQuery = new SolrQuery(); // 1
+        logger.debug("select: ()", solrQuery.toQueryString());
 
-        String queryLc = query.toLowerCase();
-        if (query.contains(" ")) {
-            query = "(" + createIntersectionString(query) + ")";
+        QueryResponse qr = solrClient.dispatchSearch(solrQuery, "ols4_entities");
+        Set<String> requestedFields = resolveFieldList(fieldList);
+        List<Object> docs = buildDocs(qr, requestedFields, lang);
+        Map<String, Object> responseObj = buildResponseObject(qr, normalizedQuery, docs);
+
+        writeResponse(response, responseObj);
+    }
+
+    private String normalizeQuery(String query) {
+        if (!query.contains(" ")) {
+            return query;
         }
-        solrQuery.setQuery(query);
+        return "(" + createIntersectionString(query) + ")";
+    }
+
+    private SolrQuery buildSelectQuery(
+            String rawQuery,
+            String normalizedQuery,
+            Collection<String> ontologies,
+            Collection<String> types,
+            Collection<String> slims,
+            boolean isLocal,
+            Collection<String> childrenOf,
+            Collection<String> allChildrenOf,
+            boolean queryObsoletes,
+            Integer rows,
+            Integer start
+    ) {
+        SolrQuery solrQuery = new SolrQuery();
+        configureBaseQuery(solrQuery, rawQuery, normalizedQuery);
+        addOntologyFilter(solrQuery, ontologies);
+        addJoinedFilter(solrQuery, "type", types);
+        addJoinedFilter(solrQuery, "subset", slims);
+        addLocalFilter(solrQuery, isLocal);
+        addHierarchyFilter(solrQuery, DIRECT_ANCESTOR.getText(), childrenOf);
+        addHierarchyFilter(solrQuery, HIERARCHICAL_ANCESTOR.getText(), allChildrenOf);
+        configurePagingAndHighlighting(solrQuery, queryObsoletes, rows, start);
+        return solrQuery;
+    }
+
+    private void configureBaseQuery(SolrQuery solrQuery, String rawQuery, String normalizedQuery) {
+        String queryLc = rawQuery.toLowerCase();
+        solrQuery.setQuery(normalizedQuery);
         solrQuery.set("defType", "edismax");
-        solrQuery.set("qf", LABEL.getText()+" whitespace_edge_label synonym whitespace_edge_synonym shortForm whitespace_edge_shortForm curie iri");
+        solrQuery.set("qf", LABEL.getText() + " whitespace_edge_label synonym whitespace_edge_synonym shortForm whitespace_edge_shortForm curie iri");
         solrQuery.set("bq", "type:ontology^10.0 " +
-                IS_DEFINING_ONTOLOGY.getText() +":true^100.0 str_label:\"" + queryLc + "\"^1000  edge_label:\"" +
+                IS_DEFINING_ONTOLOGY.getText() + ":true^100.0 str_label:\"" + queryLc + "\"^1000  edge_label:\"" +
                 queryLc + "\"^500 str_synonym:\"" + queryLc + "\" edge_synonym:\"" + queryLc + "\"^100");
         solrQuery.set("wt", "json");
-
         solrQuery.setFields("_json", "id");
+    }
 
-        if (ontologies != null && !ontologies.isEmpty()) {
-
-            for (String ontologyId : ontologies)
-                Validation.validateOntologyId(ontologyId);
-
-            solrQuery.addFilterQuery("ontologyId: (" + String.join(" OR ", ontologies) + ")");
+    private void addOntologyFilter(SolrQuery solrQuery, Collection<String> ontologies) {
+        if (ontologies == null || ontologies.isEmpty()) {
+            return;
         }
 
-        if (types != null) {
-            solrQuery.addFilterQuery("type: (" + String.join(" OR ", types) + ")");
+        for (String ontologyId : ontologies) {
+            Validation.validateOntologyId(ontologyId);
         }
+        solrQuery.addFilterQuery("ontologyId: (" + String.join(" OR ", ontologies) + ")");
+    }
 
-        if (slims != null) {
-            solrQuery.addFilterQuery("subset: (" + String.join(" OR ", slims) + ")");
+    private void addJoinedFilter(SolrQuery solrQuery, String fieldName, Collection<String> values) {
+        if (values != null) {
+            solrQuery.addFilterQuery(fieldName + ": (" + String.join(" OR ", values) + ")");
         }
+    }
 
+    private void addLocalFilter(SolrQuery solrQuery, boolean isLocal) {
         if (isLocal) {
             solrQuery.addFilterQuery(IS_DEFINING_ONTOLOGY.getText() + ":true");
         }
+    }
 
-        if (childrenOf != null) {
-            String result = childrenOf.stream()
-                    .map(addQuotes)
-                    .collect(Collectors.joining(" OR "));
-            solrQuery.addFilterQuery(DIRECT_ANCESTOR.getText() + ": (" + result + ")");
+    private void addHierarchyFilter(SolrQuery solrQuery, String fieldName, Collection<String> values) {
+        if (values == null) {
+            return;
         }
 
-        if (allChildrenOf != null) {
-            String result = allChildrenOf.stream()
-                    .map(addQuotes)
-                    .collect(Collectors.joining(" OR "));
-            solrQuery.addFilterQuery(HIERARCHICAL_ANCESTOR.getText() + ": (" + result + ")");
-        }
+        String result = values.stream()
+                .map(this::addQuotes)
+                .collect(Collectors.joining(" OR "));
+        solrQuery.addFilterQuery(fieldName + ": (" + result + ")");
+    }
 
+    private void configurePagingAndHighlighting(SolrQuery solrQuery, boolean queryObsoletes, Integer rows, Integer start) {
         solrQuery.addFilterQuery(IS_OBSOLETE.getText() + ":" + queryObsoletes);
         solrQuery.setStart(start);
         solrQuery.setRows(rows);
@@ -158,61 +210,87 @@ public class V1SelectController {
         solrQuery.addHighlightField(LABEL.getText());
         solrQuery.addHighlightField("whitespace_edge_synonym");
         solrQuery.addHighlightField(SYNONYM.getText());
+    }
 
-       logger.debug("select: ()", solrQuery.toQueryString());
-
-        QueryResponse qr = solrClient.dispatchSearch(solrQuery, "ols4_entities");
-
-        List<Object> docs = new ArrayList<>();
-        for (SolrDocument res : qr.getResults()) {
-
-            String _json = (String)res.get("_json");
-            if(_json == null) {
-                throw new RuntimeException("_json was null");
-            }
-
-            JsonObject json = RemoveLiteralDatatypesTransform.transform(
-                    LocalizationTransform.transform( JsonParser.parseString( _json ), lang)
-            ).getAsJsonObject();
-
-            if (fieldList == null) {
-                fieldList = new HashSet<>();
-            }
-            // default fields
-            if (fieldList.isEmpty()) {
-                fieldList.add("id");
-                fieldList.add("iri");
-                fieldList.add(SHORT_FORM_FIELD);
-                fieldList.add(OBO_ID_FIELD);
-                fieldList.add(LABEL.getText());
-                fieldList.add(ONTOLOGY_NAME_FIELD);
-                fieldList.add(ONTOLOGY_PREFIX_FIELD);
-                fieldList.add(DEFINITION.getOls3Text());
-                fieldList.add("type");
-            }
-
-            Map<String, Object> outDoc = new HashMap<>();
-
-            if (fieldList.contains("id")) outDoc.put("id", res.get("id").toString().replace('+', ':'));
-            if (fieldList.contains("iri")) outDoc.put("iri", JsonHelper.getString(json, "iri"));
-            if (fieldList.contains(ONTOLOGY_NAME_FIELD)) outDoc.put(ONTOLOGY_NAME_FIELD, JsonHelper.getString(json, "ontologyId"));
-            if (fieldList.contains(LABEL.getText())) outDoc.put(LABEL.getText(), JsonHelper.getString(json, LABEL.getText()));
-            if (fieldList.contains(DEFINITION.getOls3Text())) outDoc.put(DEFINITION.getOls3Text(),
-                    JsonHelper.getStrings(json, DEFINITION.getText()));
-            if (fieldList.contains(SHORT_FORM_FIELD)) outDoc.put(SHORT_FORM_FIELD, JsonHelper.getString(json, "shortForm"));
-            if (fieldList.contains(OBO_ID_FIELD)) outDoc.put(OBO_ID_FIELD, JsonHelper.getString(json, "curie"));
-            if (fieldList.contains(IS_DEFINING_ONTOLOGY.getOls3Text())) outDoc.put(IS_DEFINING_ONTOLOGY.getOls3Text(),
-                    JsonHelper.getString(json, IS_DEFINING_ONTOLOGY.getText()) != null &&
-                            JsonHelper.getString(json, IS_DEFINING_ONTOLOGY.getText()).equals("true"));
-            if (fieldList.contains("type")) {
-                outDoc.put("type", JsonHelper.getType(json, "type"));
-            }
-            if (fieldList.contains(SYNONYM.getText())) outDoc.put(SYNONYM.getText(), JsonHelper.getStrings(json, SYNONYM.getText()));
-            if (fieldList.contains(ONTOLOGY_PREFIX_FIELD)) outDoc.put(ONTOLOGY_PREFIX_FIELD, JsonHelper.getString(json, "ontologyPreferredPrefix"));
-
-            docs.add(outDoc);
+    private Set<String> resolveFieldList(Collection<String> fieldList) {
+        Set<String> requestedFields = fieldList == null ? new HashSet<>() : new HashSet<>(fieldList);
+        if (!requestedFields.isEmpty()) {
+            return requestedFields;
         }
 
+        requestedFields.add("id");
+        requestedFields.add("iri");
+        requestedFields.add(SHORT_FORM_FIELD);
+        requestedFields.add(OBO_ID_FIELD);
+        requestedFields.add(LABEL.getText());
+        requestedFields.add(ONTOLOGY_NAME_FIELD);
+        requestedFields.add(ONTOLOGY_PREFIX_FIELD);
+        requestedFields.add(DEFINITION.getOls3Text());
+        requestedFields.add("type");
+        return requestedFields;
+    }
+
+    private List<Object> buildDocs(QueryResponse qr, Set<String> requestedFields, String lang) {
+        List<Object> docs = new ArrayList<>();
+        for (SolrDocument res : qr.getResults()) {
+            JsonObject json = parseDocument(res, lang);
+            docs.add(buildOutDoc(res, json, requestedFields));
+        }
+        return docs;
+    }
+
+    private JsonObject parseDocument(SolrDocument res, String lang) {
+        String jsonPayload = (String) res.get("_json");
+        if (jsonPayload == null) {
+            throw new RuntimeException("_json was null");
+        }
+
+        return RemoveLiteralDatatypesTransform.transform(
+                LocalizationTransform.transform(JsonParser.parseString(jsonPayload), lang)
+        ).getAsJsonObject();
+    }
+
+    private Map<String, Object> buildOutDoc(SolrDocument res, JsonObject json, Set<String> requestedFields) {
+        Map<String, Object> outDoc = new HashMap<>();
+
+        if (requestedFields.contains("id")) outDoc.put("id", res.get("id").toString().replace('+', ':'));
+        if (requestedFields.contains("iri")) outDoc.put("iri", JsonHelper.getString(json, "iri"));
+        if (requestedFields.contains(ONTOLOGY_NAME_FIELD)) outDoc.put(ONTOLOGY_NAME_FIELD, JsonHelper.getString(json, "ontologyId"));
+        if (requestedFields.contains(LABEL.getText())) outDoc.put(LABEL.getText(), JsonHelper.getString(json, LABEL.getText()));
+        if (requestedFields.contains(DEFINITION.getOls3Text())) {
+            outDoc.put(DEFINITION.getOls3Text(), JsonHelper.getStrings(json, DEFINITION.getText()));
+        }
+        if (requestedFields.contains(SHORT_FORM_FIELD)) outDoc.put(SHORT_FORM_FIELD, JsonHelper.getString(json, "shortForm"));
+        if (requestedFields.contains(OBO_ID_FIELD)) outDoc.put(OBO_ID_FIELD, JsonHelper.getString(json, "curie"));
+        if (requestedFields.contains(IS_DEFINING_ONTOLOGY.getOls3Text())) {
+            outDoc.put(
+                    IS_DEFINING_ONTOLOGY.getOls3Text(),
+                    JsonHelper.getString(json, IS_DEFINING_ONTOLOGY.getText()) != null &&
+                            JsonHelper.getString(json, IS_DEFINING_ONTOLOGY.getText()).equals("true")
+            );
+        }
+        if (requestedFields.contains("type")) {
+            outDoc.put("type", JsonHelper.getType(json, "type"));
+        }
+        if (requestedFields.contains(SYNONYM.getText())) {
+            outDoc.put(SYNONYM.getText(), JsonHelper.getStrings(json, SYNONYM.getText()));
+        }
+        if (requestedFields.contains(ONTOLOGY_PREFIX_FIELD)) {
+            outDoc.put(ONTOLOGY_PREFIX_FIELD, JsonHelper.getString(json, "ontologyPreferredPrefix"));
+        }
+
+        return outDoc;
+    }
+
+    private Map<String, Object> buildResponseObject(QueryResponse qr, String query, List<Object> docs) {
+        Map<String, Object> responseObj = new LinkedHashMap<>();
+        responseObj.put("responseHeader", buildResponseHeader(qr, query));
+        responseObj.put("response", buildResponseBody(qr, docs));
+        responseObj.put("highlighting", buildHighlighting(qr));
+        return responseObj;
+    }
+
+    private Map<String, Object> buildResponseHeader(QueryResponse qr, String query) {
         Map<String, Object> responseParams = new LinkedHashMap<>();
         responseParams.put("q", query);
 
@@ -220,40 +298,48 @@ public class V1SelectController {
         responseHeader.put("params", responseParams);
         responseHeader.put("status", 0);
         responseHeader.put("QTime", qr.getQTime());
+        return responseHeader;
+    }
 
+    private Map<String, Object> buildResponseBody(QueryResponse qr, List<Object> docs) {
         Map<String, Object> responseBody = new LinkedHashMap<>();
         responseBody.put("numFound", qr.getResults().getNumFound());
         responseBody.put("start", 0);
         responseBody.put("docs", docs);
+        return responseBody;
+    }
 
-
-        Map<String, Object> responseObj = new LinkedHashMap<>();
-        responseObj.put("responseHeader", responseHeader);
-        responseObj.put("response", responseBody);
-
-        Map<String,Object> highlighting = new LinkedHashMap<>();
-        for(var hl : qr.getHighlighting().entrySet()) {
-            var id = hl.getKey();
-            var highlight = hl.getValue();
-            Map<String,Object> resHighlight = new LinkedHashMap<>();
-            for(var fieldName : highlight.keySet()) {
-                if(fieldName.equals("whitespace_edge_label")) {
-                    resHighlight.put(LABEL.getText()+"_autosuggest", highlight.get(fieldName));
-                } else if(fieldName.equals("whitespace_edge_synonym")) {
-                    resHighlight.put(SYNONYM.getText()+"_autosuggest", highlight.get(fieldName));
-                } else {
-                    resHighlight.put(fieldName, highlight.get(fieldName));
-                }
-            }
-            highlighting.put(id.replace('+', ':'), resHighlight);
+    private Map<String, Object> buildHighlighting(QueryResponse qr) {
+        Map<String, Object> highlighting = new LinkedHashMap<>();
+        for (var highlightEntry : qr.getHighlighting().entrySet()) {
+            highlighting.put(highlightEntry.getKey().replace('+', ':'), remapHighlightFields(highlightEntry.getValue()));
         }
-        responseObj.put("highlighting", highlighting);
+        return highlighting;
+    }
 
+    private Map<String, Object> remapHighlightFields(Map<String, List<String>> highlight) {
+        Map<String, Object> remappedHighlight = new LinkedHashMap<>();
+        for (var fieldEntry : highlight.entrySet()) {
+            remappedHighlight.put(mapHighlightFieldName(fieldEntry.getKey()), fieldEntry.getValue());
+        }
+        return remappedHighlight;
+    }
+
+    private String mapHighlightFieldName(String fieldName) {
+        if (fieldName.equals("whitespace_edge_label")) {
+            return LABEL.getText() + "_autosuggest";
+        }
+        if (fieldName.equals("whitespace_edge_synonym")) {
+            return SYNONYM.getText() + "_autosuggest";
+        }
+        return fieldName;
+    }
+
+    private void writeResponse(HttpServletResponse response, Map<String, Object> responseObj) throws IOException {
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
         response.getOutputStream().write(gson.toJson(responseObj).getBytes(StandardCharsets.UTF_8));
         response.flushBuffer();
-
     }
 
     private String createIntersectionString(String query) {
@@ -268,11 +354,8 @@ public class V1SelectController {
         return builder.toString();
     }
 
-    Function<String, String> addQuotes = new Function<String, String>() {
-        @Override
-        public String apply(String s) {
-            return new StringBuilder(s.length() + 2).append('"').append(s).append('"').toString();
-        }
-    };
+    private String addQuotes(String value) {
+        return new StringBuilder(value.length() + 2).append('"').append(value).append('"').toString();
+    }
 
 }
