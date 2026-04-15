@@ -56,6 +56,7 @@ public class V1SearchController {
     private static final String JSON_PAYLOAD_FIELD = "_json";
     private static final String OBO_ID_FIELD = "obo_id";
     private static final String EXACT_SYNONYMS_FIELD = "exact_synonyms";
+    private static final String RELATED_SYNONYMS_FIELD = "related_synonyms";
     private static final String ONTOLOGY_NAME_FIELD = "ontology_name";
     private static final String ONTOLOGY_PREFIX_FIELD = "ontology_prefix";
     private static final String SCORE_FIELD = "score";
@@ -370,7 +371,7 @@ public class V1SearchController {
         fieldList.add("type");
         fieldList.add(ONTOLOGY_PREFIX_FIELD);
         fieldList.add(EXACT_SYNONYMS_FIELD);
-        fieldList.add("related_synonyms");
+        fieldList.add(RELATED_SYNONYMS_FIELD);
         fieldList.add("narrow_synonyms");
         fieldList.add("broad_synonyms");
     }
@@ -464,11 +465,11 @@ public class V1SearchController {
                 outDoc.put(EXACT_SYNONYMS_FIELD, exactSynonyms);
             }
         }
-        if (fieldList.contains("related_synonyms")) {
+        if (fieldList.contains(RELATED_SYNONYMS_FIELD)) {
             List<String> relatedSynonyms = JsonHelper.getStrings(json,
                     "http://www.geneontology.org/formats/oboInOwl#hasRelatedSynonym");
             if (!relatedSynonyms.isEmpty()) {
-                outDoc.put("related_synonyms", relatedSynonyms);
+                outDoc.put(RELATED_SYNONYMS_FIELD, relatedSynonyms);
             }
         }
         if (fieldList.contains("narrow_synonyms")) {
