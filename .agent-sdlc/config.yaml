@@ -49,6 +49,7 @@ project:
       work_boundaries:
         - ./
         - /Users/leo.yung/.codex/config.toml
+        - /Users/leo.yung/.codex/skills/codex-session-bridge
     # - name: Polly
     #   session_id: 019d4d29-bec4-7300-8669-1274fabf413e
     #   type: Codex
