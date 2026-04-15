@@ -91,7 +91,7 @@ public class V1SearchController {
             @RequestParam(value = "exact", required = false)
             @Parameter(name = "exact",
                     description = "Set to true for exact matches",
-                    example = "false") boolean exact,
+                    example = "false") Boolean exact,
             @RequestParam(value = "groupField", required = false)
             @Parameter(name = "groupField",
                     description = "Group results by unique id (IRI)",
@@ -125,8 +125,9 @@ public class V1SearchController {
     ) throws IOException, SolrServerException {
 
         final SolrQuery solrQuery = new SolrQuery(); // 1
+        boolean exactEnabled = Boolean.TRUE.equals(exact);
 
-        configureQuery(solrQuery, query, queryFields, exact);
+        configureQuery(solrQuery, query, queryFields, exactEnabled);
         configureReturnedFields(solrQuery, fieldList);
         applyFilters(solrQuery, ontologies, slims, isLocal, isLeaf, types, groupField, childrenOf, allChildrenOf,
                 inclusive, queryObsoletes);
