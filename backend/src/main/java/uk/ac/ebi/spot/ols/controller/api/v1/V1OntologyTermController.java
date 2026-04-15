@@ -29,6 +29,7 @@ import uk.ac.ebi.spot.ols.repository.v1.V1TermRepository;
 import uk.ac.ebi.spot.ols.service.Neo4jClient;
 
 import jakarta.servlet.http.HttpServletRequest;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -42,6 +43,8 @@ import java.util.Collections;
 @RestController
 @RequestMapping("/api/ontologies")
 public class V1OntologyTermController {
+
+    private static final String URI_DECODE_CHARSET = StandardCharsets.UTF_8.name();
 
     private Logger log = LoggerFactory.getLogger(getClass());
 
@@ -195,7 +198,7 @@ public class V1OntologyTermController {
 
         ontologyId = ontologyId.toLowerCase();
 
-        String decoded = UriUtils.decode(termId, "UTF-8");
+        String decoded = UriUtils.decode(termId, URI_DECODE_CHARSET);
         V1Term term = termRepository.findByOntologyAndIri(ontologyId, decoded, lang);
         if (term == null) throw  new ResourceNotFoundException("No term with id " + decoded +
             " in " + ontologyId);
@@ -220,7 +223,7 @@ public class V1OntologyTermController {
 
         ontologyId = ontologyId.toLowerCase();
 
-        String decoded = UriUtils.decode(termId, "UTF-8");
+        String decoded = UriUtils.decode(termId, URI_DECODE_CHARSET);
         Page<V1Term> parents = termRepository.getParents(ontologyId, decoded, lang, pageable);
         if (parents == null) throw  new ResourceNotFoundException();
 
@@ -244,7 +247,7 @@ public class V1OntologyTermController {
 
         ontologyId = ontologyId.toLowerCase();
 
-        String decoded = UriUtils.decode(termId, "UTF-8");
+        String decoded = UriUtils.decode(termId, URI_DECODE_CHARSET);
         Page<V1Term> parents = termRepository.getHierarchicalParents(ontologyId, decoded, lang, pageable);
         if (parents == null)
           throw new ResourceNotFoundException("No parents could be found for " + ontologyId
@@ -270,7 +273,7 @@ public class V1OntologyTermController {
 
         ontologyId = ontologyId.toLowerCase();
 
-        String decoded = UriUtils.decode(termId, "UTF-8");
+        String decoded = UriUtils.decode(termId, URI_DECODE_CHARSET);
         Page<V1Term> parents = termRepository.getHierarchicalAncestors(ontologyId,
             decoded, lang, pageable);
         if (parents == null)
@@ -297,7 +300,7 @@ public class V1OntologyTermController {
 
         ontologyId = ontologyId.toLowerCase();
 
-        String decoded = UriUtils.decode(termId, "UTF-8");
+        String decoded = UriUtils.decode(termId, URI_DECODE_CHARSET);
         Page<V1Term> children = termRepository.getChildren(ontologyId, decoded, lang, pageable);
         if (children == null)
           throw  new ResourceNotFoundException("No children could be found for " + ontologyId
@@ -323,7 +326,7 @@ public class V1OntologyTermController {
 
         ontologyId = ontologyId.toLowerCase();
 
-        String decoded = UriUtils.decode(termId, "UTF-8");
+        String decoded = UriUtils.decode(termId, URI_DECODE_CHARSET);
         Page<V1Term> children = termRepository.getHierarchicalChildren(ontologyId,
             decoded, lang, pageable);
 
@@ -351,7 +354,7 @@ public class V1OntologyTermController {
 
         ontologyId = ontologyId.toLowerCase();
 
-        String decoded = UriUtils.decode(termId, "UTF-8");
+        String decoded = UriUtils.decode(termId, URI_DECODE_CHARSET);
         Page<V1Term> children = termRepository.getHierarchicalDescendants(ontologyId,
             decoded, lang, pageable);
         if (children == null)
@@ -376,7 +379,7 @@ public class V1OntologyTermController {
             @Parameter(hidden = true) PagedResourcesAssembler assembler) {
         ontologyId = ontologyId.toLowerCase();
 
-        String decoded = UriUtils.decode(termId, "UTF-8");
+        String decoded = UriUtils.decode(termId, URI_DECODE_CHARSET);
         Page<V1Term> descendants = termRepository.getDescendants(ontologyId, decoded, lang, pageable);
         if (descendants == null) throw  new ResourceNotFoundException();
 
@@ -399,7 +402,7 @@ public class V1OntologyTermController {
                                              @Parameter(hidden = true) PagedResourcesAssembler assembler) {
         ontologyId = ontologyId.toLowerCase();
 
-        String decoded = UriUtils.decode(termId, "UTF-8");
+        String decoded = UriUtils.decode(termId, URI_DECODE_CHARSET);
         Page<V1Term> ancestors = termRepository.getAncestors(ontologyId, decoded, lang, pageable);
         if (ancestors == null) throw  new ResourceNotFoundException();
 
@@ -425,7 +428,7 @@ public class V1OntologyTermController {
         ontologyId = ontologyId.toLowerCase();
 
         try {
-            String decodedTermId = UriUtils.decode(termId, "UTF-8");
+            String decodedTermId = UriUtils.decode(termId, URI_DECODE_CHARSET);
             Object object= jsTreeRepository.getJsTreeForClass(decodedTermId, ontologyId, lang);
             ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
             return new HttpEntity<String>(ow.writeValueAsString(object));
@@ -454,7 +457,7 @@ public class V1OntologyTermController {
         ontologyId = ontologyId.toLowerCase();
 
         try {
-            String decoded = UriUtils.decode(termId, "UTF-8");
+            String decoded = UriUtils.decode(termId, URI_DECODE_CHARSET);
 
             Object object= jsTreeRepository.getJsTreeChildrenForClass(decoded, jstreeId, ontologyId, lang);
             ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
@@ -480,7 +483,7 @@ public class V1OntologyTermController {
         ontologyId = ontologyId.toLowerCase();
 
         try {
-            String decoded = UriUtils.decode(termId, "UTF-8");
+            String decoded = UriUtils.decode(termId, URI_DECODE_CHARSET);
 
             Object object= graphRepository.getGraphForClass(decoded, ontologyId, lang);
             ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
@@ -509,8 +512,8 @@ public class V1OntologyTermController {
                                            @Parameter(hidden = true) PagedResourcesAssembler assembler) {
         ontologyId = ontologyId.toLowerCase();
 
-        String decodedTerm = UriUtils.decode(termId, "UTF-8");
-        String decodedRelation = UriUtils.decode(relation, "UTF-8");
+        String decodedTerm = UriUtils.decode(termId, URI_DECODE_CHARSET);
+        String decodedRelation = UriUtils.decode(relation, URI_DECODE_CHARSET);
         Page<V1Term> related = termRepository.getRelated(ontologyId, decodedTerm, lang, decodedRelation, pageable);
 
         return new ResponseEntity<>( assembler.toModel(related, termAssembler), HttpStatus.OK);
