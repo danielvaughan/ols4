@@ -52,6 +52,7 @@ import static uk.ac.ebi.ols.shared.DefinedFields.*;
 public class V1SearchController {
 
     private static final String DEF_TYPE_PARAM = "defType";
+    private static final String EDISMAX_QUERY_PARSER = "edismax";
     private static final String SHORT_FORM_FIELD = "short_form";
 
     Gson gson = new Gson();
@@ -166,7 +167,7 @@ public class V1SearchController {
     }
 
     private void configureExactDefaultQuery(SolrQuery solrQuery, String query) {
-        solrQuery.set(DEF_TYPE_PARAM, "edismax");
+        solrQuery.set(DEF_TYPE_PARAM, EDISMAX_QUERY_PARSER);
         solrQuery.setQuery(query.toLowerCase());
 
         String[] fields = {LABEL.getText() + "_s^5", SYNONYM.getText() + "_s^3", "short_form_s^2", "obo_id_s^2",
@@ -178,7 +179,7 @@ public class V1SearchController {
     }
 
     private void configureNonExactDefaultQuery(SolrQuery solrQuery, String query) {
-        solrQuery.set(DEF_TYPE_PARAM, "edismax");
+        solrQuery.set(DEF_TYPE_PARAM, EDISMAX_QUERY_PARSER);
         solrQuery.setQuery(query);
 
         String[] fields = {LABEL.getText() + "_w^5", SYNONYM.getText() + "_w^3", DEFINITION.getText() + "_w",
@@ -199,7 +200,7 @@ public class V1SearchController {
             return;
         }
 
-        solrQuery.set(DEF_TYPE_PARAM, "edismax");
+        solrQuery.set(DEF_TYPE_PARAM, EDISMAX_QUERY_PARSER);
         solrQuery.setQuery(query.toLowerCase());
         solrQuery.set("qf", String.join(" ", SolrFieldMapper.mapFieldsList(queryFields)));
     }
