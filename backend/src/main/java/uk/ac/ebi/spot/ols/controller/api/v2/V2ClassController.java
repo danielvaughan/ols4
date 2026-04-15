@@ -28,6 +28,7 @@ import uk.ac.ebi.spot.ols.repository.transforms.JsonTransformOptions;
 
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -77,6 +78,8 @@ import static uk.ac.ebi.ols.shared.DefinedFields.*;
 @RestController
 @RequestMapping("/api/v2")
 public class V2ClassController {
+
+    private static final String URI_DECODE_CHARSET = StandardCharsets.UTF_8.name();
 
     Gson gson = new Gson();
 
@@ -198,7 +201,7 @@ public class V2ClassController {
             @ParameterObject JsonTransformOptions outputOpts
     ) throws ResourceNotFoundException {
 
-        iri = UriUtils.decode(iri, "UTF-8");
+        iri = UriUtils.decode(iri, URI_DECODE_CHARSET);
 
         var entity = classRepository.getByOntologyIdAndIri(ontologyId, iri, lang, outputOpts);
         if (entity == null) throw new ResourceNotFoundException("The requested resource was not found.");
@@ -221,7 +224,7 @@ public class V2ClassController {
             @ParameterObject JsonTransformOptions outputOpts
     ) throws ResourceNotFoundException, IOException {
 
-        iri = UriUtils.decode(iri, "UTF-8");
+        iri = UriUtils.decode(iri, URI_DECODE_CHARSET);
 
         return new ResponseEntity<>(
                 new V2PagedAndFacetedResponse<V2Entity>(
@@ -253,7 +256,7 @@ public class V2ClassController {
             @ParameterObject JsonTransformOptions outputOpts
     ) throws ResourceNotFoundException {
 
-        iri = UriUtils.decode(iri, "UTF-8");
+        iri = UriUtils.decode(iri, URI_DECODE_CHARSET);
 
         return new ResponseEntity<>(
                 new V2PagedResponse<V2Entity>(
@@ -282,7 +285,7 @@ public class V2ClassController {
             @ParameterObject JsonTransformOptions outputOpts
     ) throws ResourceNotFoundException {
 
-        iri = UriUtils.decode(iri, "UTF-8");
+        iri = UriUtils.decode(iri, URI_DECODE_CHARSET);
 
         return new ResponseEntity<>(
                 new V2PagedResponse<V2Entity>(
@@ -312,7 +315,7 @@ public class V2ClassController {
             @ParameterObject JsonTransformOptions outputOpts
     ) throws ResourceNotFoundException {
 
-        iri = UriUtils.decode(iri, "UTF-8");
+        iri = UriUtils.decode(iri, URI_DECODE_CHARSET);
 
         return new ResponseEntity<>(
                 new V2PagedResponse<V2Entity>(
@@ -342,7 +345,7 @@ public class V2ClassController {
             @ParameterObject JsonTransformOptions outputOpts
     ) throws ResourceNotFoundException {
 
-        iri = UriUtils.decode(iri, "UTF-8");
+        iri = UriUtils.decode(iri, URI_DECODE_CHARSET);
 
         return new ResponseEntity<>(
                 new V2PagedResponse<V2Entity>(
@@ -372,7 +375,7 @@ public class V2ClassController {
             @ParameterObject JsonTransformOptions outputOpts
     ) throws ResourceNotFoundException {
 
-        iri = UriUtils.decode(iri, "UTF-8");
+        iri = UriUtils.decode(iri, URI_DECODE_CHARSET);
 
         return new ResponseEntity<>(
                 new V2PagedResponse<V2Entity>(
@@ -401,7 +404,7 @@ public class V2ClassController {
             @ParameterObject JsonTransformOptions outputOpts
     ) throws ResourceNotFoundException {
 
-        iri = UriUtils.decode(iri, "UTF-8");
+        iri = UriUtils.decode(iri, URI_DECODE_CHARSET);
 
         return new ResponseEntity<>(
                 new V2PagedResponse<V2Entity>(
@@ -433,7 +436,7 @@ public class V2ClassController {
             @ParameterObject JsonTransformOptions outputOpts
     ) throws ResourceNotFoundException {
 
-        iri = UriUtils.decode(iri, "UTF-8");
+        iri = UriUtils.decode(iri, URI_DECODE_CHARSET);
 
         return new ResponseEntity<>(
                 new V2PagedResponse<V2Entity>(
@@ -444,4 +447,3 @@ public class V2ClassController {
 
     }
 }
-
