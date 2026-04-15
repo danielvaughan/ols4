@@ -171,6 +171,7 @@ public class V1TermController implements
     @ResponseStatus(value = HttpStatus.NOT_FOUND, reason = "EntityModel not found")
     @ExceptionHandler(ResourceNotFoundException.class)
     public void handleError(HttpServletRequest req, Exception exception) {
+        // Intentionally blank: Spring derives the 404 response from the annotations above.
     }
 
     @Override
