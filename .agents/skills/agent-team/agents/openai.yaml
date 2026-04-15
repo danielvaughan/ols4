@@ -1,0 +1,4 @@
+interface:
+  display_name: "Agent Team"
+  short_description: "Assign work to configured repo agents"
+  default_prompt: "Use $agent-team to assign a bounded investigation, implementation task, or code fix to another configured agent from `.agent-sdlc/config.yaml`."
