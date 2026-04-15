@@ -29,6 +29,7 @@ import uk.ac.ebi.spot.ols.repository.v1.V1JsTreeRepository;
 import uk.ac.ebi.spot.ols.service.Neo4jClient;
 
 import jakarta.servlet.http.HttpServletRequest;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 /**
@@ -41,6 +42,8 @@ import java.util.Arrays;
 @RestController
 @RequestMapping("/api/ontologies")
 public class V1OntologyIndividualController {
+
+    private static final String URI_DECODE_CHARSET = StandardCharsets.UTF_8.name();
 
     @Autowired
     private V1IndividualRepository individualRepository;
@@ -118,7 +121,7 @@ public class V1OntologyIndividualController {
     ) throws ResourceNotFoundException {
         ontologyId = ontologyId.toLowerCase();
 
-        String decoded = UriUtils.decode(termId, "UTF-8");
+        String decoded = UriUtils.decode(termId, URI_DECODE_CHARSET);
         V1Individual term = individualRepository.findByOntologyAndIri(ontologyId, decoded, lang);
         if (term == null) throw new ResourceNotFoundException("No individual with id " + decoded + " in " + ontologyId);
         return new ResponseEntity<>(individualAssembler.toModel(term), HttpStatus.OK);
@@ -140,7 +143,7 @@ public class V1OntologyIndividualController {
     ) {
         ontologyId = ontologyId.toLowerCase();
 
-        String decoded = UriUtils.decode(termId, "UTF-8");
+        String decoded = UriUtils.decode(termId, URI_DECODE_CHARSET);
         Page<V1Term> parents = individualRepository.getDirectTypes(ontologyId, decoded, lang, pageable);
         return new ResponseEntity<>(assembler.toModel(parents, termAssembler), HttpStatus.OK);
     }
@@ -161,7 +164,7 @@ public class V1OntologyIndividualController {
             @Parameter(hidden = true) PagedResourcesAssembler assembler) {
         ontologyId = ontologyId.toLowerCase();
 
-        String decoded = UriUtils.decode(termId, "UTF-8");
+        String decoded = UriUtils.decode(termId, URI_DECODE_CHARSET);
         Page<V1Term> ancestors = individualRepository.getAllTypes(ontologyId, decoded, lang, pageable);
         return new ResponseEntity<>(assembler.toModel(ancestors, termAssembler), HttpStatus.OK);
     }
@@ -181,7 +184,7 @@ public class V1OntologyIndividualController {
         ontologyId = ontologyId.toLowerCase();
 
         try {
-            String decoded = UriUtils.decode(termId, "UTF-8");
+            String decoded = UriUtils.decode(termId, URI_DECODE_CHARSET);
 
             Object object = jsTreeRepository.getJsTreeForIndividual(decoded, ontologyId, lang);
             ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
