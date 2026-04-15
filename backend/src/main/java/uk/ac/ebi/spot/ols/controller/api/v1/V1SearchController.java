@@ -53,6 +53,7 @@ public class V1SearchController {
 
     private static final String DEF_TYPE_PARAM = "defType";
     private static final String EDISMAX_QUERY_PARSER = "edismax";
+    private static final String JSON_PAYLOAD_FIELD = "_json";
     private static final String SCORE_FIELD = "score";
     private static final String SHORT_FORM_FIELD = "short_form";
 
@@ -208,11 +209,11 @@ public class V1SearchController {
 
     private void configureReturnedFields(SolrQuery solrQuery, Collection<String> fieldList) {
         if (fieldList != null && fieldList.contains(SCORE_FIELD)) {
-            solrQuery.setFields("_json", SCORE_FIELD);
+            solrQuery.setFields(JSON_PAYLOAD_FIELD, SCORE_FIELD);
             return;
         }
 
-        solrQuery.setFields("_json");
+        solrQuery.setFields(JSON_PAYLOAD_FIELD);
     }
 
     private void applyFilters(SolrQuery solrQuery, Collection<String> ontologies, Collection<String> slims,
@@ -390,7 +391,7 @@ public class V1SearchController {
     }
 
     private JsonObject parseDocumentJson(SolrDocument res, String lang) {
-        String _json = (String) res.get("_json");
+        String _json = (String) res.get(JSON_PAYLOAD_FIELD);
         if (_json == null) {
             throw new RuntimeException("_json was null");
         }
