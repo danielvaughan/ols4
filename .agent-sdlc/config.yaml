@@ -31,7 +31,7 @@ project:
         - ./backend/src/main/java/uk/ac/ebi/spot/ols/controller/api/v1/V1IndividualController.java
         - ./backend/src/main/java/uk/ac/ebi/spot/ols/controller/api/v1/V1OntologyController.java
     - name: Kestrel
-      session_id: 019d90b4-215d-7932-b3fc-e1e7aec8c090
+      session_id: 019d915e-24a7-7ef1-81fe-9a282f24cc41
       type: Codex
       work_boundaries:
         - ./backend/src/main/java/uk/ac/ebi/spot/ols/controller/api/v1/V1OntologyIndividualController.java
