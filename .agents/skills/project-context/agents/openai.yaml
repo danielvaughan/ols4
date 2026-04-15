@@ -1,0 +1,4 @@
+interface:
+  display_name: "Project Context"
+  short_description: "Generate repo context files under .agent-sdlc/context"
+  default_prompt: "Use $project-context to reverse-engineer this repository into durable `.agent-sdlc/context/` docs. Create or update the shared context files and `domains/*.md` using the bundled context template, and keep all statements factual and traceable to repository sources."

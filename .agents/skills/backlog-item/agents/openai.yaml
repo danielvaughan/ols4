@@ -1,0 +1,4 @@
+interface:
+  display_name: "Backlog Item"
+  short_description: "Log bugs and requests as backlog-item files"
+  default_prompt: "Use $backlog-item to log a user-reported bug, request, or follow-up as an Agent SDLC backlog-item file, using repo `name_pattern` and `.lock` allocation when configured."
