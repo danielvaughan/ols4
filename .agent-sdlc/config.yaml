@@ -24,7 +24,7 @@ project:
       name_pattern: "{id_prefix}-RSK-{seq:05d}.md"
   agents:
     - name: Rook
-      session_id: 019d90b2-e8f2-7813-ae6b-6da6a412de99
+      session_id: 019d915e-9f68-78f3-a471-39d673f6e306
       type: Codex
       work_boundaries:
         - ./backend/src/main/java/uk/ac/ebi/spot/ols/controller/api/v1/V1SearchController.java
