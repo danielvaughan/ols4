@@ -113,7 +113,7 @@ public class V1SearchController {
                     description = "You can restrict a search to all children of a given term. Supply a list of IRI for the terms that you want to search under (subclassOf/is-a plus any hierarchical/transitive properties like 'part of' or 'develops from')",
                     example = "[\"http://www.ebi.ac.uk/efo/EFO_0001421\",\"http://www.ebi.ac.uk/efo/EFO_0004228\"]") Collection<String> allChildrenOf,
             @RequestParam(value = "inclusive", required = false) Boolean inclusive,
-            @RequestParam(value = "isLeaf", required = false) boolean isLeaf,
+            @RequestParam(value = "isLeaf", required = false) Boolean isLeaf,
             @RequestParam(value = "rows", defaultValue = "10") Integer rows,
             @RequestParam(value = "start", defaultValue = "0") Integer start,
             @RequestParam(value = "format", defaultValue = "json")
@@ -127,10 +127,11 @@ public class V1SearchController {
         final SolrQuery solrQuery = new SolrQuery(); // 1
         boolean exactEnabled = Boolean.TRUE.equals(exact);
         boolean inclusiveEnabled = Boolean.TRUE.equals(inclusive);
+        boolean isLeafEnabled = Boolean.TRUE.equals(isLeaf);
 
         configureQuery(solrQuery, query, queryFields, exactEnabled);
         configureReturnedFields(solrQuery, fieldList);
-        applyFilters(solrQuery, ontologies, slims, isLocal, isLeaf, types, groupField, childrenOf, allChildrenOf,
+        applyFilters(solrQuery, ontologies, slims, isLocal, isLeafEnabled, types, groupField, childrenOf, allChildrenOf,
                 inclusiveEnabled, queryObsoletes);
         configureQueryExecution(solrQuery, start, rows, format);
 
