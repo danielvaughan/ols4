@@ -37,6 +37,7 @@ import static uk.ac.ebi.ols.shared.DefinedFields.*;
 @RestController
 public class V1SelectController {
 
+    private static final String OBO_ID_FIELD = "obo_id";
     private static final String SHORT_FORM_FIELD = "short_form";
 
     Gson gson = new Gson();
@@ -180,7 +181,7 @@ public class V1SelectController {
                 fieldList.add("id");
                 fieldList.add("iri");
                 fieldList.add(SHORT_FORM_FIELD);
-                fieldList.add("obo_id");
+                fieldList.add(OBO_ID_FIELD);
                 fieldList.add(LABEL.getText());
                 fieldList.add("ontology_name");
                 fieldList.add("ontology_prefix");
@@ -197,7 +198,7 @@ public class V1SelectController {
             if (fieldList.contains(DEFINITION.getOls3Text())) outDoc.put(DEFINITION.getOls3Text(),
                     JsonHelper.getStrings(json, DEFINITION.getText()));
             if (fieldList.contains(SHORT_FORM_FIELD)) outDoc.put(SHORT_FORM_FIELD, JsonHelper.getString(json, "shortForm"));
-            if (fieldList.contains("obo_id")) outDoc.put("obo_id", JsonHelper.getString(json, "curie"));
+            if (fieldList.contains(OBO_ID_FIELD)) outDoc.put(OBO_ID_FIELD, JsonHelper.getString(json, "curie"));
             if (fieldList.contains(IS_DEFINING_ONTOLOGY.getOls3Text())) outDoc.put(IS_DEFINING_ONTOLOGY.getOls3Text(),
                     JsonHelper.getString(json, IS_DEFINING_ONTOLOGY.getText()) != null &&
                             JsonHelper.getString(json, IS_DEFINING_ONTOLOGY.getText()).equals("true"));
