@@ -56,6 +56,7 @@ public class V1SearchController {
     private static final String JSON_PAYLOAD_FIELD = "_json";
     private static final String OBO_ID_FIELD = "obo_id";
     private static final String ONTOLOGY_NAME_FIELD = "ontology_name";
+    private static final String ONTOLOGY_PREFIX_FIELD = "ontology_prefix";
     private static final String SCORE_FIELD = "score";
     private static final String SHORT_FORM_FIELD = "short_form";
 
@@ -366,7 +367,7 @@ public class V1SearchController {
         fieldList.add(SHORT_FORM_FIELD);
         fieldList.add(OBO_ID_FIELD);
         fieldList.add("type");
-        fieldList.add("ontology_prefix");
+        fieldList.add(ONTOLOGY_PREFIX_FIELD);
         fieldList.add("exact_synonyms");
         fieldList.add("related_synonyms");
         fieldList.add("narrow_synonyms");
@@ -440,8 +441,8 @@ public class V1SearchController {
         if (fieldList.contains(SYNONYM.getText())) {
             outDoc.put(SYNONYM.getText(), JsonHelper.getStrings(json, SYNONYM.getText()));
         }
-        if (fieldList.contains("ontology_prefix")) {
-            outDoc.put("ontology_prefix", JsonHelper.getString(json, "ontologyPreferredPrefix"));
+        if (fieldList.contains(ONTOLOGY_PREFIX_FIELD)) {
+            outDoc.put(ONTOLOGY_PREFIX_FIELD, JsonHelper.getString(json, "ontologyPreferredPrefix"));
         }
         if (fieldList.contains("subset")) {
             outDoc.put("subset", JsonHelper.getStrings(json, "http://www.geneontology.org/formats/oboInOwl#inSubset"));
