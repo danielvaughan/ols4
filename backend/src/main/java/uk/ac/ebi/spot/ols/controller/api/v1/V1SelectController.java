@@ -39,6 +39,7 @@ public class V1SelectController {
 
     private static final String OBO_ID_FIELD = "obo_id";
     private static final String ONTOLOGY_NAME_FIELD = "ontology_name";
+    private static final String ONTOLOGY_PREFIX_FIELD = "ontology_prefix";
     private static final String SHORT_FORM_FIELD = "short_form";
 
     Gson gson = new Gson();
@@ -185,7 +186,7 @@ public class V1SelectController {
                 fieldList.add(OBO_ID_FIELD);
                 fieldList.add(LABEL.getText());
                 fieldList.add(ONTOLOGY_NAME_FIELD);
-                fieldList.add("ontology_prefix");
+                fieldList.add(ONTOLOGY_PREFIX_FIELD);
                 fieldList.add(DEFINITION.getOls3Text());
                 fieldList.add("type");
             }
@@ -207,7 +208,7 @@ public class V1SelectController {
                 outDoc.put("type", JsonHelper.getType(json, "type"));
             }
             if (fieldList.contains(SYNONYM.getText())) outDoc.put(SYNONYM.getText(), JsonHelper.getStrings(json, SYNONYM.getText()));
-            if (fieldList.contains("ontology_prefix")) outDoc.put("ontology_prefix", JsonHelper.getString(json, "ontologyPreferredPrefix"));
+            if (fieldList.contains(ONTOLOGY_PREFIX_FIELD)) outDoc.put(ONTOLOGY_PREFIX_FIELD, JsonHelper.getString(json, "ontologyPreferredPrefix"));
 
             docs.add(outDoc);
         }
