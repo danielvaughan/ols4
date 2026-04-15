@@ -54,6 +54,7 @@ public class V1SearchController {
     private static final String DEF_TYPE_PARAM = "defType";
     private static final String EDISMAX_QUERY_PARSER = "edismax";
     private static final String JSON_PAYLOAD_FIELD = "_json";
+    private static final String ONTOLOGY_NAME_FIELD = "ontology_name";
     private static final String SCORE_FIELD = "score";
     private static final String SHORT_FORM_FIELD = "short_form";
 
@@ -358,7 +359,7 @@ public class V1SearchController {
     private void populateDefaultFieldList(Collection<String> fieldList) {
         fieldList.add("id");
         fieldList.add("iri");
-        fieldList.add("ontology_name");
+        fieldList.add(ONTOLOGY_NAME_FIELD);
         fieldList.add(LABEL.getText());
         fieldList.add(DEFINITION.getOls3Text());
         fieldList.add(SHORT_FORM_FIELD);
@@ -409,8 +410,8 @@ public class V1SearchController {
         if (fieldList.contains("iri")) {
             outDoc.put("iri", JsonHelper.getString(json, "iri"));
         }
-        if (fieldList.contains("ontology_name")) {
-            outDoc.put("ontology_name", JsonHelper.getString(json, "ontologyId"));
+        if (fieldList.contains(ONTOLOGY_NAME_FIELD)) {
+            outDoc.put(ONTOLOGY_NAME_FIELD, JsonHelper.getString(json, "ontologyId"));
         }
         if (fieldList.contains(LABEL.getText())) {
             var label = outDoc.put(LABEL.getText(), JsonHelper.getString(json, LABEL.getText()));
