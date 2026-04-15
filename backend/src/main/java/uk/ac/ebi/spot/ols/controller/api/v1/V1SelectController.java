@@ -38,6 +38,7 @@ import static uk.ac.ebi.ols.shared.DefinedFields.*;
 public class V1SelectController {
 
     private static final String OBO_ID_FIELD = "obo_id";
+    private static final String ONTOLOGY_NAME_FIELD = "ontology_name";
     private static final String SHORT_FORM_FIELD = "short_form";
 
     Gson gson = new Gson();
@@ -183,7 +184,7 @@ public class V1SelectController {
                 fieldList.add(SHORT_FORM_FIELD);
                 fieldList.add(OBO_ID_FIELD);
                 fieldList.add(LABEL.getText());
-                fieldList.add("ontology_name");
+                fieldList.add(ONTOLOGY_NAME_FIELD);
                 fieldList.add("ontology_prefix");
                 fieldList.add(DEFINITION.getOls3Text());
                 fieldList.add("type");
@@ -193,7 +194,7 @@ public class V1SelectController {
 
             if (fieldList.contains("id")) outDoc.put("id", res.get("id").toString().replace('+', ':'));
             if (fieldList.contains("iri")) outDoc.put("iri", JsonHelper.getString(json, "iri"));
-            if (fieldList.contains("ontology_name")) outDoc.put("ontology_name", JsonHelper.getString(json, "ontologyId"));
+            if (fieldList.contains(ONTOLOGY_NAME_FIELD)) outDoc.put(ONTOLOGY_NAME_FIELD, JsonHelper.getString(json, "ontologyId"));
             if (fieldList.contains(LABEL.getText())) outDoc.put(LABEL.getText(), JsonHelper.getString(json, LABEL.getText()));
             if (fieldList.contains(DEFINITION.getOls3Text())) outDoc.put(DEFINITION.getOls3Text(),
                     JsonHelper.getStrings(json, DEFINITION.getText()));
