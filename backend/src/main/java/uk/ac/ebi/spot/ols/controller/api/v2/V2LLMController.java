@@ -26,6 +26,7 @@ import uk.ac.ebi.spot.ols.service.EmbeddingServiceClient;
 import uk.ac.ebi.spot.ols.repository.neo4j.OlsNeo4jClient;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +42,7 @@ import java.util.ArrayList;
 public class V2LLMController {
 
     private static final String MODEL_KEY = "model";
+    private static final String URI_DECODE_CHARSET = StandardCharsets.UTF_8.name();
 
     Gson gson = new Gson();
 
@@ -290,7 +292,7 @@ public class V2LLMController {
         @ParameterObject JsonTransformOptions outputOpts
     ) throws ResourceNotFoundException, IOException {
 
-        iri = UriUtils.decode(iri, "UTF-8");
+        iri = UriUtils.decode(iri, URI_DECODE_CHARSET);
 
         return new ResponseEntity<>(
             new V2PagedResponse<V2Entity>(
@@ -312,7 +314,7 @@ public class V2LLMController {
                     example = "text-embedding-3-small") String model
     ) throws ResourceNotFoundException {
 
-        iri = UriUtils.decode(iri, "UTF-8");
+        iri = UriUtils.decode(iri, URI_DECODE_CHARSET);
 
         return new ResponseEntity<>(
                 gson.toJson( classRepository.getEmbeddingVector(iri, model) ),
@@ -336,8 +338,8 @@ public class V2LLMController {
                     example = "text-embedding-3-small") String model
     ) throws ResourceNotFoundException {
 
-        iri = UriUtils.decode(iri, "UTF-8");
-        iri2 = UriUtils.decode(iri2, "UTF-8");
+        iri = UriUtils.decode(iri, URI_DECODE_CHARSET);
+        iri2 = UriUtils.decode(iri2, URI_DECODE_CHARSET);
 
         return new ResponseEntity<>(
                 Double.toString( classRepository.getSimilarity(iri, iri2, model) ),
@@ -457,7 +459,7 @@ public class V2LLMController {
             @ParameterObject JsonTransformOptions outputOpts
     ) throws ResourceNotFoundException {
 
-        iri = UriUtils.decode(iri, "UTF-8");
+        iri = UriUtils.decode(iri, URI_DECODE_CHARSET);
 
         return new ResponseEntity<>(
                 new V2PagedResponse<V2Entity>(
