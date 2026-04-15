@@ -1,177 +1,131 @@
 <!DOCTYPE html>
-<html class="dark" lang="en">
-<head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Agent SDLC</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js" defer></script>
-<script id="tailwind-config">
-tailwind.config = {
-  darkMode: "class",
-  theme: {
-    extend: {
-      colors: {
-        "background": "#111319",
-        "outline-variant": "#464554",
-        "surface-container-lowest": "#0c0e14",
-        "primary": "#c0c1ff",
-        "primary-container": "#8083ff",
-        "on-surface": "#e2e2eb",
-        "surface-container-highest": "#33343b",
-        "on-surface-variant": "#c7c4d7",
-        "surface": "#111319",
-        "surface-container-low": "#191b22",
-        "surface-container": "#1e1f26",
-        "surface-container-high": "#282a30",
-        "tertiary": "#4edea3",
-        "on-primary-fixed": "#07006c",
-      },
-      fontFamily: { "body": ["Inter"] },
-      borderRadius: { "DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem" },
-    },
-  },
-}
-</script>
-<style>
-.material-symbols-outlined { font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24; vertical-align:middle; }
-::-webkit-scrollbar { width:6px; height:6px; }
-::-webkit-scrollbar-track { background:#111319; }
-::-webkit-scrollbar-thumb { background:#33343b; border-radius:10px; }
-.signature-gradient { background:linear-gradient(135deg,#c0c1ff 0%,#8083ff 100%); }
-[hidden] { display:none !important; }
-#sidebar[data-expanded="true"] { width: 16rem; }
-#sidebar[data-expanded="true"] .sidebar-label { display: inline; }
-#sidebar[data-expanded="true"] .nav-label { opacity: 1; }
-#sidebar[data-expanded="true"] .nav-badge { opacity: 0.6; }
-#sidebar[data-expanded="true"] #sidebar-toggle { margin-left: 0.75rem; }
-#sidebar[data-expanded="false"] #sidebar-toggle { margin: 0 auto; }
-.prose { color:#c7c4d7; line-height:1.7; }
-.prose h1,.prose h2,.prose h3 { color:#e2e2eb; font-weight:700; margin:1.5em 0 0.5em; }
-.prose h1 { font-size:1.5em; } .prose h2 { font-size:1.25em; } .prose h3 { font-size:1.1em; }
-.prose p { margin:0.5em 0; }
-.prose ul,.prose ol { padding-left:1.5em; margin:0.5em 0; }
-.prose li { margin:0.25em 0; }
-.prose code { background:#1e1f26; padding:0.15em 0.4em; border-radius:3px; font-size:0.85em; }
-.prose pre { background:#0c0e14; padding:1em; border-radius:6px; overflow-x:auto; margin:1em 0; }
-.prose pre code { background:none; padding:0; }
-.prose blockquote { border-left:3px solid #464554; padding-left:1em; margin:1em 0; color:#908fa0; }
-.prose table { width:100%; border-collapse:collapse; margin:1em 0; }
-.prose th,.prose td { border:1px solid #33343b; padding:0.5em 0.75em; text-align:left; font-size:0.85em; }
-.prose th { background:#1e1f26; }
-</style>
-</head>
-<body class="bg-background text-on-surface font-body antialiased overflow-hidden">
-
-<!-- Sidebar -->
-<aside id="sidebar" class="fixed left-0 top-0 h-full flex flex-col z-50 bg-slate-950 w-16 items-start border-r border-slate-800/50 transition-all duration-300 overflow-hidden" data-expanded="false">
-  <div class="py-6 flex flex-col w-full h-full">
-    <div class="w-full flex justify-center mb-6">
-      <button id="sidebar-toggle" class="p-2 rounded-xl bg-slate-900/40 flex items-center gap-2 shrink-0 hover:bg-slate-800/60 transition-colors" title="Toggle menu">
-        <span class="material-symbols-outlined text-indigo-500 text-xl" id="sidebar-toggle-icon">menu</span>
-        <span id="sidebar-project-name" class="sidebar-label text-indigo-400 text-xs font-bold whitespace-nowrap hidden truncate max-w-[140px]">Agent SDLC</span>
-      </button>
-    </div>
-    <nav id="sidebar-nav" class="flex flex-col gap-0.5 w-full flex-1"></nav>
-  </div>
-</aside>
-
-<!-- Header -->
-<header id="header" class="fixed top-0 right-0 left-16 flex items-center justify-between px-8 z-40 bg-slate-950/80 backdrop-blur-xl h-14 border-b border-slate-900/50 transition-all duration-300">
-  <div class="flex items-center gap-4 flex-1">
-    <span id="header-title" class="text-indigo-400 font-bold text-sm tracking-tight uppercase shrink-0">Agent SDLC</span>
-    <div class="h-4 w-[1px] bg-outline-variant/30"></div>
-    <form id="load-form" class="flex items-center bg-surface-container-lowest rounded-lg px-3 py-1.5 w-full max-w-md focus-within:ring-1 focus-within:ring-indigo-500/30 transition-all">
-      <span class="material-symbols-outlined text-on-surface-variant text-sm mr-2">terminal</span>
-      <input id="repo-path" class="bg-transparent border-none focus:ring-0 text-xs text-on-surface-variant w-full font-mono p-0" placeholder="Repository path" type="text"/>
-      <button type="submit" class="ml-2 text-indigo-400 text-xs font-semibold hover:text-indigo-300 transition-colors whitespace-nowrap">Load</button>
-    </form>
-  </div>
-  <div class="flex items-center gap-3">
-    <!-- Search with scope -->
-    <div class="flex items-center bg-surface-container-high rounded-full border border-outline-variant/10 overflow-hidden">
-      <select id="search-scope" class="bg-transparent border-none text-[10px] text-on-surface-variant pl-3 pr-1 py-1.5 focus:ring-0 cursor-pointer uppercase tracking-wider font-bold">
-        <option value="all">All</option>
-        <option value="context">Context</option>
-      </select>
-      <div class="flex items-center gap-1.5 pr-3">
-        <span class="material-symbols-outlined text-on-surface-variant text-sm">search</span>
-        <input id="search-input" class="bg-transparent border-none focus:ring-0 text-xs text-on-surface w-36 p-0" placeholder="Search..." type="text"/>
-      </div>
-    </div>
-    <div id="load-indicator" hidden class="flex items-center gap-2 text-xs text-on-surface-variant">
-      <span class="w-2 h-2 rounded-full bg-tertiary animate-pulse"></span>
-    </div>
-    <div id="error-banner" hidden class="text-xs text-red-400 max-w-xs truncate"></div>
-  </div>
-</header>
-
-<!-- Main -->
-<main id="main" class="ml-16 pt-14 h-screen flex flex-col overflow-y-auto bg-background transition-all duration-300">
-
-  <!-- Empty State -->
-  <div id="empty-state" class="flex-1 flex flex-col items-center justify-center text-on-surface-variant">
-    <span class="material-symbols-outlined text-6xl mb-4 opacity-30">layers</span>
-    <h2 class="text-lg font-semibold text-on-surface mb-2">Load a repository to begin</h2>
-    <p class="text-sm">Point to a repo containing an <code class="bg-surface-container-high px-1.5 py-0.5 rounded text-xs">.agent-sdlc</code> folder.</p>
-  </div>
-
-  <!-- Home Dashboard -->
-  <div id="view-home" hidden class="p-8 space-y-6 flex-1">
-    <div id="home-cards" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
-  </div>
-
-  <!-- Context Browser -->
-  <div id="view-context" hidden class="p-8 flex-1">
-    <div id="context-grid" class="space-y-6"></div>
-  </div>
-
-  <!-- Artifact Table -->
-  <div id="view-table" hidden class="p-8 space-y-6 flex-1">
-    <div id="stat-cards" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4"></div>
-    <div id="charts-section" hidden class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"></div>
-    <div class="bg-surface-container rounded-xl overflow-hidden shadow-2xl shadow-indigo-900/10 border border-outline-variant/10">
-      <div class="px-6 py-4 border-b border-outline-variant/10 flex justify-between items-center bg-surface-container-high/50 gap-4">
-        <div class="flex items-center gap-4 min-w-0">
-          <h2 id="table-title" class="text-sm font-semibold tracking-tight text-on-surface shrink-0">Artifacts</h2>
-          <div id="type-filter" hidden class="flex items-center gap-1.5 flex-wrap"></div>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Agent SDLC Index</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="/styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js" defer></script>
+  </head>
+  <body>
+    <main class="page-shell">
+      <header class="site-header">
+        <div class="site-brand">
+          <span class="hero-label">Agent SDLC</span>
         </div>
-        <span id="table-count" class="text-xs text-on-surface-variant shrink-0"></span>
-      </div>
-      <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse">
-          <thead><tr id="table-head" class="bg-surface-container-highest/20"></tr></thead>
-          <tbody id="table-body" class="divide-y divide-outline-variant/5"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
+        <div class="site-actions">
+          <span id="load-indicator" hidden><span class="loading-dot"></span>Loading</span>
+          <span id="error-banner" hidden></span>
+          <strong id="indicator-text">Idle</strong>
+        </div>
+      </header>
 
-  <!-- Detail Panel -->
-  <div id="detail-panel" hidden class="fixed inset-0 z-50 flex">
-    <div id="detail-backdrop" class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
-    <div class="relative ml-auto w-full max-w-3xl bg-background border-l border-outline-variant/20 h-full overflow-y-auto">
-      <div class="sticky top-0 z-10 bg-background/90 backdrop-blur-lg border-b border-outline-variant/10 px-8 py-5 flex items-start justify-between gap-4">
-        <div class="min-w-0 flex-1">
-          <div class="flex items-center gap-2">
-            <button id="detail-back" hidden class="p-1 hover:bg-surface-container-highest rounded-lg transition-colors shrink-0" title="Back">
-              <span class="material-symbols-outlined text-on-surface-variant text-lg">arrow_back</span>
-            </button>
-            <h2 id="detail-title" class="text-lg font-bold text-on-surface leading-tight"></h2>
+      <section class="hero">
+        <h1 id="header-title">Repository Index</h1>
+        <p id="hero-subtitle" class="hero-subtitle" hidden></p>
+        <div class="hero-controls">
+          <form id="load-form" class="toolbar-form">
+            <label class="field-group field-group-wide">
+              <span>Repository</span>
+              <input id="repo-path" type="text" placeholder="/path/to/repository" />
+            </label>
+            <button type="submit">Load</button>
+          </form>
+          <div class="toolbar-search">
+            <label class="field-group field-group-tight">
+              <span>Scope</span>
+              <select id="search-scope">
+                <option value="all">All</option>
+                <option value="context">Context</option>
+              </select>
+            </label>
+            <label class="field-group field-group-wide">
+              <span>Search</span>
+              <input id="search-input" type="text" placeholder="Search artifacts..." />
+            </label>
           </div>
-          <div id="detail-meta" class="flex items-center gap-2 mt-2 flex-wrap"></div>
         </div>
-        <button id="detail-close" class="p-1.5 hover:bg-surface-container-highest rounded-lg transition-colors shrink-0 mt-0.5">
-          <span class="material-symbols-outlined text-on-surface-variant text-xl">close</span>
-        </button>
-      </div>
-      <div id="detail-body" class="px-8 py-6 prose max-w-none"></div>
-    </div>
-  </div>
+      </section>
 
-</main>
-<script src="/app.js" defer></script>
-</body>
+      <section class="layout">
+        <aside id="sidebar" class="side-column" data-expanded="true">
+          <div class="sidebar-head">
+            <strong id="sidebar-project-name">Agent SDLC</strong>
+            <button id="sidebar-toggle" type="button" title="Toggle sidebar">Hide</button>
+          </div>
+          <nav id="sidebar-nav" class="sidebar-nav"></nav>
+        </aside>
+
+        <section id="main" class="main-column">
+          <div id="empty-state" class="empty-state">
+            <div class="empty-state-inner">
+              <h2>No repository loaded</h2>
+              <p>Enter the path to a repo with an <code>.agent-sdlc</code> folder above, then press Load.</p>
+            </div>
+          </div>
+
+          <section id="view-home" hidden class="view-stack">
+            <div class="section-head">
+              <h2>Overview</h2>
+            </div>
+            <div id="home-cards" class="home-grid"></div>
+          </section>
+
+          <section id="view-context" hidden class="view-stack">
+            <div class="section-head">
+              <h2>Project Context</h2>
+            </div>
+            <div id="context-grid" class="context-grid"></div>
+          </section>
+
+          <section id="view-table" hidden class="view-stack">
+            <div id="stat-cards" class="stat-grid"></div>
+            <div id="charts-section" hidden></div>
+            <div class="index-card table-shell">
+              <div class="entry-meta">
+                <div>
+                  <span class="meta-label">Artifacts</span>
+                  <h3 id="table-title">Artifacts</h3>
+                </div>
+                <div class="table-head-meta">
+                  <div id="type-filter" hidden class="filter-pills"></div>
+                  <span id="table-count"></span>
+                </div>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr id="table-head"></tr>
+                  </thead>
+                  <tbody id="table-body"></tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+        </section>
+      </section>
+
+      <div id="detail-panel" hidden class="detail-panel">
+        <div id="detail-backdrop" class="detail-backdrop"></div>
+        <section class="detail-sheet">
+          <header class="detail-header">
+            <div class="detail-header-main">
+              <button id="detail-back" hidden type="button">Back</button>
+              <div>
+                <p class="meta-label" id="detail-kind-label">Detail</p>
+                <h2 id="detail-title"></h2>
+                <div id="detail-meta" class="detail-meta"></div>
+              </div>
+            </div>
+            <div>
+              <button id="detail-close" type="button">Close</button>
+            </div>
+          </header>
+          <div id="detail-body" class="detail-body"></div>
+        </section>
+      </div>
+    </main>
+    <script src="/app.js" defer></script>
+  </body>
 </html>
