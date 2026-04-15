@@ -55,6 +55,7 @@ public class V1SearchController {
     private static final String EDISMAX_QUERY_PARSER = "edismax";
     private static final String JSON_PAYLOAD_FIELD = "_json";
     private static final String OBO_ID_FIELD = "obo_id";
+    private static final String EXACT_SYNONYMS_FIELD = "exact_synonyms";
     private static final String ONTOLOGY_NAME_FIELD = "ontology_name";
     private static final String ONTOLOGY_PREFIX_FIELD = "ontology_prefix";
     private static final String SCORE_FIELD = "score";
@@ -368,7 +369,7 @@ public class V1SearchController {
         fieldList.add(OBO_ID_FIELD);
         fieldList.add("type");
         fieldList.add(ONTOLOGY_PREFIX_FIELD);
-        fieldList.add("exact_synonyms");
+        fieldList.add(EXACT_SYNONYMS_FIELD);
         fieldList.add("related_synonyms");
         fieldList.add("narrow_synonyms");
         fieldList.add("broad_synonyms");
@@ -456,11 +457,11 @@ public class V1SearchController {
     }
 
     private void addSynonymFields(Map<String, Object> outDoc, Collection<String> fieldList, JsonObject json) {
-        if (fieldList.contains("exact_synonyms")) {
+        if (fieldList.contains(EXACT_SYNONYMS_FIELD)) {
             List<String> exactSynonyms = JsonHelper.getStrings(json,
                     "http://www.geneontology.org/formats/oboInOwl#hasExactSynonym");
             if (!exactSynonyms.isEmpty()) {
-                outDoc.put("exact_synonyms", exactSynonyms);
+                outDoc.put(EXACT_SYNONYMS_FIELD, exactSynonyms);
             }
         }
         if (fieldList.contains("related_synonyms")) {
