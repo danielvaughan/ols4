@@ -40,6 +40,8 @@ import java.util.ArrayList;
 @RequestMapping("/api/v2")
 public class V2LLMController {
 
+    private static final String MODEL_KEY = "model";
+
     Gson gson = new Gson();
 
     @Autowired
@@ -69,13 +71,13 @@ public class V2LLMController {
         List<Map<String, Object>> result = new ArrayList<>();
         for (String model : neo4jModels) {
             Map<String, Object> modelInfo = new HashMap<>();
-            modelInfo.put("model", model);
+            modelInfo.put(MODEL_KEY, model);
             modelInfo.put("can_embed", canEmbedModels.contains(model));
             result.add(modelInfo);
         }
         
         // Sort by model name for consistent output
-        result.sort((a, b) -> ((String)a.get("model")).compareTo((String)b.get("model")));
+        result.sort((a, b) -> ((String) a.get(MODEL_KEY)).compareTo((String) b.get(MODEL_KEY)));
         
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
@@ -466,4 +468,3 @@ public class V2LLMController {
         );
     }
 }
-
