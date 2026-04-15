@@ -89,6 +89,7 @@ public class V1OntologyController implements
     @ResponseStatus(value = HttpStatus.NOT_FOUND, reason = "EntityModel not found")
     @ExceptionHandler(ResourceNotFoundException.class)
     public void handleError(HttpServletRequest req, Exception exception) {
+        // Intentionally blank: Spring returns the 404 response via the annotations above.
     }
 
 }
