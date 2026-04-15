@@ -464,7 +464,9 @@ async function sendPrompt(options, agent, projectState) {
     const ws = new WebSocket(appServerUrl);
     const pending = new Map();
     let completed = false;
-    let finalText = "";
+    let streamedAgentText = "";
+    let lastCompletedAgentText = "";
+    let finalAnswerText = "";
     let turnId = null;
     let timeoutHandle = null;
 
@@ -502,6 +504,9 @@ async function sendPrompt(options, agent, projectState) {
     const send = (payload) => {
       ws.send(JSON.stringify(payload));
     };
+
+    const resolveBestAgentText = () =>
+      finalAnswerText.trim() || lastCompletedAgentText.trim() || streamedAgentText.trim();
 
     const request = (id, method, params = {}) =>
       new Promise((resolveRequest, rejectRequest) => {
@@ -579,7 +584,7 @@ async function sendPrompt(options, agent, projectState) {
       if (message.method === "item/agentMessage/delta") {
         const delta = message.params?.delta ?? message.params?.text ?? "";
         if (typeof delta === "string") {
-          finalText += delta;
+          streamedAgentText += delta;
         }
         return;
       }
@@ -587,14 +592,13 @@ async function sendPrompt(options, agent, projectState) {
       if (message.method === "item/completed") {
         const item = message.params?.item;
         if (item?.type === "agentMessage") {
-          if (!finalText.trim()) {
-            finalText = extractAgentMessageText(item);
+          const itemText = extractAgentMessageText(item).trim();
+          if (itemText) {
+            lastCompletedAgentText = itemText;
+            if (item.phase === "final_answer") {
+              finalAnswerText = itemText;
+            }
           }
-          finish({
-            ...output,
-            turnId,
-            text: finalText.trim(),
-          });
         }
         return;
       }
@@ -603,7 +607,7 @@ async function sendPrompt(options, agent, projectState) {
         finish({
           ...output,
           turnId,
-          text: finalText.trim(),
+          text: resolveBestAgentText(),
         });
         return;
       }
@@ -622,7 +626,7 @@ async function sendPrompt(options, agent, projectState) {
         finish({
           ...output,
           turnId,
-          text: finalText.trim(),
+          text: resolveBestAgentText(),
         });
       }
     });
