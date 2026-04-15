@@ -51,6 +51,8 @@ import static uk.ac.ebi.ols.shared.DefinedFields.*;
 @RestController
 public class V1SearchController {
 
+    private static final String SHORT_FORM_FIELD = "short_form";
+
     Gson gson = new Gson();
 
     @Autowired
@@ -288,7 +290,7 @@ public class V1SearchController {
                 fieldList.add("ontology_name");
                 fieldList.add(LABEL.getText());
                 fieldList.add(DEFINITION.getOls3Text());
-                fieldList.add("short_form");
+                fieldList.add(SHORT_FORM_FIELD);
                 fieldList.add("obo_id");
                 fieldList.add("type");
                 fieldList.add("ontology_prefix");
@@ -309,7 +311,9 @@ public class V1SearchController {
             }
             if (fieldList.contains(DEFINITION.getOls3Text())) outDoc.put(DEFINITION.getOls3Text(),
                     JsonHelper.getStrings(json, DEFINITION.getText()));
-            if (fieldList.contains("short_form")) outDoc.put("short_form", JsonHelper.getString(json, "shortForm"));
+            if (fieldList.contains(SHORT_FORM_FIELD)) {
+                outDoc.put(SHORT_FORM_FIELD, JsonHelper.getString(json, "shortForm"));
+            }
             if (fieldList.contains("obo_id")) outDoc.put("obo_id", JsonHelper.getString(json, "curie"));
             if (fieldList.contains(IS_DEFINING_ONTOLOGY.getOls3Text())) outDoc.put(IS_DEFINING_ONTOLOGY.getOls3Text(),
                     JsonHelper.getString(json, IS_DEFINING_ONTOLOGY.getText()) != null &&
