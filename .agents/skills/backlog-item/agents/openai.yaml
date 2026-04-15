@@ -1,4 +1,4 @@
 interface:
   display_name: "Backlog Item"
   short_description: "Log bugs and requests as backlog-item files"
-  default_prompt: "Use $backlog-item to log a user-reported bug, request, or follow-up as an Agent SDLC backlog-item file, using repo `name_pattern` and `.lock` allocation when configured."
+  default_prompt: "Use $backlog-item to log a user-reported bug, request, or follow-up as an Agent SDLC backlog-item file, using repo `name_pattern` and `.lock` allocation when configured. Open or create `.lock`, acquire an exclusive lock before reading it, never pre-read it, and while still holding the lock compute the next ID, verify the rendered target filename is unused, write the updated last-allocated value back, flush it, and only then release the lock."

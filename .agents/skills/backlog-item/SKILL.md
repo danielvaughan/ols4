@@ -44,13 +44,14 @@ Use this skill to create or update durable backlog-item artifacts. Prefer a back
 
 - When repo-root SDLC config exists and a new backlog item file must be created, allocate the next document ID through `<artifact-dir>/.lock` instead of inventing filenames manually
 - Create the `.lock` file if it does not exist
+- Open or create `.lock` and acquire an exclusive lock before reading it. Never pre-read `.lock` before the exclusive lock is held.
 - Treat `.lock` contents as the last allocated backlog-item sequence
 - If the `.lock` file cannot be locked, wait 30 seconds and retry
 - Try at most 3 times; after the third failure, ask the user to try again
-- While holding the lock, read the last allocated ID, increment it to the next ID allowed by `name_pattern`, write the new last ID back to `.lock`, and release the lock
+- While holding the exclusive lock, read the last allocated ID, increment it to the next ID allowed by `name_pattern`, verify the rendered target path is still unused, write the new last ID back to `.lock`, flush it, and release the lock
 - If the `.lock` file is empty, allocate the first valid ID for that pattern
 - If no repo config exists, determine the next `BLG-XXXX` value from the highest existing `BLG-*.md` file in the backlog directory
-- Re-scan immediately before writing; if the chosen filename now exists, recompute once and use the next ID instead of overwriting
+- When repo config exists, any collision check and recompute must happen while the exclusive `.lock` is still held; do not release the lock and then re-scan
 
 ## Before Creating
 
@@ -102,7 +103,7 @@ Use this skill to create or update durable backlog-item artifacts. Prefer a back
 3. When repo config exists, derive the storage directory from `project.sdlc_root` plus the artifact `location`, and derive the filename and `id` from artifact `name_pattern`.
 4. Search for an existing matching backlog item.
 5. If updating, edit the existing file.
-6. If creating, allocate the next document ID through the artifact `.lock` file when repo config exists; otherwise allocate the next `BLG-XXXX` filename from the directory scan.
+6. If creating, allocate the next document ID through the artifact `.lock` file when repo config exists by exclusively locking it before reading or updating it; otherwise allocate the next `BLG-XXXX` filename from the directory scan.
 7. Fill the frontmatter and body from the template.
 8. Save the file.
 9. In the user response, report the file path, item id, item type, priority, owner, and whether requirement traceability is pending.

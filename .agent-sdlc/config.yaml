@@ -43,6 +43,8 @@ project:
         - ./backend/src/main/java/uk/ac/ebi/spot/ols/controller/api/v2/V2ClassController.java
         - ./backend/src/main/java/uk/ac/ebi/spot/ols/controller/api/v2/V2LLMController.java
         - ./backend/src/main/java/uk/ac/ebi/spot/ols/controller/api/v2/V2PropertyController.java
+        - ./.agents/skills/implementation-spec
+        - ./.agents/skills/backlog-item
     - name: Heron
       session_id: 019d9095-b3ee-7801-b3eb-4168d47491fd
       type: Codex

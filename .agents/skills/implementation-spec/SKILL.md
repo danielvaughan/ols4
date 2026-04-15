@@ -34,6 +34,8 @@ Use this skill to draft, review, and revise implementation specs that a junior d
 - Frontmatter `id` must match the rendered filename stem, without the `.md` extension.
 - In a grouped spec set, child-spec frontmatter `id` should be derived from the top-level `id` plus the child file stem, for example `IML-00040-v1.0/agent-harness`.
 - When repo-root SDLC config exists and a new spec file must be created, allocate the next document ID through the artifact `.lock` file instead of inventing IDs or filenames manually.
+- When allocating from `.lock`, open or create the file, acquire an exclusive lock, and only then read its contents. Never pre-read `.lock` before the exclusive lock is held.
+- While holding the exclusive lock, compute the next sequence, verify the rendered target path is still free, write the updated last-allocated value back to `.lock`, flush it, and then release the lock.
 - List every file that must be added or updated.
 - Define APIs and schemas precisely enough to implement without interpretation.
 - Do not mention unit tests, test strategy, or coverage unless the user explicitly asks.
@@ -66,7 +68,7 @@ Use this skill to draft, review, and revise implementation specs that a junior d
 1. Determine the task mode: `write`, `review`, or `address`.
 2. Read local repo instructions, existing specs, architecture docs, and relevant code.
 3. Resolve repo root. If `./.agent-sdlc/config.yaml` exists there, read it and locate the implementation-spec artifact definition before creating or validating spec files.
-4. For new spec files, derive the storage directory from `project.sdlc_root` plus the artifact `location`, and allocate the next document ID from the artifact `.lock` file with the required retry behavior.
+4. For new spec files, derive the storage directory from `project.sdlc_root` plus the artifact `location`, then allocate the next document ID by exclusively locking the artifact `.lock` file before reading or updating it.
 5. Determine the current agent name, provider/session identifier, and UTC timestamp format before writing any inline comments or responses.
 6. For draft, update, or comment-resolution work, read [references/writer.md](references/writer.md).
 7. For review work, read [references/reviewer.md](references/reviewer.md).
