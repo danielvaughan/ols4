@@ -1,0 +1,58 @@
+project:
+  name: Spring Guard
+  description: Spring Guard
+  id_prefix: SG
+  version: '1.0'
+  created: 2026-04-15
+  sdlc_root: .agent-sdlc/
+  artifacts:
+    - name: Implementation Specification
+      short_name: impl spec
+      location: impl-spec/
+      name_pattern: "{id_prefix}-IML-{seq:05d}.md"
+    - name: Backlog Item
+      short_name: backlog item
+      location: backlog-item/
+      name_pattern: "{id_prefix}-BLG-{seq:05d}.md"
+    - name: Requirement
+      short_name: requirement
+      location: requirement/
+      name_pattern: "{id_prefix}-REQ-{seq:05d}.md"
+    - name: Risk
+      short_name: risk
+      location: risk/
+      name_pattern: "{id_prefix}-RSK-{seq:05d}.md"
+  agents:
+    - name: Rook
+      session_id: 019d90b2-e8f2-7813-ae6b-6da6a412de99
+      type: Codex
+      work_boundaries:
+        - ./backend/src/main/java/uk/ac/ebi/spot/ols/controller/api/v1/V1SearchController.java
+        - ./backend/src/main/java/uk/ac/ebi/spot/ols/controller/api/v1/V1IndividualController.java
+        - ./backend/src/main/java/uk/ac/ebi/spot/ols/controller/api/v1/V1OntologyController.java
+    - name: Kestrel
+      session_id: 019d90b4-215d-7932-b3fc-e1e7aec8c090
+      type: Codex
+      work_boundaries:
+        - ./backend/src/main/java/uk/ac/ebi/spot/ols/controller/api/v1/V1OntologyIndividualController.java
+        - ./backend/src/main/java/uk/ac/ebi/spot/ols/controller/api/v1/V1OntologyPropertyController.java
+        - ./backend/src/main/java/uk/ac/ebi/spot/ols/controller/api/v1/V1OntologyTermController.java
+        - ./backend/src/main/java/uk/ac/ebi/spot/ols/controller/api/v1/V1PropertyController.java
+        - ./backend/src/main/java/uk/ac/ebi/spot/ols/controller/api/v1/V1SelectController.java
+        - ./backend/src/main/java/uk/ac/ebi/spot/ols/controller/api/v1/V1TermController.java
+        - ./backend/src/main/java/uk/ac/ebi/spot/ols/controller/api/v2/V2ClassController.java
+        - ./backend/src/main/java/uk/ac/ebi/spot/ols/controller/api/v2/V2LLMController.java
+        - ./backend/src/main/java/uk/ac/ebi/spot/ols/controller/api/v2/V2PropertyController.java
+    - name: Heron
+      session_id: 019d9095-b3ee-7801-b3eb-4168d47491fd
+      type: Codex
+      work_boundaries:
+        - ./
+        - /Users/leo.yung/.codex/config.toml
+    # - name: Polly
+    #   session_id: 019d4d29-bec4-7300-8669-1274fabf413e
+    #   type: Codex
+    #   work_boundaries:
+    #     - ./tests
+    #   status: inactive
+    
