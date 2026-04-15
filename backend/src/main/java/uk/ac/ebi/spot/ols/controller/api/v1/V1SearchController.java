@@ -53,6 +53,7 @@ public class V1SearchController {
 
     private static final String DEF_TYPE_PARAM = "defType";
     private static final String EDISMAX_QUERY_PARSER = "edismax";
+    private static final String SCORE_FIELD = "score";
     private static final String SHORT_FORM_FIELD = "short_form";
 
     Gson gson = new Gson();
@@ -206,8 +207,8 @@ public class V1SearchController {
     }
 
     private void configureReturnedFields(SolrQuery solrQuery, Collection<String> fieldList) {
-        if (fieldList != null && fieldList.contains("score")) {
-            solrQuery.setFields("_json", "score");
+        if (fieldList != null && fieldList.contains(SCORE_FIELD)) {
+            solrQuery.setFields("_json", SCORE_FIELD);
             return;
         }
 
@@ -313,7 +314,7 @@ public class V1SearchController {
     private void configureQueryExecution(SolrQuery solrQuery, Integer start, Integer rows, String format) {
         solrQuery.setStart(start);
         solrQuery.setRows(rows);
-        solrQuery.setSort("score", SolrQuery.ORDER.desc);
+        solrQuery.setSort(SCORE_FIELD, SolrQuery.ORDER.desc);
         solrQuery.addSort("id", SolrQuery.ORDER.asc);
 //        solrQuery.setHighlight(true);
 //        solrQuery.add("hl.simple.pre", "<b>");
@@ -445,8 +446,8 @@ public class V1SearchController {
         if (fieldList.contains("ontology_iri")) {
             outDoc.put("ontology_iri", JsonHelper.getStrings(json, "ontologyIri").get(0));
         }
-        if (fieldList.contains("score")) {
-            outDoc.put("score", res.get("score"));
+        if (fieldList.contains(SCORE_FIELD)) {
+            outDoc.put(SCORE_FIELD, res.get(SCORE_FIELD));
         }
     }
 
